@@ -38,7 +38,7 @@ Now note that your project won’t build properly in Xcode unless you change the
 
 ![Scheme selection](../images/scheme-select.png)
 
-Also, note that Xcode will refuse to acknowledge your dependencies exist until after you build your project for the first time - so Xcode will immediately flag the first line of the following code sample, `import Kitura`, with a “No such module ‘Kitura’“ error. Just build your project (select “Run” from the “Product” menu or press the “Play” button in the window toolbar) after entering that line to make the error go away.
+Also, note that Xcode will refuse to acknowledge your dependencies exist until after you build your project for the first time - so Xcode will immediately flag the first line of the following code sample, `import Kitura`, with a “No such module ‘Kitura’” error. Just build your project (select “Run” from the “Product” menu or press the “Play” button in the window toolbar) after entering that line to make the error go away.
 
 Okay, let’s add some code. Open up the `Sources/main.swift` file in your editor. Delete what SPM has put in there by default and enter the following:
 
@@ -110,7 +110,7 @@ Note that Xcode users can run your project by using the “Run” command in the
 
 ## So what did we do?
 
-First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[../appendices/spm-basics/spm-basics.md](Swift Package Manager basics)” appendix in this book for the basics as far as Kitura development is concerned.
+First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[Swift Package Manager basics](../appendices/spm-basics/spm-basics.md)” appendix in this book for the basics as far as Kitura development is concerned.
 
 Then we added some code. Let’s go through it line by line.
 
