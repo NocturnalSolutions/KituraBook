@@ -104,13 +104,13 @@ Now just for fun, let’s see what happens if we access a path other than “/�
 
 Oh, we got a 404 error. You may be able to guess why, but if not, I’ll explain it later in this chapter.
 
-Back in the terminal window that’s running your program, you can stop execution by typing Control-C.
+Back in the terminal window that’s running your program, you can stop execution by typing Control-C, or ^C in standard Unix notation.
 
 Note that Xcode users can run your project by using the “Run” command in the “Product” menu or by pressing the “Play” button in the toolbar rather than using the command line to build and execte your compiled project, and indeed this process is generally faster for Xcode users. You should also know how to do it via the command line, however. You can try it now, but don’t forget to halt the program in the terminal first.
 
 ## So what did we do?
 
-First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[Swift Package Manager basics](../appendices/spm-basics/spm-basics.md)” appendix in this book for the basics as far as Kitura development is concerned.
+First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[Swift Package Manager basics](../appendices/spm-basics/spm-basics.md)” appendix in this book for the basics as far as Kitura development is concerned. As fair warning, later chapters in this book will not give you a step-by-step process for adding new packages to your project and instead merely say something like “add package X to your project.”
 
 Then we added some code. Let’s go through it line by line.
 
@@ -124,7 +124,7 @@ We are instantiating a new Router object, which is provided by Kitura. Routers w
 
     router.get("/") { request, response, next in
 
-We are creating a handler for the “/“ path; specifically, for GET HTTP requests made to the “/“ path. (We’ll learn how to handle other types of requests in the next chapter.) Note that in our code, this is the only path for which we are creating a handler. This is why we got a 404 error when we tried the “/hello” path above. (Up for a bit of experimentation? Try changing this to “/hello” or any other path and rebuild your project. Just remember to keep that slash at the beginning of the path.)
+We are creating a handler for the “/“ path; specifically, for GET HTTP requests made to the “/“ path. (We’ll learn how to handle other types of requests in a later chapter.) Note that in our code, this is the only path for which we are creating a handler. This is why we got a 404 error when we tried the “/hello” path above. (Up for a bit of experimentation? Try changing this to “/hello” or any other path and rebuild your project. Just remember to keep that slash at the beginning of the path.)
 
 The part that begins with a curly brace is an escaping closure parameter. It’s actually a closure which is passed as a parameter to the “get()” method on the Router object instance, even though it is outside of the parentheses. If you’re like me, this syntax is pretty bizarre, but you’re going to want to get used to it, because Kitura uses it everywhere. Have a look at the “Escaping Closures” section of *The Swift Programming Language* for more information on what’s being done here. For now, if it helps, think of this line being functionally equivalent to:
 
@@ -132,7 +132,7 @@ The part that begins with a curly brace is an escaping closure parameter. It’s
 
 …even though that code won’t actually work.
     
-Finally, `request, response, next in` specifies that our closure that we just began has three parameters passed to it: `request`, which is a Kitura RouterRequest instance with information about the incoming request; `response`, which is a Kitura RouterResponse object with information about the response we want to send to the client that made the request; and `next`, which is itself a closure. I’ll explain that `next` parameter more later in this chapter; first, we should explain the rest.
+Finally, `request, response, next in` specifies that our closure that we just began has three parameters passed to it: `request`, which is a Kitura RouterRequest instance with information about the incoming request; `response`, which is a Kitura RouterResponse object with information about the response we want to send to the client that made the request; and `next`, which is itself a closure. I’ll explain that `next` parameter more later in this chapter; first, we should explain the rest of the code in this example.
 
         response.send("Hello world!\n")
 
@@ -158,9 +158,9 @@ Congratulations, you are now a Kitura hacker! The rest of the book will basicall
 
 ## About that `next` parameter…
 
-The `next` parameter needs further explanation. In Kitura, it’s perfectly valid to have more than one handler for a given route. You can think of each handler which is going to respond to a request as being in a chain. The next link in the chain - the next handler that should be invoked for the route - is passed in as the `next` parameter. That’s why it’s important to remember to always include `next()` after normal execution of the code in your handler. The exception - when you do *not* want to invoke `next` - is when a world-stopping error has happened and we need to abort any further response to the client. This is fairly uncommon and will not occur in this book.
+The `next` parameter needs further explanation. In Kitura, it’s perfectly valid to have more than one handler for a given route. You can think of each handler which is going to respond to a request as being in a chain. The next link in the chain - the next handler that should be invoked for the route - is passed in as the `next` parameter. That’s why it’s important to remember to always include `next()` after normal execution of the code in your handler. The exception - when you do *not* want to invoke `next` - is when an error has happened and we want to abort any further “normal” response to the client; for example, if the user is trying to access a resource they don’t have access to, we should send their client a 403 error and stop any further execution.
 
-You can test this behavior by adding a second handler to our code. Add this right before the `Kitura.addHTTPServer(onPort: 8080, with: router)` line:
+You can test this “chain” behavior by adding a second handler to our code. Add this right before the `Kitura.addHTTPServer(onPort: 8080, with: router)` line:
 
     router.get("/") { request, response, next in
         response.send("And hello again!\n")
@@ -189,4 +189,4 @@ To help them not forget, many coders will wrap their `next()` lines in a `defer`
         response.send("Hello world!\n")
     }
 
-Code in the `defer` block is executed right before the function returns, so the code in this handler closure is functionally equivalent to the first one we wrote above. However, since we don’t *always* want to call `next()` - as above, there will be rare but important exceptions - I don’t want you to get in the habit of using `defer` blocks in your handlers this way, and will not use it in further examples in this book. You will see this pattern used frequently in others’ Kitura code around the web, however, so I feel it’s important to explain what’s happening in that code.
+Code in the `defer` block is executed right before the function returns, no matter where or how the function returns, so the code in this handler closure is functionally equivalent to the first one we wrote above. (See the “Defer Statement” section in *The Swift Programming Language* for more information on this structure.) However, since we don’t *always* want to call `next()` - as above, there will be important exceptions - I don’t want you to get in the habit of using `defer` blocks in your handlers this way, and will not use it in further examples in this book. You will see this pattern used frequently in others’ Kitura code around the web, however, so I feel it’s important to explain what’s happening in that code.
