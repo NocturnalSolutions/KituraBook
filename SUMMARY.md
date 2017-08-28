@@ -1,8 +1,6 @@
 # Summary
 
-* [Introduction](introduction/introduction.md)
-    * [Kitura: What and why](introduction/kitura.md)
-    * [What you should know first](introduction/what-to-know.md)
+* [Welcome to Kitura!](welcome/welcome.md)
 * [Chapter 1: Hello World](hello-world/hello-world.md)
 * [Chapter 2: Logging with HeliumLogger](logging/logging.md)
 * [Chapter 3: Routers](routers/routers.md)
