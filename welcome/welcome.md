@@ -9,7 +9,7 @@ Though Kitura has received continued attention and promotion from Big Blue, Kitu
 ## Why Kitura?
 
 * Because Swift is a great programming language. Originally announced by Apple in 2014 to replace the aging, eternally-quirky Objective-C in the Apple ecosystem, it is modern, friendly, sleek, and fun.
-* Because it’s backed by IBM, who perhaps is second only to Apple in terms of adoption and promotion of Swift in the enterprise space. IBM provides Swift application hosting on their Bluemix cloud platform and is supporting it on their enterprise Linux and Unix operating systems like PowerLINUX and z/OS - seriously heavy metal stuff. IBM is likely to continue supporting Swift and Kitura for the foreseeable future.
+* Because it’s backed by IBM, who perhaps is second only to Apple in terms of adoption and promotion of Swift in the enterprise space. IBM provides Swift application hosting on their Bluemix cloud platform and is supporting it on their enterprise Linux and Unix operating systems like PowerLINUX and z/OS - seriously heavy iron stuff. IBM is likely to continue supporting Swift and Kitura for the foreseeable future.
 * As Swift is a compiled language, web applications written in Kitura will generally run much faster than those written in scripting languages like PHP, Python, Perl, or Ruby (though things like opcode caches for those languages can close the gap when used).
 
 ## Why not Kitura?
