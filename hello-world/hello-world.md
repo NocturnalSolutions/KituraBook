@@ -190,3 +190,65 @@ To help them not forget, many coders will wrap their `next()` lines in a `defer`
     }
 
 Code in the `defer` block is executed right before the function returns, no matter where or how the function returns, so the code in this handler closure is functionally equivalent to the first one we wrote above. (See the “Defer Statement” section in *The Swift Programming Language* for more information on this structure.) However, since we don’t *always* want to call `next()` - as above, there will be important exceptions - I don’t want you to get in the habit of using `defer` blocks in your handlers this way, and will not use it in further examples in this book. You will see this pattern used frequently in others’ Kitura code around the web, however, so I feel it’s important to explain what’s happening in that code.
+
+## Kitura serves itself?!
+
+Now if you’re familiar with web development with scripted languages like Ruby and PHP, you may be surprised right now that our Kitura application is serving itself directly to the browser without having to connect to a web server daemon like Apache or Nginx through FastCGI or SCGI. Yes, this is a feature inherent in Kitura; it itself is a web server, and unlike PHP or Ruby’s built-in web servers, it’s fully performant enough to use in production environments.
+
+That being said, it’s trivial to have Kitura to operate as a FastCGI application served through a web server as well. Reasons this may be desirable is for ease of SSL certificate configuration, integration of both Kitura and non-Kitura applications on one server, and higher-performance static file serving, among countless others. Simply replace the line:
+
+    Kitura.addHTTPServer(onPort: 8080, with: router)
+
+…with one like this:
+
+    Kitura.addFastCGIServer(onPort: 9000, with: router)
+    
+And then configure your web daemon accordingly. See the [Kitura FastCGI](http://www.kitura.io/en/resources/tutorials/fastcgi.html) page on IBM’s official Kitura site for more information.
+
+For consistency and simplicity’s sake, however, all examples in this book will use Kitura’s built-in server functionality.
+
+## Adding logging with HeliumLogger
+
+Logging can be quite helpful when developing web applications. To that end, IBM has developed [LoggerAPI](https://github.com/IBM-Swift/LoggerAPI), an API for logging implementations, and [HeliumLogger](https://github.com/IBM-Swift/HeliumLogger), a lightweight implementation of a logger for that API.
+
+Try adding the HeliumLogger package to your project now. (You don’t need to add the LoggerAPI package, as it is already a dependency of Kitura.) Run `swift package fetch` again so that SPM downloads HeliumLogger and adds it to your project. Import LoggerAPI and HeliumLogger into your `main.swift` file, then add the following lines immediately following the `import` statements:
+
+    let helium = HeliumLogger(.verbose)
+    Log.logger = helium
+
+(If you’re using Xcode and it’s giving you trouble, don’t forget to run `swift package xcode-generateproj` and reset the build scheme as outlined earlier in this chapter.)
+
+Now build and run your project instead. This time, instead of seeing nothing in the console as your project runs, you should see something similar to the following:
+
+    [2017-08-28T23:16:52.182-00:00] [VERBOSE] [Router.swift:74 init(mergeParameters:)] Router initialized
+    [2017-08-28T23:16:52.198-00:00] [VERBOSE] [Kitura.swift:72 run()] Starting Kitura framework...
+    [2017-08-28T23:16:52.198-00:00] [VERBOSE] [Kitura.swift:82 start()] Starting an HTTP Server on port 8080...
+    [2017-08-28T23:16:52.200-00:00] [INFO] [HTTPServer.swift:117 listen(on:)] Listening on port 8080
+
+Yep! Kitura is logging stuff now. Try accessing your server with a client and note how Kitura also logs page requests with lines such as the following:
+
+    [2017-08-28T23:22:40.488-00:00] [VERBOSE] [HTTPServerRequest.swift:215 parsingCompleted()] HTTP request from=127.0.0.1; proto=http;
+
+You can, of course, implement your own logging. Inside one of the router handlers in your project, try adding the following line:
+
+    Log.info("About to send a Hello World response to the user.")
+
+Build your project, do a page request, and note that your line is dutifully logged to the console.
+
+As you may have guessed, LoggerAPI supports logging messages of varying severity levels, which are, in order of least to most severe: debug, verbose, info, warning, and error. Just call the corresponding static method on the `Log` object. Try adding some lines like the following to your routes:
+
+    Log.verbose("Things are going just fine.")
+    Log.warning("Something looks fishy!")
+    Log.error("OH NO!")
+
+You can also use these severity levels to determine which log messages you want to see when initializing HeliumLogger. We used the following line to initialize HeliumLogger above:
+
+    let helium = HeliumLogger(.verbose)
+
+This means that HeliumLogger will show messages of verbose severity and higher, but ignore debug messages. If you only want to show messages of the warning and error severity levels and ignore those of info severity and lower, simply do:
+
+    let helium = HeliumLogger(.debug)
+
+Later examples in this book will periodically use logging, and you are of course free to add your own logging to help you trace through the code.
+
+So logging to the console is great and all, but can’t HeliumLogger log to stderr or files on disk as most other logging systems can? The answer is yes, but not out of the box; you need to write an implementation of TextOutputStream that writes data where you want it to go, then pass it as a parameter as you instantiate a HeliumStreamLogger object rather than a HeliumLogger one. This is less painful than it sounds; nonetheless, I will leave it as an exercise to the reader.
