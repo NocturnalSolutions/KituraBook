@@ -10,8 +10,12 @@ Read this book online in a more comfortable format than a GitHub repository at h
 
 Note that this book is currently under heavy development. Many chapters are missing, and others are simply not as good as they could be yet. Feedback and bug reports are welcome! Please file an issue or pull request on this book's GitHub project at: https://github.com/NocturnalSolutions/KituraBook
 
-Ebook versions will become available as the book nears completion.
+This book covers Kitura 1.7 running on Swift 3.1. This book is expected to be updated for Swift 4 soon after it is officially released.
+
+Ebook versions will become available after all chapters are complete.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
 Copyright, such as it is, by Nocturnal, 2017. If you paid any money for this book, then we *both* got cheated.
+
+This book is dedicated to Commodore International and the team behind the Commodore 64, the little brown-and-tan wedge that made me the hopeless nerd I am today.
