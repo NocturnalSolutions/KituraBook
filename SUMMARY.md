@@ -9,7 +9,7 @@
 * [Chapter 6: Templating with Mustache](6-templating.md)
 * [Chapter 7: User credentials and sessions](7-users.md)
 * [Chapter 8: Bringing it all together: Let's make a pastebin!](8-pastebin.md)
-* [Appendix A: CLI Swift for iOS/macOS developers: What to learn (and unlearn)](appendices/a-savvy-devs.md)
+* [Appendix A: CLI Swift for Cocoa developers: What to learn (and unlearn)](appendices/a-savvy-devs.md)
 * [Appendix B: Swift Package Manager basics](appendices/b-spm.md)
 * [Appendix C: Deploying on IBM Bluemix](appendices/c-bluemix.md)
 * [Appendix D: Finding help and documentation](appendices/d-help.md)
