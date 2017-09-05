@@ -129,6 +129,8 @@ Note that you can easily use more than one parameter in your paths, and they don
         // Load and show the post
     }
 
+We test, and it works as expected.
+
     $ curl localhost:8080/Nocturnal/post/4
     Now showing post #4 by Nocturnal
 
@@ -147,16 +149,16 @@ There’s a potential problem here in that the postId parameter can be *anything
 
 Okay, no sweat, right? If we want to make sure the post ID is a positive number, we can just do something like…
 
-router.get("/post/:postId") { request, response, next in
-    let postId = request.parameters["postId"]!
-    guard let numericPostId = UInt(postId) else {
-        response.status(.notFound)
-        response.send("Not a proper post ID!\n")
-        return
+    router.get("/post/:postId") { request, response, next in
+        let postId = request.parameters["postId"]!
+        guard let numericPostId = UInt(postId) else {
+            response.status(.notFound)
+            response.send("Not a proper post ID!\n")
+            return
+        }
+        response.send("Now showing post #\(numericPostId)\n")
+        // Load and show the post
     }
-    response.send("Now showing post #\(numericPostId)\n")
-    // Load and show the post
-}
 
 And, yes, this works well enough.
 
@@ -165,13 +167,13 @@ And, yes, this works well enough.
 
 But there’s another way. We can use regular expressions to define that we want a path parameter to fit a certain format. So let’s do it that way instead. To implement a path parameter with a regular expression, name it with a colon as normal, but then follow the name with the regular expression pattern in parentheses. The pattern to match one or more digits is `\d+`, but we need to escape that backslash with another backslash. So let’s implement it this way.
 
-router.get("/post/:postId(\\d+)") { request, response, next in
-    let postId = request.parameters["postId"]!
-    response.send("Now showing post #\(postId)\n")
-    // Load and show the post
-}
+    router.get("/post/:postId(\\d+)") { request, response, next in
+        let postId = request.parameters["postId"]!
+        response.send("Now showing post #\(postId)\n")
+        // Load and show the post
+    }
 
-And let’s test.
+Now let’s test. You’ll see that trying a non-numeric path parameter now causes Kitura to return its standard 404 Not Found error; we didn’t have to write any extra code in our handler to make it happen.
 
     $ curl localhost:8080/post/hello
     Cannot GET /post/hello.
