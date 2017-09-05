@@ -1,5 +1,6 @@
 # Summary
 
+* [Security notice](00-security.md)
 * [Welcome to Kitura!](0-welcome.md)
 * [1: Hello World](1-hello-world.md)
 * [2: Ins and Outs of RouterRequest and RouterResponse](2-routerrequest-routerresponse.md)
