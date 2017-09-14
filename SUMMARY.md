@@ -13,4 +13,3 @@
 * [Appendix A: CLI Swift for Cocoa developers: What to learn (and unlearn)](appendices/a-savvy-devs.md)
 * [Appendix B: Swift Package Manager basics](appendices/b-spm.md)
 * [Appendix C: Deploying on IBM Bluemix](appendices/c-bluemix.md)
-* [Appendix D: Finding help and documentation](appendices/d-help.md)
