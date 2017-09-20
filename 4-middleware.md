@@ -18,7 +18,7 @@ Wow. That looks pretty familiar, doesn’t it? Yep, just like with router handle
 
 Our example here will detect if the user is using Firefox as a browser. One property on Kitura’s RouterRequest object that I didn’t mention previously is a `userInfo` property. This is a [String: Any] dictionary which is useful for storing data that we’ve calculated in a middleware handler so that it can be accessed by router handlers (or, theoretically, other middleware handlers, though of course those middleware handlers need to be executed after the handler which sets the data). So our middleware handler will set `userInfo["usingFirefox"]` to true if the user is using Firefox, and false otherwise.
 
-Okay, now that we’ve set the table, let’s start writing code. Add Kitura as a dependency to your new project and fetch it. Open up `Sources/KituraFirefoxDetector.swift`, delete what SPM put there by default, and add the following.
+Okay, now that we’ve set the table, let’s start writing code. Add Kitura as a dependency to your new project and resolve it. Open up `Sources/KituraFirefoxDetector.swift`, delete what SPM put there by default, and add the following.
 
     import Kitura
     import Foundation
@@ -50,7 +50,7 @@ Create a new Git repository in your project’s directory, but before you commit
 
 ## Using middleware
 
-Now create a new Kitura project and add KituraFirefoxDetector as a dependency. (Remember, you don’t need to push the project to GitHub or some other hosting service first; give it a URL comprised of “file://” followed by the absolute path to your UA-Detector directory (including the initial slash) and it will work just fine.) Fetch the dependencies.
+Now create a new Kitura project and add KituraFirefoxDetector as a dependency. (Remember, you don’t need to push the project to GitHub or some other hosting service first; give it a URL comprised of “file://” followed by the absolute path to your UA-Detector directory (including the initial slash) and it will work just fine.) Resolve the dependencies.
 
 Okay, now that our new project has the new middleware package we’ve created, let’s actually use it. This is done by instantiating an object of the middleware’s class and then adding it to a path by way of our friend the Router object. We’ll then create a route handler which shows a different message depending on whether our middleware detected the user was using Firefox or not. Place the following in `Sources/main.swift`.
 

@@ -12,29 +12,41 @@ Create a new Swift project by doing the following in a command line shell:
     $ cd hello-world
     $ swift package init --type=executable
 
-Now open up the `Package.swift` file and add a dependency for Kitura. The end result should look like this.
+Now open up the `Package.swift` file and add a dependency for Kitura. It will have a bit of boilerplate in there that you’ll have to modify to add a dependency to Kitura. The end result should look like this.
 
-    // swift-tools-version:3.1
+    // swift-tools-version:4.0
+    // The swift-tools-version declares the minimum version of Swift required to build this package.
     
     import PackageDescription
     
     let package = Package(
         name: "hello-world",
         dependencies: [
-            .Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1)
+            // Dependencies declare other packages that this package depends on.
+            // .package(url: /* package url */, from: "1.0.0"),
+            .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "1.7.9")
+        ],
+        targets: [
+            // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+            // Targets can depend on other targets in this package, and on products in packages which this package depends on.
+            .target(
+                name: "hello-world",
+                dependencies: ["Kitura"]),
         ]
     )
-    
-Have the Swift Package Manager fetch Kitura and add it and its dependencies to your project.
 
-    $ swift package fetch
+
+
+Have the Swift Package Manager resolve Kitura and its dependencies and add them to your project.
+
+    $ swift package resolve
 
 If you’re on macOS and wish to use Xcode as your code editor, now’s the time to create a new Xcode project and open it up. (If you’re not on macOS or not using Xcode, ignore the following.)
 
     $ swift package generate-xcodeproj
     $ open hello-world.xcodeproj
 
-Now note that your project won’t build properly in Xcode unless you change the scheme to be your application. I don’t know why this is; if it’s a glitch in Swift Package Manager, Xcode, or both. At any rate, you have to do it ever time you use `generate-xcodeproj`. From the scheme menu to the right of the “stop” button, select the CLI application scheme as indicated by the tiny black terminal window.
+Now note that your project won’t build properly in Xcode unless you change the scheme to be your real application. I don’t know why this is; if it’s a glitch in Swift Package Manager, Xcode, or both. At any rate, you have to do it ever time you use `generate-xcodeproj`. From the scheme menu to the right of the “stop” button, change the scheme from “hello-world-Package” to just “hello-world.”
 
 ![Scheme selection](../images/scheme-select.png)
 
@@ -54,7 +66,7 @@ Okay, let’s add some code. Open up the `Sources/main.swift` file in your edito
     Kitura.addHTTPServer(onPort: 8080, with: router)
     Kitura.run()
 
-(Note: If you already have a network service running on IP port 8080 on your development machine, try another port number, such as 8081 or 8090. Remember to substitute that number for 8080 in all examples throughout this book.)
+(Note: If you already have a network service running on IP port 8080 on your development machine, try another port number, such as 8081 or 8888. Remember to substitute that number for 8080 in all examples throughout this book.)
 
 Now build and run your project. Back in your console window, enter:
 
@@ -62,11 +74,11 @@ Now build and run your project. Back in your console window, enter:
 
 If all goes well, the last line will be:
 
-    Linking ./.build/debug/hello-world
+    Linking ./.build/[Your hardware architecture and OS]/debug/hello-world
     
 That’s where your compiled binary was saved. So let’s run that.
 
-    $ ./.build/debug/hello-world
+    $ ./.build/[Your hardware architecture and OS]/debug/hello-world
 
 If all goes well, the program will execute without any output.
 
@@ -211,7 +223,7 @@ For consistency and simplicity’s sake, however, all examples in this book will
 
 Logging can be quite helpful when developing web applications. To that end, IBM has developed [LoggerAPI](https://github.com/IBM-Swift/LoggerAPI), an API for logging implementations, and [HeliumLogger](https://github.com/IBM-Swift/HeliumLogger), a lightweight implementation of a logger for that API.
 
-Try adding the HeliumLogger package to your project now. (You don’t need to add the LoggerAPI package, as it is already a dependency of Kitura.) Run `swift package fetch` again so that SPM downloads HeliumLogger and adds it to your project. Import LoggerAPI and HeliumLogger into your `main.swift` file, then add the following lines immediately following the `import` statements:
+Try adding the HeliumLogger package to your project now. (You don’t need to add the LoggerAPI package, as it is already a dependency of Kitura.) Run `swift package resolve` again so that SPM downloads HeliumLogger and adds it to your project. Import LoggerAPI and HeliumLogger into your `main.swift` file, then add the following lines immediately following the `import` statements:
 
     let helium = HeliumLogger(.verbose)
     Log.logger = helium
