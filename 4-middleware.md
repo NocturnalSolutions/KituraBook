@@ -46,7 +46,7 @@ Next, note the `public` all over the place here. This is an important thing whic
 
 Finally, note how we need to call `next()` at the end of our code just as with a route handler. If you write middleware and omit `next()`, your route handlers actually won’t be called either!
 
-Create a new Git repository in your project’s directory, but before you commit anything, edit the `.gitignore` file and add the `Pacakge.pins` file - we don’t want that file included in repositories for libraries like Kitura middleware. Commit your code and tag it as version `0.0.1`.
+Create a new Git repository in your project’s directory, but before you commit anything, edit the `.gitignore` file and add the `Pacakge.resolved` file - we don’t want that file included in repositories for libraries like Kitura middleware. Commit your code and tag it as version `0.0.1`.
 
 ## Using middleware
 
