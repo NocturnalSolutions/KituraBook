@@ -55,7 +55,7 @@ Just remember to include those flags when you generate a new Xcode project, for 
 
 If you still prefer to build from the CLI, you can create a shell script that includes all that junk in it and then just invoke that script instead of `swift build`:
 
-    echo "swift build -Xlinker -L/opt/local/lib/mariadb/mysql" > build.sh
+    echo "swift build -Xlinker -L/opt/local/lib/mariadb-10/mysql" > build.sh
     chmod +x build.sh
     ./build.sh
 
@@ -177,7 +177,7 @@ The rest of this should be self-explanatory at this point.
 
 Now if you’re familiar with other database libraries in various other frameworks and languages, you may have bristled when you saw above that we used an actual SQL query string to make our query. Isn’t there a better way than basically embedding ugly SQL (which is itself its own programming language, in a way) into our beautiful Swift projects? Yes, there is! We’ll learn how to use it next.
 
-(Now, on the other hand, I’m sure there are people who are highly familiar with SQL and would rather just stick to SQL query strings rather than abstracting things away under Swift code. I don’t think this mindset is necessarily wrong, so if you’d prefer to just use Kuery this way, more power to you. This book will use the abstracts, however.)
+(Now, on the other hand, I’m sure there are people who are highly familiar with SQL and would rather just stick to SQL query strings rather than abstracting things away under Swift code. I don’t think this mindset is necessarily wrong, so if you’d prefer to just use Kuery this way, more power to you. This book will use the abstractions, however.)
 
 The first thing we need to do is define the schemas of the tables for Kuery. This is done by subclassing the `Table` class. We add a property named `tableName` which is a string containing the table name. Other properties are instances of the `Column` class corresponding to columns on the table. Note that we only have to define the columns we intend to use, and we don’t have to give any information about the field types of the columns; it’s pretty simple.
 
@@ -238,7 +238,7 @@ Yep, that SQL looks about right to me.
 
 Okay, so right now, we have a router handler that returns a list of all albums. That’s a lot of albums. Let’s make things a little more practical by setting up a route where, for example, if the path “albums/t” is requested, we return all albums with titles that start with the letter T. In SQL this is done by using a “LIKE” condition on a “WHERE” clause, such as `“SELECT Title FROM Album WHERE Title LIKE "t%"`. We can do this kind of query with Kuery too by using a `like()` method on the field in the schema of the desired table. (If you’re like me, the code will make more sense than that sentence.)
 
-However, this introduces a complication in that we are going to use an arbitrary string provided by a visitor as part of our SQL query. Just as with any other web-facing database-backed app, we need to be careful of SQL injection issues of the [Bobby Tables](https://www.xkcd.com/327/) variety. (If you are not familiar with the concept of SQL injection, please stop reading this right now and go research it before you build a web application, with Kitura or otherwise.)
+However, this introduces a complication in that we are going to use an arbitrary string provided by a visitor as part of our SQL query. Just as with any other web-facing database-backed app, we need to be careful of SQL injection issues of the [Bobby Tables](https://www.xkcd.com/327/) variety. (If you are not familiar with the concept of SQL injection, please stop reading this right now and go research it before you ever build a database-powered web application, with Kitura or otherwise.)
 
 Fortunately, Kuery has a pretty simple solution to help us avoid SQL injection. But since we sometimes need to learn how to do something wrong before we learn how to do something right, let’s do it wrong first.
 
