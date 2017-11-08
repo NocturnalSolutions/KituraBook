@@ -20,11 +20,11 @@ Both of these options use slightly different dialects of SQL. Fortunately, Kuery
 
 This theoretically means you can go ahead and use whichever of these you feel comfortable with. However, at the time I write this, IBM has not yet updated their PostgreSQL plugin for Kuery for Swift 4. To that end, I will be focusing on MySQL for this chapter; however, understand that 99% of it will be applicable to PostgreSQL as well.
 
-If you haven’t already, go ahead and install and set MySQL (or a compatible fork, like MariaDB or Percona). If you’re on a Mac, you won’t just be able to install a binary application; you’ll need to use a package manager like MacPorts or Homebrew to install it so that the libraries for the servers are installed in a predictable place as well. If you are not familiar with using the database system you chose, now’s the time to learn before you move on to the next paragraph.
+If you haven’t already, go ahead and install and set MySQL (or a compatible fork, like MariaDB or Percona). If you’re on a Mac, you won’t just be able to install a binary application; you’ll need to use a package manager like MacPorts or Homebrew to install it so that the libraries for the servers are installed in a predictable place as well. If you are not familiar with using MySQL, now’s the time to learn before you move on to the next paragraph.
 
 ## Building projects with Kuery
 
-Start a new project and add Swift-Kuery-PostgreSQL to it via Swift Package Manager. This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to get tricky.
+Start a new project and add SwiftKueryMySQL to it via Swift Package Manager. This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to get tricky.
 
 ### On the Mac
 
@@ -137,6 +137,7 @@ Okay, now let’s try doing some more interesting things. We’ll make a page wh
                 }
             }
         }
+        next()
     }
     
     Kitura.addHTTPServer(onPort: 8080, with: router)
@@ -169,6 +170,7 @@ The `execute()` method here takes a string containing an SQL query and an escapi
                 }
             }
         }
+        next()
     }
 
 The rest of this should be self-explanatory at this point.
@@ -207,6 +209,7 @@ Go back to `main.swift` and modify your router handler code to match the followi
                 }
             }
         }
+        next()
     }
 
 
@@ -257,6 +260,7 @@ Fortunately, Kuery has a pretty simple solution to help us avoid SQL injection. 
         cxn.execute(query: titleQuery) { queryResult in
             // As above…
         }
+        next()
     }
 
 Do you see where we’re taking unsanitized user input and putting it into an SQL query - or, more precisely, some code that will be compiled into an SQL query? Yeah, that’s bad. So how can we avoid that? Well, first, in the query part, we instantiate a `Parameter` instance where the user input needs to go after it’s sanitized; we pass its `init()` method a name for the parameter. Then, in the `execute()` method on the connection object, we pass a new parameter that consists of a `[String: Any?]` dictionary of the unsanitized parameters keyed by the name we gave our parameter. Let’s go to the code.
@@ -278,6 +282,7 @@ Do you see where we’re taking unsanitized user input and putting it into an SQ
         cxn.execute(query: titleQuery, parameters: parameters) { queryResult in
             // As above…
         }
+        next()
     }
 
 There we go. Now Kuery will automatically sanitize the parameter values when the query is built, and Bobby Tables’ mother will have to go have fun elsewhere.
@@ -288,4 +293,86 @@ There we go. Now Kuery will automatically sanitize the parameter values when the
 
 And certainly, that’s not a bad thing to do *in addition to* the sanitized, parameterized query construction in order to be doubly safe. Your cleverness has been duly noted. However, this chapter is about Kuery, so we’re learning about Kuery today, okay? Okay. Now sit back down.)
 
-*Note: This chapter is not yet incomplete, but since it was taking me weeks and weeks to write, I figured I’d go ahead and finally just publish what I had so far. Please come back again for more.*
+## Complicating things further with a join
+
+Let’s do something a little tricker. Let’s make a route which returns a list of songs (tracks) for a given letter, but along with the track name, we want to include the corresponding artist (composer) and album names for each track. This is a little trickier than our earlier example because while the track and artist names are in the respective `Name` and `Composer` fields in the `track` table, the album name is in the `Title` field in the `album` table. However, there is an `AlbumId` field in the `track` table with a numeric ID which corresponds to an `AlbumId` field in the `album` table. We need to do a *join* to associate information in the `track` table with corresponding information in the `album` table in order to get all the information we need in a single query.
+
+What would that query look like if we wrote it in SQL? Here’s what I came up with to find all songs with titles that begin with the letter “N”.
+
+    SELECT track.Name, track.Composer, album.Title FROM track
+    INNER JOIN album ON track.AlbumID = album.AlbumID
+    WHERE track.Name LIKE "k%"
+    ORDER BY track.name ASC
+
+Go ahead and give that query a try and check out the result.
+
+So how would we replicate that in Kuery? Well, first note how we’re using other fields besides the `Title` field on the `album` table. In order to use those with Kuery, we need to update our schema definition for the `album` table, and we’ll go ahead and define a schema for the `track` table while we’re at it. Go back to `Schemas.swift` and update it to match the below.
+
+    import SwiftKuery
+    import SwiftKueryMySQL
+    
+    class Album: Table {
+        let tableName = "Album"
+        let AlbumId = Column("AlbumId")
+        let Title = Column("Title")
+    }
+    
+    class Track: Table {
+        let tableName = "Track"
+        let Name = Column("Name")
+        let AlbumId = Column("AlbumId")
+        let Composer = Column("Composer")
+    }
+
+Okay, now let’s define our route and make our query. A lot of this should look familiar at this point. The big change is that we’re using the the `.join()` method to define our inner join, passing it the schema of the table we wish to join to (`album` in this case), and we follow that with an `.on()` method where we define how the join should be done. (Yes, SQL nerds, Kitura also has `.leftJoin()` and `.naturalJoin()` and others, but we’ll just be using`.join` (inner join) for now.) Also, for many tracks, the `Composer` value is actually null; in this case, we want to use a string of “(composer unknown)” when we get a null value in that field. In the code below we’ll use the nil-coalescing operator, `??`, to do this; it basically says “if the value to the left of the `??` is nil, use the value to the right of it instead.“ See the “Nil-Coalescing Operator” section of the “Basic Operators” chapter of *The Swift Programming Language* for more information.
+
+    router.get("/songs/:letter([a-z])") { request, response, next in
+        let letter = request.parameters["letter"]!
+    
+        let albumSchema = Album()
+        let trackSchema = Track()
+    
+        let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
+            .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+            .where(trackSchema.Name.like(letter + "%"))
+            .order(by: .ASC(trackSchema.Name))
+    
+        cxn.execute(query: query) { queryResult in
+            if let rows = queryResult.asRows {
+                for row in rows {
+                    let trackName = row["Name"] as! String
+                    let composer = row["Composer"] as! String? ?? "(composer unknown)"
+                    let albumName = row["Title"] as! String
+                    response.send("\(trackName) by \(composer) from \(albumName)\n")
+                }
+            }
+        }
+        next()
+    }
+
+Let’s test.
+
+    > curl localhost:8080/songs/k
+    Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto) by Jean Sibelius from Sibelius: Finlandia
+    Kashmir by John Bonham from Physical Graffiti [Disc 1]
+    Kayleigh by Kelly, Mosley, Rothery, Trewaves from Misplaced Childhood
+    Keep It To Myself (Aka Keep It To Yourself) by Sonny Boy Williamson [I] from The Best Of Buddy Guy - The Millenium Collection
+    [continued…]
+
+Oh, that’s nice.
+
+But wait a minute. Something about that code looks really, really strange.
+
+            .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+
+Why does that work? Why is the code behind `on()` able to see the components of what we’re passing it and not just receiving whatever `trackSchema.AlbumId == albumSchema.AlbumId` evaluates to?
+
+The answer is… well, I have no idea. Even digging into the code, I’m stumped. But I intend to come back and update this part of the book once I figure it out and/or someone is able to explain it to me.
+
+(Hey, I never said I was some god-tier Swift ninja rockstar Chuck Norris or anything.)
+
+## We’re just getting started, baby.
+
+This chapter was quite lengthy, but it really only scratches the surface of what Kuery is capable of. We didn’t even bother trying to insert or update data in this chapter, and of course Kuery is capable of doing that as well. For more examples of what you can do with Kuery and how to do it, check out the front page of the [Kuery GitHub repository](https://github.com/IBM-Swift/Swift-Kuery).
+
+Don’t delete the Kuery project you worked with in this chapter just yet; we’re going to work with it more in the next one.
