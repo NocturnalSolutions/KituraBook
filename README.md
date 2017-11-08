@@ -10,7 +10,7 @@ Read this book online in a more comfortable format than a GitHub repository at h
 
 Note that this book is currently under heavy development. Many chapters are missing, and others are simply not as good as they could be yet. Feedback and bug reports are welcome! Please file an issue or pull request on this book's GitHub project at: https://github.com/NocturnalSolutions/KituraBook
 
-This book covers Kitura 1.7 running on Swift 4.0.
+This book covers Kitura 2 running on Swift 4.0.
 
 Ebook versions will become available after all chapters are complete.
 

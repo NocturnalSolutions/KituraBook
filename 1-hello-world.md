@@ -24,7 +24,7 @@ Now open up the `Package.swift` file and add a dependency for Kitura. It will ha
         dependencies: [
             // Dependencies declare other packages that this package depends on.
             // .package(url: /* package url */, from: "1.0.0"),
-            .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "1.7.9")
+            .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "2.0.0")
         ],
         targets: [
             // Targets are the basic building blocks of a package. A target can define a module or a test suite.
