@@ -8,7 +8,7 @@
 * [4: Middleware](4-middleware.md)
 * [5: Database Connectivity with Kuery](5-kuery.md)
 * [6: Publishing Data with JSON and XML](6-data.md)
-* [7: Templating with Mustache](7-templating.md)
+* [7: Templating with Stencil](7-templating.md)
 * [8: User credentials and sessions](8-users.md)
 * [9: Bringing it all together: Let's make a pastebin!](9-pastebin.md)
 * [Appendix A: CLI Swift for Cocoa developers: What to learn (and unlearn)](appendices/a-savvy-devs.md)
