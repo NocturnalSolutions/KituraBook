@@ -6,7 +6,7 @@ This chapter addresses developers who have experience using Swift to write graph
 
 To start a new CLI project, create a new directory, `cd` into that directory in a terminal, then run `swift package init --type=executable` if you’re developing a Kitura site or `swift package init --type=library` if you’re developing Kitura middleware. Then run `swift package generate-xcodeproj` to generate an Xcode project file you can then open in Xcode.
 
-Among the files created by this process is a `.gitignore` file which stops various unnecessary files from making it into your Git repository (you will still manually have to initialize the repo with `git init`). If you plan to use Mercurial, Subversion, or some other version control system, please “port” this .gitignore file to the filename and format expected for that system. 
+Among the files created by this process is a `.gitignore` file which stops various unnecessary files from making it into your Git repository (you will still manually have to initialize the repo with `git init`). If you plan to use Mercurial, Subversion, or some other version control system, please “port” this `.gitignore` file to the filename and format expected for that system. 
 
 Note that the Xcode project file is one of those excluded in `.gitignore`; if you are collaborating with others on this project, they will need to run the `generate-xcodeproj` command after cloning your project in order to get their own Xcode project file.
 
