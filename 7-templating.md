@@ -58,7 +58,9 @@ Now visit `/hello/(your name)` in your browser (so, `/hello/Nocturnal` in my cas
 
 Okay, let’s look at what we built here. Let’s start with the `hello.stencil` file. You probably recognize it as a straightforward HTML file, except for this part:
 
-          Hello, {{ name }}!
+```
+      Hello, {{ name }}!
+```
 
 So this is special Stencil mark-up. Namely, the double-curly-braces, `{{ }}`, specify that the part in between the pairs of braces will be a variable name, and we want Stencil to insert the value of the named variable into the template at that spot. And the name of that variable is `name`. We’ll get back to Stencil variables in a bit.
 
@@ -89,7 +91,9 @@ So rebuild your project and try accessing just the `/hello` path. You should see
 
 To fix this, we’ll go back to `hello.stencil` and tell it to use the `default` filter. We tell Stencil to apply a filter to a variable by putting a pipe followed by a filter name right after the variable name. In this case we also need to pass in a default value. That default value will be used when the filtered variable is nil. Let’s use “World” as our default value. So go back to `hello.stencil` and modify the line with the variable to match the following.
 
-      Hello, {{ name|default: "World" }}!
+```
+  Hello, {{ name|default: "World" }}!
+```
 
 Now switch back to your browser and reload the page, and it will now show “Hello, World!” for the `/hello` path, but still properly drop in your name if you visit `/hello/(your name)`.
 
@@ -109,15 +113,17 @@ An example should clarify things here. Inside that `Views` directory you created
 
 Now go back to `hello.stencil` and let’s change things up a bit.
 
-    {% extends "layout.stencil" %}
-    
-    {% block pageTitle %}Hello!{% endblock %}
-    
-    {% block pageContent %}
-    <p>
-      Hello, {{ name|default:"World" }}!
-    </p>
-    {% endblock %}
+```
+{% extends "layout.stencil" %}
+
+{% block pageTitle %}Hello!{% endblock %}
+
+{% block pageContent %}
+<p>
+  Hello, {{ name|default:"World" }}!
+</p>
+{% endblock %}
+```
 
 Build and run. (Note we didn't make any changes to the Swift code here; just the templates.) You should see that the output is pretty much the same as it was before. So what changed under the hood?
 
@@ -127,16 +133,17 @@ Well, in `layout.stencil`, we defined two blocks, named `pageTitle` and `pageCon
 
 How is this any better than what we initially had? Because it reduces duplication. Let’s say that in addition to our `/hello` route, we also had a `/goodbye` route which worked similarly. We could then create a `goodbye.stencil` template that looks like this:
 
+```
+{% extends "layout.stencil" %}
 
-    {% extends "layout.stencil" %}
-    
-    {% block pageTitle %}Goodbye!{% endblock %}
-    
-    {% block pageContent %}
-    <p>
-      Goodbye, {{ name|default:"Everyone" }}!
-    </p>
-    {% endblock %}
+{% block pageTitle %}Goodbye!{% endblock %}
+
+{% block pageContent %}
+<p>
+  Goodbye, {{ name|default:"Everyone" }}!
+</p>
+{% endblock %}
+```
 
 …And maybe we also had `/good-afternoon` and `/happy-birthday` routes, with corresponding templates. Now we decide that the page looks too plain, so we want to add a CSS file to our pages. We can simply do it by editing `layout.stencil`:
 
