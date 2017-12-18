@@ -19,3 +19,5 @@ Ebook versions will become available after all chapters are complete.
 Copyright, such as it is, by Nocturnal, 2017. If you paid any money for this book, then we *both* got cheated.
 
 This book is dedicated to Commodore International and the team behind the Commodore 64, the little brown-and-tan wedge that made me the hopeless nerd I am today.
+
+Big thanks also go out to the intelligent, kind, and patient people on the Swift@IBM Slack server and the lovable curmudgeons in the Freenode #iphonedev-chat channel.
