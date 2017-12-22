@@ -95,7 +95,7 @@ Now let’s look at our new route handler, specifically the last two lines.
 
 So the `render()` method here takes two parameters. The first is a reference to the template we want to be used; in this simplest case, it’s the same as the filename of the template we created earlier (`hello.stencil`), minus the extension. The second parameter is a `[String: Any]` dictionary. That’s why we cast `name` as an `Any` before we put it in the dictionary, even though it’s really a `String?`. Other types we can use in this dictionary include other scalar types such as `Int` as well as collection types such as `Array` or `Dictionary`. We’ll see more examples of this later.
 
-## Filters and Blocks
+## Filters
 
 Stencil allows variables to have “filters” applied to them. There are a number of filters included with Stencil, as well as the ability to implement your own. I’ll show you how they work by showing you how to use `default`, the most useful filter.
 
@@ -114,6 +114,8 @@ To fix this, we’ll go back to `hello.stencil` and tell it to use the `default`
 ```
 
 Now switch back to your browser and reload the page, and it will now show “Hello, World!” for the `/hello` path, but still properly drop in your name if you visit `/hello/(your name)`.
+
+## Blocks
 
 Next, let’s look at Blocks, a method by which we can reduce replication in our Stencil templates. Imagine that your web site will have a largely consistent design from page to page, but the title and body of the page will change from page to page. Well, just as we can fill in parts of a page with variables, we can also fill in parts of a page with other parts of a page using Blocks.
 
