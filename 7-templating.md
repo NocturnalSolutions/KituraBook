@@ -10,9 +10,26 @@ But Kitura Template Engine gives us a better way.
 
 ## Kitura Template Engine and Stencil
 
-A templating engine allows us to build web pages using templates, which are basically like HTML pages with “holes” in them where data from our web application can be plugged into.
+A templating engine allows us to build web pages using templates, which are basically like HTML pages with “holes” in them where data from our web application can be plugged into. Here’s a (simplified) example of a template that we’ll be using later in this chapter. Can you see what the output of this is likely to be?
 
-SIMPLE EXAMPLE HERE
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Artist</th>
+          <th>Album</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for track in tracks %}
+          <tr>
+            <td>{{ track.name }}</td>
+            <td>{{ track.composer|default:"(unknown)" }}</td>
+            <td>{{ track.album }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
 Just as the Swift Kuery project was a protocol upon which implementations like Swift Kuery MySQL and Swift Kuery PostgreSQL could be implemented, the Kitura Template Engine project is a protocol upon which templating engines could be implemented. As of this writing, the IBM@Swift project has three implementations available; Mustache, Stencil, and Markdown. We’ll ignore the Markdown implementation as it’s not a true full templating engine, and the Mustache implementation hasn’t been updated in several months, so we’ll work with the Stencil implementation here.
 
@@ -245,7 +262,7 @@ Let’s start by creating a template. Add a `songs.stencil` file and put in the 
           There are no songs that begin with {{ letter }}.
         </td>
       </tr>
-      {% endfor %}
+    {% endfor %}
   </tbody>
 </table>
 {% endblock %}
