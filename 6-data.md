@@ -70,17 +70,18 @@ Okay, now back to our main project file.  Let’s stub out some code first, and 
                 case "text/json"?:
                     response.headers["Content-Type"] = "text/json"
                     output = "Not yet implemented. :("
+                    response.send(output)
                     break
                 case "text/xml"?:
                     response.headers["Content-Type"] = "text/xml"
                     output = "Not yet implemented. :("
+                    response.send(output)
                     break
                 default:
                     response.status(.notAcceptable)
                     next()
                     return
                 }
-                response.send(output)
             }
     
             else if let queryError = queryResult.asError {
@@ -339,6 +340,7 @@ We were adding to our router callback in fits and starts in this chapter, so jus
                     let encoder: JSONEncoder = JSONEncoder()
                     let jsonData: Data = try! encoder.encode(tracks)
                     output = String(data: jsonData, encoding: .utf8)!
+                    response.send(output)
                     break
                 case "text/xml"?:
                     response.headers["Content-Type"] = "text/xml"
@@ -349,13 +351,13 @@ We were adding to our router callback in fits and starts in this chapter, so jus
                     let tracksDoc: XMLDocument = XMLDocument(rootElement: tracksElement)
                     let xmlData: Data = tracksDoc.xmlData
                     output = String(data: xmlData, encoding: .utf8)!
+                    response.send(output)
                     break
                 default:
                     response.status(.notAcceptable)
                     next()
                     return
                 }
-                response.send(output)
             }
     
             else if let queryError = queryResult.asError {
