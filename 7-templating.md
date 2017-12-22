@@ -52,6 +52,7 @@ Finally, let’s create a new route handler.
     response.headers["Content-Type"] = "text/html; charset=utf-8"
         let name = request.parameters["name"] as Any
         try response.render("hello", context: ["name": name])
+        next()
     }
 
 Now visit `/hello/(your name)` in your browser (so, `/hello/Nocturnal` in my case), and you should see that the page now says “Hello, (your name)!”
@@ -171,9 +172,117 @@ Try this out by going to `/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E`. 
 
 So after visiting this URL, your browser will execute the script in the `<script>` tags and show an alert box with the text “oh no” in it. (Well, maybe. The current version of Safari actually detects what is going on and refuses to execute the script. Things still work in the current version of Firefox, however.) Now the code in this particular example is perfectly benign, but if this example works, then more malicious ones will work, too.
 
+This bugs me, and I’ve raised an issue to propose a fix to make Kitura Template Engine more secure by default. In the meantime, let’s do a little tweaking to fix this problem. Create a new file in your project and name it `String+webSanitize.swift`, and put in the following.
 
-*(TO BE CONTINUED.)*
+    extension String {
+         func webSanitize() -> String {
+            let entities = [
+                ("&", "&amp;"),
+                ("<", "&lt;"),
+                (">", "&gt;"),
+                ("\"", "&quot;"),
+                ("'", "&apos;"),
+            ]
+            var string = self
+            for (from, to) in entities {
+                string = string.replacingOccurrences(of: from, with: to)
+            }
+            return string
+        }
+    }
 
+This is an *extension* - a way to add methods to classes, in this case the `String` class, without fully subclassing them. Subclassing is not possible in many cases due to access restriction levels (see the Access Control section in *The Swift Programming Language* for more on that), and in other cases it may be possible but still undesirable as code you want to interact with (in this case, Kitura) will still expect to see things using the base class. The filename of `String+webSanitize.swift` matches the “standard” (such as it is) pattern for Swift code files that have extensions in them; namely, `BaseClassName+AddedFunctionality.swift`.
 
-All right, I think you get the idea of how Stencil works. Let’s move on to put it to practical use in our music database app.
+At any rate, let’s tweak our route handler to use a sanitized string.
 
+    router.get("/hello/:name?") { request, response, next in
+        response.headers["Content-Type"] = "text/html; charset=utf-8"
+        let name = request.parameters["name"]
+        let context: [String: Any] = ["name": name?.webSanitize() as Any]
+        try response.render("hello", context: context)
+        next()
+    }
+
+And now try loading the page with the naughty path again, `/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E`. Note that you won’t see the alert box anymore, and the page markup will have the following:
+
+    <p>
+      Hello, &lt;script&gt;alert(&apos;oh no&apos;);&lt;/script&gt;!
+    </p>
+
+Ah, much better. All right, I think you get the idea of how Stencil works. Let’s move on to put it to practical use in our music database app.
+
+## The Song List in HTML
+
+Check back to the `/songs/:letter` route handler in your project. Right now it outputs JSON or XML responses as requested. We’re going to tweak it so it can output an HTML page as well.
+
+Let’s start by creating a template. Add a `songs.stencil` file and put in the following. 
+
+```
+{% extends "layout.stencil" %}
+
+{% block pageTitle %}Songs that start with {{ letter }}{% endblock %}
+
+{% block pageContent %}
+<h2>These are songs in my collection that start with the letter {{ letter }}.</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Artist</th>
+      <th>Album</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for track in tracks %}
+      <tr>
+        <td>{{ track.name }}</td>
+        <td>{{ track.composer|default:"(unknown)" }}</td>
+        <td>{{ track.album }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="3">
+          There are no songs that begin with {{ letter }}.
+        </td>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+```
+
+Oh, hey, new syntax! Yes, we can use `for` loops in Stencil templates to iterate through arrays; it works pretty much as expected. But there’s also that `{% empty %}` bit. That part will be shown if the array we’re trying to iterate over has no elements. More on that later.
+
+So that’s the template part. Let’s go back to our Swift code and add the logic to render the template. I’ll just include the relevant part of the `switch` block.
+
+            switch request.accepts(types: ["text/json", "text/xml", "text/html"]) {
+            case "text/json"?:
+                [same as before…]
+            case "text/xml"?:
+                [same as before…]
+            case "text/html"?:
+                response.headers["Content-Type"] = "text/html; charset=utf-8"
+                var sanitized: [[String: String?]] = []
+                for track in tracks {
+                    sanitized.append([
+                        "name": track.name.webSanitize(),
+                        "composer": track.composer?.webSanitize(),
+                        "album": track.albumTitle.webSanitize()
+                    ])
+                }
+                let context = ["letter": letter as Any, "tracks": sanitized as Any]
+                try! response.render("songs", context: context)
+            default:
+                [same as before…]
+            }
+        }
+
+Note that we added “text/html” to the array we send to `request.accepts()`. Also note that we’re using our new `webSanitize()` method on the values we want to display. (Strictly speaking, we should do this for the XML output as well, since what this method encodes are actually reserved characters for the XML specification, but I’ll leave that as an exercise for the reader.)
+
+Now go back to your web browser and request `/songs/T` (or any other letter). You should see something like the image below.
+
+![Web browser display of our new song list template](../images/songs.png)
+
+Uh oh. The `default` filter doesn’t seem to be working for the tracks which have a nil composer value. Yes, as I write this, the base Stencil project has a bug… but *our* code is correct. (Feel free to implement a workaround for this if you wish; I leave that as an exercise for the reader as well. And yes, “exercises for the reader” are often “lazinesses for the author” in thin disguise.)
+
+What about that `{% empty %}` part in our template? Well, the Chinook database actually has songs with titles that start with every letter in the alphabet, so even if you go to `/songs/X` or `/songs/Z` you’ll still get a table full of songs. But we can do tricky things to see how the `{% empty %}` bit would work here. Try going to `/songs/-` (that’s a hyphen) and see what happens; since there are no song titles that begin with a hyphen, you’ll see the “There are no songs that begin with -.” message where the table rows were before. So that works!
