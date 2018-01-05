@@ -29,14 +29,23 @@ This book makes some assumptions about what you already know about software deve
 * **Swift Package Manager.** This is the modern way to add “packages” of additional code to your project. As I expect a major part of the audience of this book will be Cocoa developers who are familiar with using CocoaPods or Carthage for this purpose, this book includes an [appendix chapter introducing SPM](appendices/b-spm.md). Additionally, you should understand the concept of semantic versioning; the appendix will cover this as well.
 * **Git.** You should know how to create new repositories, commit changes, and tag commits. You should have Git installed on your development server. If you wish to use a different version control system for your sites, that’s fine, but the chapter in this book on creating middleware will involve creating a new Swift Package Manager package, which requires experience with Git.
 
-## Getting help
+
+## Other Learning Resources
+
+If you don’t like this book or just want a few more long-form tutorials for Kitura, here are some to consider.
+
+* [*Server-Side Swift*](https://www.hackingwithswift.com/store/server-side-swift) is another e-book that covers Swift; this one is by Paul “twostraws” Hudson, who has written several books on Swift development. At US$40, Hudson’s book is certainly more pricey than this one, but in both cases you probably get what you paid for… I haven’t read *Server-Side Swift* myself, but I’ve read one of Hudson’s other books and found it to be pretty high-quality stuff.
+
+* [*Swift in the Cloud*](https://www.wiley.com/en-us/Swift+in+the+Cloud-p-9781119368472) is a print book straight from IBM, with e-book versions also available. Unfortunately, it has, as of this writing, not yet been updated for Swift 4 and Kitura 2, so I cannot recommend it.
+
+* If you like to learn with video, LinkedIn Learning (formerly Lynda.com) has released a video series entitled [Learning Server-Side Swift Using IBM Kitura](https://www.linkedin.com/learning/learning-server-side-swift-using-ibm-kitura). You can watch the first couple videos in the series without needing an account. LinkedIn Learning/Lynda.com subscriptions can be pricey, but both offer you free one-month trial subscriptions.
+
+## Getting Help
 
 You are not alone. As you go along, if you get stumped by something, don’t hesitate to reach out for help and clarification.
 
-The Swift@IBM team site has a public Slack instance at http://swift-at-ibm-slack.mybluemix.net/ . (Slack is a somewhat obnoxious chat application targeted towards teams and workgroups.) There are several channels including #kitura for Kitura discussion and #general which is good for general Swift development or other topics in the ecosystem. You can find me there under the username “nocturnal.” Feel free to reach out to me if you’re having any trouble with something in this book.
+The Swift@IBM team site has a public Slack instance at http://swift-at-ibm-slack.mybluemix.net/ . (Slack is a feature-rich yet resource-intensive chat application targeted towards teams and workgroups.) There are several channels including #kitura for Kitura discussion and #general which is good for general Swift development or other topics in the ecosystem. You can find me there under the username “nocturnal.” Feel free to reach out to me if you’re having any trouble with something in this book.
 
-If Slack’s not your thing, you can also join the Freenode IRC network. It doesn’t have any Kitura-specific channels currently (unfortunately), but it does have #swift-lang which is great for general Swift discussion; there’s lots of smart people there. There may be other Swift-related channels in the IRC universe, but I like Freenode because its focus on open-source software means that if you need help with any other open-source (and some not-so-open-source) software you use throughout the day, you can probably find a channel related to it on Freenode. If you’re a Cocoa developer, #iphonedev and/or #macdev may also be of interest; #iphonedev-chat is a fun channel to hang out and shoot the stuff with others in the community. On Freenode, you can find me using the “_Nocturnal.” Again, feel free to reach out and say hi! You can find more information about Freenode at https://freenode.net .
-
-If you’re interested in another ebook that focuses on Kitura, consider *Server-Side Swift* by Paul Hudson. I haven’t read it myself, but I presume that, while his book is US$30 and mine is free, you will probably get what you paid for in both cases. Check out https://www.hackingwithswift.com/store/server-side-swift for more information and a sample of the book.
+If Slack’s not your thing, you can also join the [Freenode IRC network](https://freenode.net). It doesn’t have any Kitura-specific channels currently (unfortunately), but it does have #swift-lang which is great for general Swift discussion; there’s lots of smart people there. There may be other Swift-related channels in the IRC universe, but I like Freenode because its focus on open-source software means that if you need help with any other open-source (and some not-so-open-source) software you use throughout the day, you can probably find a channel related to it on Freenode. If you’re a Cocoa developer, #iphonedev and/or #macdev may also be of interest; #iphonedev-chat is a fun channel to hang out and shoot the stuff with others in the community. On Freenode, you can find me using the “_Nocturnal.” Again, feel free to reach out and say hi!
 
 Finally, don’t forget about the GitHub Issues queues on most projects hosted there. They’re generally intended for reporting bugs and such, but you’re generally welcome to ask for help with usage there too.
