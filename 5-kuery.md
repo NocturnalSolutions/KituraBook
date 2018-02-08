@@ -6,127 +6,86 @@
 
 Pretty much any web application with more than a trivial level of complexity will be interfacing with a database. Consider a massive site like Wikipedia or a lowly WordPress blog; both are, when you get down to it, interfaces for a database of articles.
 
-There are various types of databases, but for historical reasons, the type most commonly used by web applications is SQL databases. It is certainly possible to connect to others from within Swift, such as key-value stores like Redis and NoSQL databases like CouchDB, but primarily due to the historical precedent, I will stick with covering SQL database connectivity for this book.
+There are various types of databases, but for historical reasons, the type most commonly used by web applications is SQL databases. It is certainly possible to connect to others from within Swift, such as key-value stores like Redis and NoSQL databases like CouchDB, but primarily due to the historical precedent (as well as my own familiarity), I will stick with covering SQL database connectivity for this book.
 
 IBM provides a library called Swift Kuery for communicating with SQL databases from within Swift. Kuery is not actually a Kitura dependency, so you can use Kuery from non-Kitura applications; also, there are other ways to connect to various SQL databases than using Kuery. However, since Kuery is part of the Swift@IBM ecosystem along with Kitura, you will typically see the two used together.
 
 ## Selecting and installing an SQL database type
 
-Swift Kuery supports two types of SQL databases: MySQL and PostgreSQL. (SQLite was also previously supported, but sadly has been deprecated; this is unfortunate, as SQLite is a great choice for simple projects and prototypes, as well as full production projects in many cases.)
+Officially, Swift Kuery supports two types of SQL databases: MySQL and PostgreSQL. SQLite used to be officially supported, but when Swift 4 was released, IBM deprecated its Kuery integration library for SQLite. I felt this unfortunate, as SQLite is a great choice for simple projects and prototypes, as well as full production projects in many cases; thus, I personally forked IBM’s Git repository and updated it for Swift 4.
 
-MySQL is historically the most commonly used SQL database for web development, but PostgreSQL has more high-end features of the sort that won’t be covered in this book. Both of these databases work on a client-server model, meaning you must start a server application to host the database (this can be either on the same machine as your web application or a different one), and your web application then acts as a client that connects to the database server via an IP connection (or a Unix socket if you are running both on the same machine). Both of these databases hold the actual data spread across various not-safe-for-humans files in a certain directory on the server’s filesystem.
+MySQL is historically the most commonly used SQL database for web development, but PostgreSQL has more high-end features and thus is slightly more common in high-demand environments. Both of these databases work on a client-server model, meaning you must start a server application to host the database (this can be either on the same machine as your web application or a different one), and your web application then acts as a client that connects to the database server via an IP connection (or a Unix socket if you are running both on the same machine). Both of these databases hold the actual data spread across various not-safe-for-humans files in a certain directory on the server’s filesystem. SQLite does not use a client-server model; instead of connecting to a server to use SQLite, you just give your code a path to a database file that SQLite reads from and writes to locally. This single file that SQLite uses makes it much easier to back up or copy the database than with client-server database systems; just copy that single file as you would any other file, and things will work just fine. Copying the files behind a MySQL or PostgreSQL database to a different location might not work as expected; you instead have to create a “dump” file which serializes the binary data in the database to a plain text list of operations.
 
-Both of these options use slightly different dialects of SQL. Fortunately, Kuery has an “abstraction layer” which makes it possible to interact with databases without actually directly writing SQL. That means that almost all of the code in this chapter will work no matter which SQL system you choose to use; only the code which is used to connect to or open the database will change. 
+Given that SQLite is substantially simpler to install and use for the reasons above, I will be using SQLite in this chapter. (Previous versions of this chapter used MySQL, before I decided to update Kuery’s SQLite support myself as described above; rather than destroy that information, I’ve moved it into [one of the appendices](appendices/c-mysql.md) for you to peruse if you prefer. However, if you have little to no previous experience with using databases in web development, I suggest you stick to using SQLite as outlined below.)
 
-This theoretically means you can go ahead and use whichever of these you feel comfortable with. However, at the time I write this, IBM has not yet updated their PostgreSQL plugin for Kuery for Swift 4. To that end, I will be focusing on MySQL for this chapter; however, understand that 99% of it will be applicable to PostgreSQL as well.
-
-If you haven’t already, go ahead and install and set MySQL (or a compatible fork, like MariaDB or Percona). If you’re on a Mac, you won’t just be able to install a binary application; you’ll need to use a package manager like MacPorts or Homebrew to install it so that the libraries for the servers are installed in a predictable place as well. If you are not familiar with using MySQL, now’s the time to learn before you move on to the next paragraph.
+MySQL, PostgreSQL, and SQLite use slightly different dialects of SQL. (It wouldn’t be a standard if there weren’t differing implementations of it!) Fortunately, Kuery has an “abstraction layer” which makes it possible to interact with databases without actually directly writing SQL. That means that almost all of the code in this chapter will work no matter which SQL system you choose to use; only the code which is used to connect to or open the database will change. So if you start a project using SQLite and then later decide you want to switch to MySQL or PostgreSQL, in theory you’ll only have to change the parts of the code that initialize the connection to the database.
 
 ## Building projects with Kuery
 
-Start a new project and add SwiftKueryMySQL to it via Swift Package Manager. This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to get tricky.
+Start a new project and add the Swift-Kuery-SQLite package to it via Swift Package Manager. Note that we will be using my forked and updated repository at https://github.com/NocturnalSolutions/Swift-Kuery-SQLite.git instead of the one from IBM. 
+
+This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to be a little bit tricky - you’re going to need to install some additional libraries on your system so that your code can communicate with SQLite databases.
 
 ### On the Mac
 
-First, if you are on a Mac and prefer to use MacPorts rather than Homebrew, you will need to take a step to help the compiler find your MySQL header files. Create the directory `/opt/local/include` and symlink the `mysql` directory from under `/opt/local/include` under it. The precise path of that directory will depend on which variant of MySQL you installed; for example, I installed version 10 of the MariaDB fork of MySQL, so I had to run `ln -s /opt/local/include/mariadb-10.0/mysql/ /opt/local/include/`.
+On the Mac, your approach will depend on which package manager you decide to use.
 
-Don't worry about any other code for now; try to build your project from the CLI with `swift build` as is. (Don't use Xcode for building yet, Mac users.) It will fail with an error which includes something like this:
+If you’re using Homebrew, the package you’ll want to install is `sqlite`.
 
-    ld: library not found for -lmysqlclient for architecture x86_64
-    <unknown>:0: error: link command failed with exit code 1 (use -v to see invocation)
+    brew install sqlite
 
-Aside from the header files, we also need to tell Kuery where to find the MySQL (in this case) libraries themselves. If you are using Homebrew, this directory will always be `/usr/local/lib`. If you're using MacPorts, the path will again vary depending on which type and version of MySQL you installed; it should be the same path you had to symlink as above, but with `include` swapped for `lib`; so `/opt/local/lib/mariadb-10.0/mysql` in my case. At any rate, now that you have this path, here’s how you pass them to the Swift compiler so your project builds:
+On MacPorts, you’ll want to install the `sqlite3` port. Additionally, you’ll need to symlink some things into the places that Homebrew would put them, since Swift Kuery SQLite was written expecting you to have used Homebrew. The three commands below should do it.
 
-    swift build -Xlinker -L[the path found above]
+    sudo port install sqlite3
+    mkdir -p /usr/local/opt/sqlite/include
+    ln -s /opt/local/include/sqlite3.h /usr/local/opt/sqlite/include/
 
-So, for Homebrew users:
-
-    swift build -Xlinker -L/usr/local/lib
-
-And for me, with my `mariadb-10` variant of MySQL:
-
-    swift build -Xlinker -L/opt/local/lib/mariadb-10.0/mysql
-
-What a pain! Fortunately, there’s a couple things you can do to make things easier. First, if you are using Xcode, you can pass those extra flags to `swift package generate-xcodeproj` too, and it will automatically add the magic pixie dust to the generated Xcode project so that it builds just by hitting that “Build” button. (If you generate an Xcode project with the extra flags omitted, your project will fail to build just as it will on the CLI.) So in my case, I do the following:
-
-    swift package generate-xcodeproj -Xlinker -L/opt/local/lib/mariadb-10.0/mysql
-
-Just remember to include those flags when you generate a new Xcode project, for example after adding new packages.
-
-If you still prefer to build from the CLI, you can create a shell script that includes all that junk in it and then just invoke that script instead of `swift build`:
-
-    echo "swift build -Xlinker -L/opt/local/lib/mariadb-10/mysql" > build.sh
-    chmod +x build.sh
-    ./build.sh
+(If you get permissions errors running any of the above commands, remember you probably need to prefix them with `sudo`.)
 
 ### On Linux
 
-Congratulations, Linux fans; life is easier for you in this case. Just install the `libmysqlclient-dev` package (you’ll need to install this in addition to the actual MySQL server), and the Swift toolchain will know where to find the libraries. `swift build` is still all you need.
+Assuming you’re on some variant of Ubuntu Linux (other versions of Linux are not officially supported by Apple as of this writing), you’ll want to install the `sqlite3` and `libsqlite3-dev` packages.
+
+    apt-get install sqlite3 libsqlite3-dev
 
 ## Importing some data
 
-Now that we can build a project that includes Swift-Kuery-MySQL, start up your MySQL server and connect to it with either the `mysql` command line tool or a graphical database manager of some sort. Take note of whatever credentials and network hostnames and ports and so on you need to use, because we’re going to put them in our code later.
+Let’s get a database with some data we can work with in this and later chapters. For this purpose, we’re going to use the Chinook Database, a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository at https://github.com/lerocha/chinook-database.git. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
 
-Let’s populate our database with some data we can work with in this and later chapters. For this purpose, we’re going to use the Chinook Database, a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository at https://github.com/lerocha/chinook-database.git. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
-
-The repository contains SQL dumps for various SQL systems in the `ChinookDatabase/DataSources` directory. Create a new database and import the `Chinook_MySql.sql` dump. Once you’ve got all the data imported, feel free to poke around and familiarize yourself with what the schema of the tables look like and what sort of data is in them.
-
-Once you’ve done that, let’s see about connecting to our database from Kuery.
+The repository contains SQL dumps for various SQL systems in the `ChinookDatabase/DataSources` directory. Find the `Chinook_Sqlite.sqlite` file and copy it to a useful location. (We don’t want to use the `Chinook_Sqlite.sql` file; make sure you copy the one with an extension of `.sqlite`.) For the purposes of simplicity, I’m going to just copy it to my home folder, so the path I will use in the code samples below is `~/Chinook_Sqlite.sqlite`, but you can put it anywhere else you’d like.
 
 ## Back to Kitura (finally!)
 
-Now let’s connect to our MySQL server from our code. We are going to instantiate a `MySQLConnection` object. The `init()` function for this class has a lot of parameters, but they are all optional. Let’s see its signature:
+Now let’s access that database file from our code. We are going to instantiate a `SQLiteConnection` object. Its simplest `init()` function takes a `filename` parameter which is a string to the file path where our database file resides. Here’s what it looks like on my end.
 
-    public required init(host: String? = nil, user: String? = nil, password: String? = nil, database: String? = nil, port: Int? = nil, unixSocket: String? = nil, clientFlag: UInt = 0, characterSet: String? = nil, reconnect: Bool = true) 
-
-But here’s the thing; when instantiating, you should only pass the parameters necessary. In my case, my MySQL server is locally installed, and I want to connect with the standard root user, for whom I have not configured a password (I would never do such a stupid thing on a public server, and neither will you, right?). Also, I imported my data into a database called `Chinook`. So my instantiation looks like this:
-
-    let cxn = MySQLConnection(user: "root", database: "Chinook")
-
-Now perhaps you’ve created a new user to connect to the database, and you’re hosting your MySQL instance on the non-standard port 63306 locally. Your instantiation might look like this:
-
-    let cxn = MySQLConnection(user: "chinookuser", password: "swordfish", database: "Chinook", port: 63306)
-
-You get the idea. At any rate, in the following code, don’t forget to swap out my instantiation code with what is necessary for your server.
-
-Now go back to your project, delete what’s in `main.swift`, and add the following. (Note we’re not instantiating an instance of `Kitura` yet.)
-
-    import SwiftKuery
-    import SwiftKueryMySQL
     import Foundation
-    
-    // Don't forget to change this!
-    let cxn = MySQLConnection(user: "root", database: "Chinook")
-    
-    cxn.connect() { error in
-        if error != nil {
-            print("Error connecting to database.")
-            exit(1)
-        }
-        else {
-            print("Success!")
-        }
-    }
-
-Did you see the “Success!” message? If not, tweak your `MySQLConnection()` call until your parameters are right - we’re not going to have much fun moving forward if things aren’t working so far.
-
-Okay, now let’s try doing some more interesting things. We’ll make a page which lists every album in the database. Put this in your `main.swift`.
-
-    import SwiftKuery
-    import SwiftKueryMySQL
     import Kitura
-    import Foundation
+    import SwiftKuery
+    import SwiftKuerySQLite
     
-    // Don't forget to change this!
-    let cxn = MySQLConnection(user: "root", database: "Chinook")
+    // Using NSString below is gross, but it lets us use the very handy
+    // expandingTildeInPath property. Unfortunately no equivalent exists in the
+    // Swift standard library or elsewhere in Foundation.
+    // Don't forget to change this path to where you copied the file on your system!
+    let path = NSString(string: "~/Chinook_Sqlite.sqlite").expandingTildeInPath
+    
+    let cxn = SQLiteConnection(filename: String(path))
     
     cxn.connect() { error in
-        if error != nil {
-            print("Error connecting to database.")
-            exit(1)
+        if error == nil {
+            print("Success opening database.")
+        }
+        else if let error = error {
+            print("Error opening database: \(error.description)")
         }
     }
-    
+
+Adapt the above and build and run on your system. Did you see the success message? If not, confirm that the path to the database file is correct and that your user has read and write permissions to it and so on. You’re not going to be able to get much done until you get this part working, so don’t continue until you no longer get an error.
+
+## Selecting data
+
+Okay, now let’s try doing some more interesting things. We’ll make a page which lists every album in the database. Put this in your `main.swift`, right underneath the connection testing code.
+
     let router = Router()
     router.get("/albums") { request, response, next in
         cxn.execute("SELECT Title FROM Album ORDER BY Title ASC") { queryResult in
@@ -186,7 +145,7 @@ The first thing we need to do is define the schemas of the tables for Kuery. Thi
 To make things neat, I like to keep my schemas in a separate file from the rest of my code. Add a new file to your project called `Schemas.swift`. Add the following.
 
     import SwiftKuery
-    import SwiftKueryMySQL
+    import SwiftKuerySQLite
     
     class Album: Table {
         let tableName = "Album"
@@ -258,7 +217,12 @@ Fortunately, Kuery has a pretty simple solution to help us avoid SQL injection. 
             .order(by: .ASC(albumSchema.Title))
 
         cxn.execute(query: titleQuery) { queryResult in
-            // As above…
+            if let rows = queryResult.asRows {
+                for row in rows {
+                    let title = row["Title"] as! String
+                    response.send(title + "\n")
+                }
+            }
         }
         next()
     }
@@ -280,7 +244,12 @@ Do you see where we’re taking unsanitized user input and putting it into an SQ
         let parameters: [String: Any?] = ["searchLetter": letter + "%"]
     
         cxn.execute(query: titleQuery, parameters: parameters) { queryResult in
-            // As above…
+            if let rows = queryResult.asRows {
+                for row in rows {
+                    let title = row["Title"] as! String
+                    response.send(title + "\n")
+                }
+            }
         }
         next()
     }
@@ -309,7 +278,7 @@ Go ahead and give that query a try and check out the result.
 So how would we replicate that in Kuery? Well, first note how we’re using other fields besides the `Title` field on the `album` table. In order to use those with Kuery, we need to update our schema definition for the `album` table, and we’ll go ahead and define a schema for the `track` table while we’re at it. Go back to `Schemas.swift` and update it to match the below.
 
     import SwiftKuery
-    import SwiftKueryMySQL
+    import SwiftKuerySQLite
     
     class Album: Table {
         let tableName = "Album"
@@ -367,7 +336,7 @@ But wait a minute. Something about that code looks really, really strange.
 
 Why does that work? Why is the code behind `on()` able to see the components of what we’re passing it and not just receiving whatever `trackSchema.AlbumId == albumSchema.AlbumId` evaluates to?
 
-The answer is… well, I have no idea. Even digging into the code, I’m stumped. But I intend to come back and update this part of the book once I figure it out and/or someone is able to explain it to me.
+The answer is… well, I have no idea. Even digging into the code, I’m stumped. I guess it has something to do with overloading of the == operator, maybe? But I intend to come back and update this part of the book once I figure it out and/or someone is able to explain it to me.
 
 (Hey, I never said I was some god-tier Swift ninja rockstar Chuck Norris or anything.)
 
