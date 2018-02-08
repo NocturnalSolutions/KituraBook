@@ -1,7 +1,3 @@
-# Security notice
+# Kitura Until Dawn
 
-Many of the code examples in this book involve taking user input and sending it back to the user’s client, such as a web browser, without first escaping it. (Escaping text involves converting some characters or series of characters to others before the text is sent to the client’s browser; the browser can then convert those escaped characters back to the characters they should represent before displaying the data.) This is a serious security vulnerability; such input should properly be escaped prior to being sent to a user. The most common exploit for web applications which do not properly escape user input before displaying it is called a cross-site scripting, or XSS, attack; basically, the attacker injects content in the page which causes a victim visiting that page to execute a bit of JavaScript which sends their cookie data for the site to the attacker, thus possibly allowing the attacker to gain control of the victim’s account.
-
-However, for the sake of simplicity and not distracting from the points the code samples are trying to demonstrate, few code samples in this book do proper escaping. Therefore, I suggest - I *insist* - that you do not execute any of these code samples on a server which is publicly accessible from the internet unless the port that your Kitura site is running on (8080, in these code samples) is properly firewalled. You should *especially* never run these code samples on a server which hosts other sites which may contain sensitive or valuable user data; I suggest only executing them on personal development machines.
-
-Thank you.
+Due to technical problems, I’m no longer hosting Kitura Until Dawn on GitBook. Please [find the latest Kitura Until Dawn content](https://www.penflip.com/Nocturnal/kitura-until-dawn) over on Penflip. Sorry for the trouble!
