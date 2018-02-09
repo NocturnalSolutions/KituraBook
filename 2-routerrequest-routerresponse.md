@@ -180,7 +180,7 @@ And here’s the output:
       "AAPL" : 120.44
     }
 
-Note how Kitura automatically added a “Content-Type: application/json“ header for us.
+Note how Kitura automatically added a “Content-Type: application/json” header for us.
 
 ## Bringing it together
 
