@@ -43,7 +43,7 @@ To start, I want to create a new Track struct for compartmentalizing information
 
 This should look fairly straightforward. One thing to note is that `composer` is an optional string (`String?`) because, as you may recall, some tracks have `NULL` as their composer column in our database.
 
-Okay, now back to our main project file.  Let’s stub out some code first, and then we’ll look through it later. Open back up your Kuery test and change the route callback for songs to match the below.
+Okay, now back to our main project file.  Let’s stub out some code first, and then we’ll look through it later. Open back up your Kuery test project and change the route callback for songs to match the below.
 
     router.get("songs/:letter") { request, response, next in
         let letter = request.parameters["letter"]!
