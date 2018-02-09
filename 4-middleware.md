@@ -50,7 +50,7 @@ Create a new Git repository in your project’s directory, but before you commit
 
 ## Using middleware
 
-Now create a new Kitura project and add KituraFirefoxDetector as a dependency. (Remember, you don’t need to push the project to GitHub or some other hosting service first; give it a URL comprised of “file://” followed by the absolute path to your UA-Detector directory (including the initial slash) and it will work just fine.) Resolve the dependencies.
+Now create a new Kitura project and add KituraFirefoxDetector as a dependency. (Remember, you don’t need to push the project to GitHub or some other hosting service first; give it a URL comprised of “file://” followed by the absolute path to your KituraFirefoxDetector directory (including the initial slash) and it will work just fine.) Resolve the dependencies.
 
 Okay, now that our new project has the new middleware package we’ve created, let’s actually use it. This is done by instantiating an object of the middleware’s class and then adding it to a path by way of our friend the Router object. We’ll then create a route handler which shows a different message depending on whether our middleware detected the user was using Firefox or not. Place the following in `Sources/main.swift`.
 
