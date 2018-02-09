@@ -101,7 +101,7 @@ For example, consider a blog that uses a path like “blog/1” to show the firs
     }
     
     router.get("/post/2") { request, response, next in
-        // Load and show post 1
+        // Load and show post 2
         next()
     }
     
