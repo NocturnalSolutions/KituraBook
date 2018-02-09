@@ -130,7 +130,7 @@ We are importing the Kitura module into the scope of `main.swift` for further us
 
     let router = Router()
 
-We are instantiating a new Router object, which is provided by Kitura. Routers will be covered in more depth in the next chapter. For now, know that routers are how we define paths that our site will listen for and what happens when a request for that path is made to the server.
+We are instantiating a new Router object, which is provided by Kitura. Routers will be covered in more depth in a future chapter. For now, know that routers are how we define paths that our site will listen for and what happens when a request for that path is made to the server.
 
     router.get("/") { request, response, next in
 
