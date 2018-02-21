@@ -14,27 +14,28 @@ Create a new Swift project by doing the following in a command line shell:
 
 Now open up the `Package.swift` file and add a dependency for Kitura. It will have a bit of boilerplate in there that you’ll have to modify to add a dependency to Kitura. The end result should look like this.
 
-    // swift-tools-version:4.0
-    // The swift-tools-version declares the minimum version of Swift required to build this package.
-    
-    import PackageDescription
-    
-    let package = Package(
-        name: "hello-world",
-        dependencies: [
-            // Dependencies declare other packages that this package depends on.
-            // .package(url: /* package url */, from: "1.0.0"),
-            .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "2.0.0")
-        ],
-        targets: [
-            // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-            // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-            .target(
-                name: "hello-world",
-                dependencies: ["Kitura"]),
-        ]
-    )
+```swift
+// swift-tools-version:4.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import PackageDescription
+
+let package = Package(
+    name: "hello-world",
+    dependencies: [
+        // Dependencies declare other packages that this package depends on.
+        // .package(url: /* package url */, from: "1.0.0"),
+        .package(url: "https://github.com/IBM-Swift/Kitura.git", from: "2.0.0")
+    ],
+    targets: [
+        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
+        // Targets can depend on other targets in this package, and on products in packages which this package depends on.
+        .target(
+            name: "hello-world",
+            dependencies: ["Kitura"]),
+    ]
+)
+```
 
 
 Have the Swift Package Manager resolve Kitura and its dependencies and add them to your project.
@@ -52,17 +53,19 @@ Now note that your project won’t build properly in Xcode unless you change the
 
 Okay, let’s add some code. Open up the `Sources/main.swift` file in your editor. Delete what SPM has put in there by default and enter the following:
 
-    import Kitura
-    
-    let router = Router()
-    
-    router.get("/") { request, response, next in
-        response.send("Hello world!\n")
-        next()
-    }
-    
-    Kitura.addHTTPServer(onPort: 8080, with: router)
-    Kitura.run()
+```swift
+import Kitura
+
+let router = Router()
+
+router.get("/") { request, response, next in
+    response.send("Hello world!\n")
+    next()
+}
+
+Kitura.addHTTPServer(onPort: 8080, with: router)
+Kitura.run()
+```
 
 (Note: If you already have a network service running on IP port 8080 on your development machine, try another port number, such as 8081 or 8888. Remember to substitute that number for 8080 in all examples throughout this book.)
 
@@ -124,7 +127,9 @@ First, we created a new project with Swift Package Manager. The full scope of wh
 
 Then we added some code. Let’s go through it line by line.
 
-    import Kitura
+```swift
+import Kitura
+```
 
 We are importing the Kitura module into the scope of `main.swift` for further use by our code.
 
@@ -138,29 +143,41 @@ We are creating a handler for the “/“ path; specifically, for GET HTTP reque
 
 The part that begins with a curly brace is an escaping closure parameter. It’s actually a closure which is passed as a parameter to the “get()” method on the Router object instance, even though it is outside of the parentheses. If you’re like me, this syntax is pretty bizarre, but you’re going to want to get used to it, because Kitura uses it everywhere. Have a look at the “Escaping Closures” section of *The Swift Programming Language* for more information on what’s being done here. For now, if it helps, think of this line being functionally equivalent to:
 
-    router.get("/", handler: (request: RouterRequest, response: RouterResponse, next: RouterHandler) {
+```swift
+router.get("/", handler: (request: RouterRequest, response: RouterResponse, next: RouterHandler) {
+```
 
 …even though that code won’t actually work.
     
 Finally, `request, response, next in` specifies that our closure that we just began has three parameters passed to it: `request`, which is a Kitura RouterRequest instance with information about the incoming request; `response`, which is a Kitura RouterResponse object with information about the response we want to send to the client that made the request; and `next`, which is itself a closure. I’ll explain that `next` parameter more later in this chapter; first, we should explain the rest of the code in this example.
 
-        response.send("Hello world!\n")
+```swift
+    response.send("Hello world!\n")
+```
 
 The first line in our handler simply sends a string composed of “Hello world!” followed by a standard line break character to the client. It does this by invoking the `send()` method of the RouterResponse instance that was passed to our handler.
 
-        next()
+```swift
+    next()
+```
 
 Call the next handler that can respond to this route. Again, I will go further in depth to the `next` parameter later in this chapter.
 
-    }
+```swift
+}
+```
 
 End our route handler closure.
 
-    Kitura.addHTTPServer(onPort: 8080, with: router)
+```swift
+Kitura.addHTTPServer(onPort: 8080, with: router)
+```
 
 Tell Kitura that we want to start an HTTP server that’s listening on port 8080, and we want it to use the paths and handlers we defined to our Router instance `router`.
 
-    Kitura.run()
+```swift
+Kitura.run()
+```
 
 Finally, start the HTTP server. The server will continue running until either a major error occurs or the process is interrupted (as you do when you type Control-C into the terminal where Kitura is running).
 
@@ -172,10 +189,12 @@ The `next` parameter needs further explanation. In Kitura, it’s perfectly vali
 
 You can test this “chain” behavior by adding a second handler to our code. Add this right before the `Kitura.addHTTPServer(onPort: 8080, with: router)` line:
 
-    router.get("/") { request, response, next in
-        response.send("And hello again!\n")
-        next()
-    }
+```swift
+router.get("/") { request, response, next in
+    response.send("And hello again!\n")
+    next()
+}
+```
 
 Our code now has two simple handlers for the “/“ path. (If you experimented by changing “/“ to “/hello” or some other path in the first route handler above, either change it back or have this handler use that same new path; either way, make sure the first parameter to the `get` method is equivalent). Now do another request in the command line, and check out how the output has changed.
 
@@ -192,12 +211,14 @@ Oops. As you can see, failing to call `next()` from our first handler means our 
 
 To help them not forget, many coders will wrap their `next()` lines in a `defer` block at the beginning of their callbacks, like this:
 
-    router.get("/") { request, response, next in
-        defer {
-            next()
-        }
-        response.send("Hello world!\n")
+```swift
+router.get("/") { request, response, next in
+    defer {
+        next()
     }
+    response.send("Hello world!\n")
+}
+```
 
 Code in the `defer` block is executed right before the function returns, no matter where or how the function returns, so the code in this handler closure is functionally equivalent to the first one we wrote above. (See the “Defer Statement” section in *The Swift Programming Language* for more information on this structure.) However, since we don’t *always* want to call `next()` - as above, there will be important exceptions - I don’t want you to get in the habit of using `defer` blocks in your handlers this way, and will not use it in further examples in this book. You will see this pattern used frequently in others’ Kitura code around the web, however, so I feel it’s important to explain what’s happening in that code.
 
@@ -207,11 +228,15 @@ Now if you’re familiar with web development with scripted languages like Ruby 
 
 That being said, it’s trivial to have Kitura to operate as a FastCGI application served through a web server as well. Reasons this may be desirable is for ease of SSL certificate configuration, integration of both Kitura and non-Kitura applications on one server, and higher-performance static file serving, among countless others. Simply replace the line:
 
-    Kitura.addHTTPServer(onPort: 8080, with: router)
+```swift
+Kitura.addHTTPServer(onPort: 8080, with: router)
+```
 
 …with one like this:
 
-    Kitura.addFastCGIServer(onPort: 9000, with: router)
+```swift
+Kitura.addFastCGIServer(onPort: 9000, with: router)
+```
     
 And then configure your web daemon accordingly. See the [Kitura FastCGI](http://www.kitura.io/en/resources/tutorials/fastcgi.html) page on IBM’s official Kitura site for more information.
 
@@ -223,8 +248,10 @@ Logging can be quite helpful when developing web applications. To that end, IBM 
 
 Try adding the HeliumLogger package to your project now. (You don’t need to add the LoggerAPI package, as it is already a dependency of Kitura.) Run `swift package resolve` again so that SPM downloads HeliumLogger and adds it to your project. Import LoggerAPI and HeliumLogger into your `main.swift` file, then add the following lines immediately following the `import` statements:
 
-    let helium = HeliumLogger(.verbose)
-    Log.logger = helium
+```swift
+let helium = HeliumLogger(.verbose)
+Log.logger = helium
+```
 
 (If you’re using Xcode and it’s giving you trouble, don’t forget to run `swift package xcode-generateproj` and reset the build scheme as outlined earlier in this chapter.)
 
@@ -241,23 +268,31 @@ Yep! Kitura is logging stuff now. Try accessing your server with a client and no
 
 You can, of course, implement your own logging. Inside one of the router handlers in your project, try adding the following line:
 
-    Log.info("About to send a Hello World response to the user.")
+```swift
+Log.info("About to send a Hello World response to the user.")
+```
 
 Build your project, do a page request, and note that your line is dutifully logged to the console.
 
 As you may have guessed, LoggerAPI supports logging messages of varying severity levels, which are, in order of least to most severe: debug, verbose, info, warning, and error. Just call the corresponding static method on the `Log` object. Try adding some lines like the following to your routes:
 
-    Log.verbose("Things are going just fine.")
-    Log.warning("Something looks fishy!")
-    Log.error("OH NO!")
+```swift
+Log.verbose("Things are going just fine.")
+Log.warning("Something looks fishy!")
+Log.error("OH NO!")
+```
 
 You can also use these severity levels to determine which log messages you want to see when initializing HeliumLogger. We used the following line to initialize HeliumLogger above:
 
-    let helium = HeliumLogger(.verbose)
+```swift
+let helium = HeliumLogger(.verbose)
+```
 
 This means that HeliumLogger will show messages of verbose severity and higher, but ignore debug messages. If you only want to show messages of the warning and error severity levels and ignore those of info severity and lower, simply do:
 
-    let helium = HeliumLogger(.debug)
+```swift
+let helium = HeliumLogger(.debug)
+```
 
 Later examples in this book will periodically use logging, and you are of course free to add your own logging to help you trace through the code.
 

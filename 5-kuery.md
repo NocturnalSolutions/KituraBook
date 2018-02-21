@@ -54,27 +54,29 @@ The repository contains SQL dumps for various SQL systems in the `ChinookDatabas
 
 Now let’s access that database file from our code. We are going to instantiate a `SQLiteConnection` object. Its simplest `init()` function takes a `filename` parameter which is a string to the file path where our database file resides. Here’s what it looks like on my end.
 
-    import Foundation
-    import Kitura
-    import SwiftKuery
-    import SwiftKuerySQLite
-    
-    // Using NSString below is gross, but it lets us use the very handy
-    // expandingTildeInPath property. Unfortunately no equivalent exists in the
-    // Swift standard library or elsewhere in Foundation.
-    // Don't forget to change this path to where you copied the file on your system!
-    let path = NSString(string: "~/Chinook_Sqlite.sqlite").expandingTildeInPath
-    
-    let cxn = SQLiteConnection(filename: String(path))
-    
-    cxn.connect() { error in
-        if error == nil {
-            print("Success opening database.")
-        }
-        else if let error = error {
-            print("Error opening database: \(error.description)")
-        }
+```swift
+import Foundation
+import Kitura
+import SwiftKuery
+import SwiftKuerySQLite
+
+// Using NSString below is gross, but it lets us use the very handy
+// expandingTildeInPath property. Unfortunately no equivalent exists in the
+// Swift standard library or elsewhere in Foundation.
+// Don't forget to change this path to where you copied the file on your system!
+let path = NSString(string: "~/Chinook_Sqlite.sqlite").expandingTildeInPath
+
+let cxn = SQLiteConnection(filename: String(path))
+
+cxn.connect() { error in
+    if error == nil {
+        print("Success opening database.")
     }
+    else if let error = error {
+        print("Error opening database: \(error.description)")
+    }
+}
+```
 
 Adapt the above and build and run on your system. Did you see the success message? If not, confirm that the path to the database file is correct and that your user has read and write permissions to it and so on. You’re not going to be able to get much done until you get this part working, so don’t continue until you no longer get an error.
 
@@ -82,21 +84,23 @@ Adapt the above and build and run on your system. Did you see the success messag
 
 Okay, now let’s try doing some more interesting things. We’ll make a page which lists every album in the database. Put this in your `main.swift`, right underneath the connection testing code.
 
-    let router = Router()
-    router.get("/albums") { request, response, next in
-        cxn.execute("SELECT Title FROM Album ORDER BY Title ASC") { queryResult in
-            if let rows = queryResult.asRows {
-                for row in rows {
-                    let title = row["Title"] as! String
-                    response.send(title + "\n")
-                }
+```swift
+let router = Router()
+router.get("/albums") { request, response, next in
+    cxn.execute("SELECT Title FROM Album ORDER BY Title ASC") { queryResult in
+        if let rows = queryResult.asRows {
+            for row in rows {
+                let title = row["Title"] as! String
+                response.send(title + "\n")
             }
         }
-        next()
     }
-    
-    Kitura.addHTTPServer(onPort: 8080, with: router)
-    Kitura.run()
+    next()
+}
+
+Kitura.addHTTPServer(onPort: 8080, with: router)
+Kitura.run()
+```
 
 Now build your project and watch what happens when you visit the “/albums” path.
 
@@ -115,18 +119,22 @@ So you can probably see what happened here, but just in case, let’s go over th
 
 The `execute()` method here takes a string containing an SQL query and an escaping closure that is executed after the query is made. The closure is passed a `QueryResult` enum which we name `queryResult`.
 
-            if let rows = queryResult.asRows {
+```swift
+        if let rows = queryResult.asRows {
+```
 
 `asRows` is a computed parameter on `QueryResult` objects which returns the results of a select query as an array of `[String: Any?]` dictionaries where the keys are the selected field names. Most of the examples in this book will use this parameter, but there are others; `asError` is one you’re probably going to want to get familiar with if your queries don’t seem to be working.
 
-                for row in rows {
-                    let title = row["Title"] as! String
-                    response.send(title + "\n")
-                }
+```swift
+            for row in rows {
+                let title = row["Title"] as! String
+                response.send(title + "\n")
             }
         }
-        next()
     }
+    next()
+}
+```
 
 The rest of this should be self-explanatory at this point.
 
@@ -140,51 +148,60 @@ The first thing we need to do is define the schemas of the tables for Kuery. Thi
 
 To make things neat, I like to keep my schemas in a separate file from the rest of my code. Add a new file to your project called `Schemas.swift`. Add the following.
 
-    import SwiftKuery
-    import SwiftKuerySQLite
-    
-    class Album: Table {
-        let tableName = "Album"
-        let Title = Column("Title")
-    }
+```swift
+import SwiftKuery
+import SwiftKuerySQLite
+
+class Album: Table {
+    let tableName = "Album"
+    let Title = Column("Title")
+}
+```
 
 It’s that simple. Again, we’re only defining the columns we need to use in our code, and right now, we’re only using Title; as we go on and use other columns, we’ll add them to the schema.
 
 Go back to `main.swift` and modify your router handler code to match the following.
 
-    router.get("/albums") { request, response, next in
-        let albumSchema = Album()
-        let titleQuery = Select(albumSchema.Title, from: albumSchema)
-            .order(by: .ASC(albumSchema.Title))
-        cxn.execute(query: titleQuery) { queryResult in
-            if let rows = queryResult.asRows {
-                for row in rows {
-                    let title = row["Title"] as! String
-                    response.send(title + "\n")
-                }
+```swift
+router.get("/albums") { request, response, next in
+    let albumSchema = Album()
+    let titleQuery = Select(albumSchema.Title, from: albumSchema)
+        .order(by: .ASC(albumSchema.Title))
+    cxn.execute(query: titleQuery) { queryResult in
+        if let rows = queryResult.asRows {
+            for row in rows {
+                let title = row["Title"] as! String
+                response.send(title + "\n")
             }
         }
-        next()
     }
-
+    next()
+}
+```
 
 Build and run your project and access the “/albums” path, and you should see the same result as before.
 
 Can you see what we did here? First, we instantiated our new `Album` class so we could reference tables from it. Then we built a `Select` query. `Select` is a substruct of the `Query` struct, and as you can probably guess, there are `Insert` and `Delete` and `Update` ones too - but in due time. Let’s look at the signature of `Select`’s constructor.
 
-    public init(_ fields: Field..., from table: Table)
+```swift
+public init(_ fields: Field..., from table: Table)
+```
 
 If you can’t recall what that ellipsis means, it means we can pass an arbitrary number of `Field` parameters for that first parameter. But the final parameter must be a `Table`.
 
 Now this is pretty much the simplest example of how Kuery’s database API can be used without using direct SQL strings. But wanna know a not-so-surprising secret? Kuery is just taking all this API stuff and making SQL strings out of it anyway. As we continue with more elaborate examples, you may run into times when your queries aren’t working as expected, and in those cases you may find it useful to see what SQL Kuery is compiling for your query. The query instance, like our `Select` in the code above, has a method called `build` with a signature like this:
 
-    public func build(queryBuilder: QueryBuilder) throws -> String
+```swift
+public func build(queryBuilder: QueryBuilder) throws -> String
+```
 
 Huh. What’s a `QueryBuilder`? Don’t worry about it too much; just know that we can easily get one by using the `queryBuilder` parameter on our connection object.
 
 Go back to your router handler and try adding the following right before the call to `cxn.execute()`.
 
-    print(try! titleQuery.build(queryBuilder: cxn.queryBuilder))
+```swift
+print(try! titleQuery.build(queryBuilder: cxn.queryBuilder))
+```
 
 Now, if you build and run your project, you should see the following appear in the console when a request for the “/albums” path is made.
 
@@ -200,61 +217,67 @@ However, this introduces a complication in that we are going to use an arbitrary
 
 Fortunately, Kuery has a pretty simple solution to help us avoid SQL injection. But since we sometimes need to learn how to do something wrong before we learn how to do something right, let’s do it wrong first.
 
-    router.get("/albums/:letter") { request, response, next in
-        guard let letter = request.parameters["letter"] else {
-            response.status(.notFound)
-            return
-        }
+```swift
+router.get("/albums/:letter") { request, response, next in
+    guard let letter = request.parameters["letter"] else {
+        response.status(.notFound)
+        return
+    }
 
-        let albumSchema = Album()
-    
-        let titleQuery = Select(albumSchema.Title, from: albumSchema)
-            .where(albumSchema.Title.like(letter + "%"))
-            .order(by: .ASC(albumSchema.Title))
+    let albumSchema = Album()
 
-        cxn.execute(query: titleQuery) { queryResult in
-            if let rows = queryResult.asRows {
-                for row in rows {
-                    let title = row["Title"] as! String
-                    response.send(title + "\n")
-                }
+    let titleQuery = Select(albumSchema.Title, from: albumSchema)
+        .where(albumSchema.Title.like(letter + "%"))
+        .order(by: .ASC(albumSchema.Title))
+
+    cxn.execute(query: titleQuery) { queryResult in
+        if let rows = queryResult.asRows {
+            for row in rows {
+                let title = row["Title"] as! String
+                response.send(title + "\n")
             }
         }
-        next()
     }
+    next()
+}
+```
 
 Do you see where we’re taking unsanitized user input and putting it into an SQL query - or, more precisely, some code that will be compiled into an SQL query? Yeah, that’s bad. So how can we avoid that? Well, first, in the query part, we instantiate a `Parameter` instance where the user input needs to go after it’s sanitized; we pass its `init()` method a name for the parameter. Then, in the `execute()` method on the connection object, we pass a new parameter that consists of a `[String: Any?]` dictionary of the unsanitized parameters keyed by the name we gave our parameter. Let’s go to the code.
 
-    router.get("/albums/:letter") { request, response, next in
-        guard let letter = request.parameters["letter"] else {
-            response.status(.notFound)
-            return
-        }
-    
-        let albumSchema = Album()
-    
-        let titleQuery = Select(albumSchema.Title, from: albumSchema)
-            .where(albumSchema.Title.like(Parameter("searchLetter")))
-            .order(by: .ASC(albumSchema.Title))
-    
-        let parameters: [String: Any?] = ["searchLetter": letter + "%"]
-    
-        cxn.execute(query: titleQuery, parameters: parameters) { queryResult in
-            if let rows = queryResult.asRows {
-                for row in rows {
-                    let title = row["Title"] as! String
-                    response.send(title + "\n")
-                }
+```swift
+router.get("/albums/:letter") { request, response, next in
+    guard let letter = request.parameters["letter"] else {
+        response.status(.notFound)
+        return
+    }
+
+    let albumSchema = Album()
+
+    let titleQuery = Select(albumSchema.Title, from: albumSchema)
+        .where(albumSchema.Title.like(Parameter("searchLetter")))
+        .order(by: .ASC(albumSchema.Title))
+
+    let parameters: [String: Any?] = ["searchLetter": letter + "%"]
+
+    cxn.execute(query: titleQuery, parameters: parameters) { queryResult in
+        if let rows = queryResult.asRows {
+            for row in rows {
+                let title = row["Title"] as! String
+                response.send(title + "\n")
             }
         }
-        next()
     }
+    next()
+}
+```
 
 There we go. Now Kuery will automatically sanitize the parameter values when the query is built, and Bobby Tables’ mother will have to go have fun elsewhere.
 
 (Dear smart aleck: Yes, we could have also sanitized the user input by using a regular expression in our route path to make sure that the incoming value was a single letter, as in:
 
-    router.get("/albums/:letter([a-z])") { request, response, next in
+```swift
+router.get("/albums/:letter([a-z])") { request, response, next in
+```
 
 And certainly, that’s not a bad thing to do *in addition to* the sanitized, parameterized query construction in order to be doubly safe. Your cleverness has been duly noted. However, this chapter is about Kuery, so we’re learning about Kuery today, okay? Okay. Now sit back down.)
 
@@ -273,47 +296,51 @@ Go ahead and give that query a try and check out the result.
 
 So how would we replicate that in Kuery? Well, first note how we’re using other fields besides the `Title` field on the `album` table. In order to use those with Kuery, we need to update our schema definition for the `album` table, and we’ll go ahead and define a schema for the `track` table while we’re at it. Go back to `Schemas.swift` and update it to match the below.
 
-    import SwiftKuery
-    import SwiftKuerySQLite
-    
-    class Album: Table {
-        let tableName = "Album"
-        let AlbumId = Column("AlbumId")
-        let Title = Column("Title")
-    }
-    
-    class Track: Table {
-        let tableName = "Track"
-        let Name = Column("Name")
-        let AlbumId = Column("AlbumId")
-        let Composer = Column("Composer")
-    }
+```swift
+import SwiftKuery
+import SwiftKuerySQLite
+
+class Album: Table {
+    let tableName = "Album"
+    let AlbumId = Column("AlbumId")
+    let Title = Column("Title")
+}
+
+class Track: Table {
+    let tableName = "Track"
+    let Name = Column("Name")
+    let AlbumId = Column("AlbumId")
+    let Composer = Column("Composer")
+}
+```
 
 Okay, now let’s define our route and make our query. A lot of this should look familiar at this point. The big change is that we’re using the the `.join()` method to define our inner join, passing it the schema of the table we wish to join to (`album` in this case), and we follow that with an `.on()` method where we define how the join should be done. (Yes, SQL nerds, Kitura also has `.leftJoin()` and `.naturalJoin()` and others, but we’ll just be using`.join` (inner join) for now.) Also, for many tracks, the `Composer` value is actually null; in this case, we want to use a string of “(composer unknown)” when we get a null value in that field. In the code below we’ll use the nil-coalescing operator, `??`, to do this; it basically says “if the value to the left of the `??` is nil, use the value to the right of it instead.“ See the “Nil-Coalescing Operator” section of the “Basic Operators” chapter of *The Swift Programming Language* for more information.
 
-    router.get("/songs/:letter([a-z])") { request, response, next in
-        let letter = request.parameters["letter"]!
-    
-        let albumSchema = Album()
-        let trackSchema = Track()
-    
-        let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
-            .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
-            .where(trackSchema.Name.like(letter + "%"))
-            .order(by: .ASC(trackSchema.Name))
-    
-        cxn.execute(query: query) { queryResult in
-            if let rows = queryResult.asRows {
-                for row in rows {
-                    let trackName = row["Name"] as! String
-                    let composer = row["Composer"] as! String? ?? "(composer unknown)"
-                    let albumName = row["Title"] as! String
-                    response.send("\(trackName) by \(composer) from \(albumName)\n")
-                }
+```swift
+router.get("/songs/:letter([a-z])") { request, response, next in
+    let letter = request.parameters["letter"]!
+
+    let albumSchema = Album()
+    let trackSchema = Track()
+
+    let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
+        .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+        .where(trackSchema.Name.like(letter + "%"))
+        .order(by: .ASC(trackSchema.Name))
+
+    cxn.execute(query: query) { queryResult in
+        if let rows = queryResult.asRows {
+            for row in rows {
+                let trackName = row["Name"] as! String
+                let composer = row["Composer"] as! String? ?? "(composer unknown)"
+                let albumName = row["Title"] as! String
+                response.send("\(trackName) by \(composer) from \(albumName)\n")
             }
         }
-        next()
     }
+    next()
+}
+```
 
 Let’s test.
 
@@ -328,7 +355,9 @@ Oh, that’s nice.
 
 But wait a minute. Something about that code looks really, really strange.
 
-            .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+```swift
+        .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+```
 
 Why does that work? Why is the code behind `on()` able to see the components of what we’re passing it and not just receiving whatever `trackSchema.AlbumId == albumSchema.AlbumId` evaluates to?
 

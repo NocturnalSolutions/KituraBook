@@ -27,79 +27,87 @@ There’s a common HTTP request header called “Accept” that lists content ty
 
 To start, I want to create a new Track struct for compartmentalizing information on tracks that are plucked from the database. I want to add an initializer to simplify creating a Track from a row we’ve plucked out of the database - which, you may recall, will be a `[String: Any?]` dictionary. Create a `Track.swift` file in your project and add the following.
 
-    import Foundation
-    
-    struct Track {
-        var name: String
-        var composer: String?
-        var albumTitle: String
-    
-        init(fromRow row: [String: Any?]) {
-            name = row["Name"] as! String
-            composer = row["Composer"] as! String?
-            albumTitle = row["Title"] as! String
-        }
+```swift
+import Foundation
+
+struct Track {
+    var name: String
+    var composer: String?
+    var albumTitle: String
+
+    init(fromRow row: [String: Any?]) {
+        name = row["Name"] as! String
+        composer = row["Composer"] as! String?
+        albumTitle = row["Title"] as! String
     }
+}
+```
 
 This should look fairly straightforward. One thing to note is that `composer` is an optional string (`String?`) because, as you may recall, some tracks have `NULL` as their composer column in our database.
 
 Okay, now back to our main project file.  Let’s stub out some code first, and then we’ll look through it later. Open back up your Kuery test project and change the route callback for songs to match the below.
 
-    router.get("songs/:letter") { request, response, next in
-        let letter = request.parameters["letter"]!
-    
-        let albumSchema = albumTable()
-        let trackSchema = trackTable()
-    
-        let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
-            .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
-            .where(trackSchema.Name.like(letter + "%"))
-            .order(by: .ASC(trackSchema.Name))
-    
-        cxn.execute(query: query) { queryResult in
-            if let rows = queryResult.asRows {
-                var tracks: [Track] = []
-                for row in rows {
-                    let track = Track(fromRow: row)
-                    tracks.append(track)
-                }
-    
-                response.headers["Vary"] = "Accept"
-                let output: String
-                switch request.accepts(types: ["text/json", "text/xml"]) {
-                case "text/json"?:
-                    response.headers["Content-Type"] = "text/json"
-                    output = "Not yet implemented. :("
-                    response.send(output)
-                    break
-                case "text/xml"?:
-                    response.headers["Content-Type"] = "text/xml"
-                    output = "Not yet implemented. :("
-                    response.send(output)
-                    break
-                default:
-                    response.status(.notAcceptable)
-                    next()
-                    return
-                }
+```swift
+router.get("songs/:letter") { request, response, next in
+    let letter = request.parameters["letter"]!
+
+    let albumSchema = albumTable()
+    let trackSchema = trackTable()
+
+    let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
+        .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+        .where(trackSchema.Name.like(letter + "%"))
+        .order(by: .ASC(trackSchema.Name))
+
+    cxn.execute(query: query) { queryResult in
+        if let rows = queryResult.asRows {
+            var tracks: [Track] = []
+            for row in rows {
+                let track = Track(fromRow: row)
+                tracks.append(track)
             }
-    
-            else if let queryError = queryResult.asError {
-                let builtQuery = try! query.build(queryBuilder: cxn.queryBuilder)
-                response.status(.internalServerError)
-                response.send("Database error: \(queryError.localizedDescription) - Query: \(builtQuery)")
+
+            response.headers["Vary"] = "Accept"
+            let output: String
+            switch request.accepts(types: ["text/json", "text/xml"]) {
+            case "text/json"?:
+                response.headers["Content-Type"] = "text/json"
+                output = "Not yet implemented. :("
+                response.send(output)
+                break
+            case "text/xml"?:
+                response.headers["Content-Type"] = "text/xml"
+                output = "Not yet implemented. :("
+                response.send(output)
+                break
+            default:
+                response.status(.notAcceptable)
+                next()
+                return
             }
         }
-        next()
+
+        else if let queryError = queryResult.asError {
+            let builtQuery = try! query.build(queryBuilder: cxn.queryBuilder)
+            response.status(.internalServerError)
+            response.send("Database error: \(queryError.localizedDescription) - Query: \(builtQuery)")
+        }
     }
+    next()
+}
+```
 
 Okay, let’s look at all the fun stuff we’re doing with headers here.
 
-                response.headers["Vary"] = "Accept"
+```swift
+            response.headers["Vary"] = "Accept"
+```
 
 Here, and on other lines where we use `response.headers`, we are setting a response header. Pretty straightforward.
 
-                switch request.accepts(types: ["text/json", "text/xml"]) {
+```swift
+            switch request.accepts(types: ["text/json", "text/xml"]) {
+```
 
 The `.accepts` methods on the `RouterRequest` object is really handy here. We throw it an array of types that we can support to its `types` parameter, and it will find the best match and return a `String?` with the matched value, or `nil` if no value matched.
 
@@ -124,9 +132,11 @@ Which means that the client can accept a response as both the types that we can 
 
 Okay, let’s move on.
 
-                    response.status(.notAcceptable)
-    
-                response.status(.internalServerError)
+```swift
+                response.status(.notAcceptable)
+
+            response.status(.internalServerError)
+```
 
 On these lines, we are setting the status code of the HTTP response. There are dozens and dozens of possible status codes, and Kitura has the most common ones defined in its `HTTPStatusCode` enum for more readable code. As mentioned above, we send a “406 Not Acceptable” status when the client asks for a content type we cannot send them. In addition, we now send a “500 Internal Server Error” code if we can’t answer the request because an error occurred when attempting to query the database. (Note that we are also sending information about the query in the body of the HTTP response. This is useful for testing and debugging, but on a live server, sending this information may be a privacy and/or security vulnerability, so don’t do this on live servers!) If we don’t explicitly define a status code, as we haven’t in previous chapters in this book, Kitura automatically sends a “200 OK“ code for us.
 
@@ -162,16 +172,20 @@ Converting data to (and from) JSON in Swift is so blissfully easy. First, I need
 
 First, we need to make our `Track` struct conform to `Encodable`. This is a piece of cake. Open up `Track.swift` and make the `Track` struct subclass `Encodable`.
 
-    struct Track: Encodable {
+```swift
+struct Track: Encodable {
+```
 
 Now we go back to our route handler, and specifically the switch case for `text/json`. We need to instantiate a case of `JSONEncoder` and pass our `tracks` array to its `encode()` method. If all goes well, it will return a `Data` object, which we’ll convert to a String.
 
-            case "text/json"?:
-                response.headers["Content-Type"] = "text/json"
-                let encoder: JSONEncoder = JSONEncoder()
-                let jsonData: Data = try! encoder.encode(tracks)
-                output = String(data: jsonData, encoding: .utf8)!
-                break
+```swift
+        case "text/json"?:
+            response.headers["Content-Type"] = "text/json"
+            let encoder: JSONEncoder = JSONEncoder()
+            let jsonData: Data = try! encoder.encode(tracks)
+            output = String(data: jsonData, encoding: .utf8)!
+            break
+```
 
 Can it really be that easy? Build and test:
     
@@ -253,31 +267,35 @@ So now that we know what we want our XML to look like, should we write an encode
 
 Let’s add a method to our `Track` struct to have it create a `<track>` element from itself, along with its corresponding child elements. Open up `Track.swift` and add in something like this.
 
-        func asXmlElement() -> XMLElement {
-            let trackElement: XMLElement = XMLElement(name: "track")
-            let nameElement: XMLElement = XMLElement(name: "name", stringValue: name)
-            let composerElement: XMLElement = XMLElement(name: "composer", stringValue: composer)
-            let albumTitleElement: XMLElement = XMLElement(name: "albumTitle", stringValue: albumTitle)
-            trackElement.addChild(nameElement)
-            trackElement.addChild(composerElement)
-            trackElement.addChild(albumTitleElement)
-            return trackElement
-        }
+```swift
+    func asXmlElement() -> XMLElement {
+        let trackElement: XMLElement = XMLElement(name: "track")
+        let nameElement: XMLElement = XMLElement(name: "name", stringValue: name)
+        let composerElement: XMLElement = XMLElement(name: "composer", stringValue: composer)
+        let albumTitleElement: XMLElement = XMLElement(name: "albumTitle", stringValue: albumTitle)
+        trackElement.addChild(nameElement)
+        trackElement.addChild(composerElement)
+        trackElement.addChild(albumTitleElement)
+        return trackElement
+    }
+```
 
 So we are working with a whole lot of `XMLElement` objects. When we initialize them, we can pass a `name` parameter corresponding to the tag name, and a `stringValue` corresponding to the value between the opening and closing tags.
 
 Now let’s go back to our router callback and the switch case for an XML request.
 
-                case "text/xml"?:
-                    response.headers["Content-Type"] = "text/xml"
-                    let tracksElement: XMLElement = XMLElement(name: "tracks")
-                    for track in tracks {
-                        tracksElement.addChild(track.asXmlElement())
-                    }
-                    let tracksDoc: XMLDocument = XMLDocument(rootElement: tracksElement)
-                    let xmlData: Data = tracksDoc.xmlData
-                    output = String(data: xmlData, encoding: .utf8)!
-                    break
+```swift
+            case "text/xml"?:
+                response.headers["Content-Type"] = "text/xml"
+                let tracksElement: XMLElement = XMLElement(name: "tracks")
+                for track in tracks {
+                    tracksElement.addChild(track.asXmlElement())
+                }
+                let tracksDoc: XMLDocument = XMLDocument(rootElement: tracksElement)
+                let xmlData: Data = tracksDoc.xmlData
+                output = String(data: xmlData, encoding: .utf8)!
+                break
+```
 
 So we are creating a `<tracks>` element, looping through our `tracks` array, and appending child `<track>` elements to it. Finally, we’re creating an `XMLDocument` and setting our `<tracks>` element as the root element. We get a `Data` object out of that, and after it’s converted to a `String`, it will have our XML. Let’s give it a try.
 
@@ -313,58 +331,60 @@ Yep, that looks about right.
 
 We were adding to our router callback in fits and starts in this chapter, so just in case you got lost, here’s what ours should look like - or at least reasonably similar to - in the end.
 
-    router.get("songs/:letter") { request, response, next in
-        let letter = request.parameters["letter"]!
-    
-        let albumSchema = albumTable()
-        let trackSchema = trackTable()
-    
-        let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
-            .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
-            .where(trackSchema.Name.like(letter + "%"))
-            .order(by: .ASC(trackSchema.Name))
-    
-        cxn.execute(query: query) { queryResult in
-            if let rows = queryResult.asRows {
-                var tracks: [Track] = []
-                for row in rows {
-                    let track = Track(fromRow: row)
-                    tracks.append(track)
-                }
-    
-                response.headers["Vary"] = "Accept"
-                let output: String
-                switch request.accepts(types: ["text/json", "text/xml"]) {
-                case "text/json"?:
-                    response.headers["Content-Type"] = "text/json"
-                    let encoder: JSONEncoder = JSONEncoder()
-                    let jsonData: Data = try! encoder.encode(tracks)
-                    output = String(data: jsonData, encoding: .utf8)!
-                    response.send(output)
-                    break
-                case "text/xml"?:
-                    response.headers["Content-Type"] = "text/xml"
-                    let tracksElement: XMLElement = XMLElement(name: "tracks")
-                    for track in tracks {
-                        tracksElement.addChild(track.asXmlElement())
-                    }
-                    let tracksDoc: XMLDocument = XMLDocument(rootElement: tracksElement)
-                    let xmlData: Data = tracksDoc.xmlData
-                    output = String(data: xmlData, encoding: .utf8)!
-                    response.send(output)
-                    break
-                default:
-                    response.status(.notAcceptable)
-                    next()
-                    return
-                }
+```swift
+router.get("songs/:letter") { request, response, next in
+    let letter = request.parameters["letter"]!
+
+    let albumSchema = albumTable()
+    let trackSchema = trackTable()
+
+    let query = Select(trackSchema.Name, trackSchema.Composer, albumSchema.Title, from: trackSchema)
+        .join(albumSchema).on(trackSchema.AlbumId == albumSchema.AlbumId)
+        .where(trackSchema.Name.like(letter + "%"))
+        .order(by: .ASC(trackSchema.Name))
+
+    cxn.execute(query: query) { queryResult in
+        if let rows = queryResult.asRows {
+            var tracks: [Track] = []
+            for row in rows {
+                let track = Track(fromRow: row)
+                tracks.append(track)
             }
-    
-            else if let queryError = queryResult.asError {
-                let builtQuery = try! query.build(queryBuilder: cxn.queryBuilder)
-                response.status(.internalServerError)
-                response.send("Database error: \(queryError.localizedDescription) - Query: \(builtQuery)")
+
+            response.headers["Vary"] = "Accept"
+            let output: String
+            switch request.accepts(types: ["text/json", "text/xml"]) {
+            case "text/json"?:
+                response.headers["Content-Type"] = "text/json"
+                let encoder: JSONEncoder = JSONEncoder()
+                let jsonData: Data = try! encoder.encode(tracks)
+                output = String(data: jsonData, encoding: .utf8)!
+                response.send(output)
+                break
+            case "text/xml"?:
+                response.headers["Content-Type"] = "text/xml"
+                let tracksElement: XMLElement = XMLElement(name: "tracks")
+                for track in tracks {
+                    tracksElement.addChild(track.asXmlElement())
+                }
+                let tracksDoc: XMLDocument = XMLDocument(rootElement: tracksElement)
+                let xmlData: Data = tracksDoc.xmlData
+                output = String(data: xmlData, encoding: .utf8)!
+                response.send(output)
+                break
+            default:
+                response.status(.notAcceptable)
+                next()
+                return
             }
         }
-        next()
+
+        else if let queryError = queryResult.asError {
+            let builtQuery = try! query.build(queryBuilder: cxn.queryBuilder)
+            response.status(.internalServerError)
+            response.send("Database error: \(queryError.localizedDescription) - Query: \(builtQuery)")
+        }
     }
+    next()
+}
+```

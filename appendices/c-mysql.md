@@ -57,36 +57,44 @@ Once you’ve done that, let’s see about connecting to our database from Kuery
 
 Now let’s connect to our MySQL server from our code. We are going to instantiate a `MySQLConnection` object. The `init()` function for this class has a lot of parameters, but they are all optional. Let’s see its signature:
 
-    public required init(host: String? = nil, user: String? = nil, password: String? = nil, database: String? = nil, port: Int? = nil, unixSocket: String? = nil, clientFlag: UInt = 0, characterSet: String? = nil, reconnect: Bool = true) 
+```swift
+public required init(host: String? = nil, user: String? = nil, password: String? = nil, database: String? = nil, port: Int? = nil, unixSocket: String? = nil, clientFlag: UInt = 0, characterSet: String? = nil, reconnect: Bool = true)
+```
 
 But here’s the thing; when instantiating, you should only pass the parameters necessary. In my case, my MySQL server is locally installed, and I want to connect with the standard root user, for whom I have not configured a password (I would never do such a stupid thing on a public server, and neither will you, right?). Also, I imported my data into a database called `Chinook`. So my instantiation looks like this:
 
-    let cxn = MySQLConnection(user: "root", database: "Chinook")
+```swift
+let cxn = MySQLConnection(user: "root", database: "Chinook")
+```
 
 Now perhaps you’ve created a new user to connect to the database, and you’re hosting your MySQL instance on the non-standard port 63306 locally. Your instantiation might look like this:
 
-    let cxn = MySQLConnection(user: "chinookuser", password: "swordfish", database: "Chinook", port: 63306)
+```swift
+let cxn = MySQLConnection(user: "chinookuser", password: "swordfish", database: "Chinook", port: 63306)
+```
 
 You get the idea. At any rate, in the following code, don’t forget to swap out my instantiation code with what is necessary for your server.
 
 Now go back to your project, delete what’s in `main.swift`, and add the following. (Note we’re not instantiating an instance of `Kitura` yet.)
 
-    import SwiftKuery
-    import SwiftKueryMySQL
-    import Foundation
-    
-    // Don't forget to change this!
-    let cxn = MySQLConnection(user: "root", database: "Chinook")
-    
-    cxn.connect() { error in
-        if error != nil {
-            print("Error connecting to database.")
-            exit(1)
-        }
-        else {
-            print("Success!")
-        }
+```swift
+import SwiftKuery
+import SwiftKueryMySQL
+import Foundation
+
+// Don't forget to change this!
+let cxn = MySQLConnection(user: "root", database: "Chinook")
+
+cxn.connect() { error in
+    if error != nil {
+        print("Error connecting to database.")
+        exit(1)
     }
+    else {
+        print("Success!")
+    }
+}
+```
 
 Did you see the “Success!” message? If not, tweak your `MySQLConnection()` call until your parameters are right - we’re not going to have much fun moving forward if things aren’t working so far.
 

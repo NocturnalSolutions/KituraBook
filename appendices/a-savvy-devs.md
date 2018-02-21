@@ -40,14 +40,16 @@ Once you’re shelled in, you can find the surprisingly easy steps to install Sw
 
 In the event that you encounter code that needs to be altered to run on Linux, you can use compiler control statements to make the relevant changes apply only when the code is compiled on Linux. For example, in my Kitura Language Negotiation project, I ran into a case where on Mac, the Foundation TextCheckingResult class has a method named `rangeAt(_ idx)`, but the equivalent function on Linux’s Foundation is `range(at: idx)`. (Why this discrepancy? I have no idea. This was back in the Swift 3 days, so it’s possible this discrepancy no longer exists in Swift 4.) So the project has the following bit of code to work around that transparently.
 
-    #if os(Linux)
-        extension TextCheckingResult {
-            /// Add the `rangeAt` method as a wrapper around the `range` method; the
-            /// former is available on macOS, but the latter is available on Linux.
-            func rangeAt(_ idx: Int) -> Foundation.NSRange {
-                return self.range(at: idx)
-            }
+```swift
+#if os(Linux)
+    extension TextCheckingResult {
+        /// Add the `rangeAt` method as a wrapper around the `range` method; the
+        /// former is available on macOS, but the latter is available on Linux.
+        func rangeAt(_ idx: Int) -> Foundation.NSRange {
+            return self.range(at: idx)
         }
-    #endif
+    }
+#endif
+```
     
 See the Compiler Control Statements section in *The Swift Programming Language* for more examples of the statements available in Swift.

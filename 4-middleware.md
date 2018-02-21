@@ -12,7 +12,9 @@ An important thing to note when starting a new project which will contain only m
 
 To create Kitura middleware, we create an object which conforms to Kitura’s RouterMiddleware protocol. This protocol requires one function, with this signature:
 
-    func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) throws
+```swift
+func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) throws
+```
 
 Wow. That looks pretty familiar, doesn’t it? Yep, just like with router handlers, our “handler” gets passed RouterRequest and RouterResponse objects, as well as a `next` function. 
 
@@ -20,23 +22,25 @@ Our example here will detect if the user is using Firefox as a browser. One prop
 
 Okay, now that we’ve set the table, let’s start writing code. Add Kitura as a dependency to your new project and resolve it. Open up `Sources/KituraFirefoxDetector.swift`, delete what SPM put there by default, and add the following.
 
-    import Kitura
-    import Foundation
-    
-    public class FirefoxDetector: RouterMiddleware {
-        public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) throws {
-            if let ua = request.headers["User-Agent"], ua.contains("Firefox") {
-                request.userInfo["usingFirefox"] = true
-            }
-            else {
-                request.userInfo["usingFirefox"] = false
-            }
-            next()
+```swift
+import Kitura
+import Foundation
+
+public class FirefoxDetector: RouterMiddleware {
+    public func handle(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) throws {
+        if let ua = request.headers["User-Agent"], ua.contains("Firefox") {
+            request.userInfo["usingFirefox"] = true
         }
-    
-        public init () {
+        else {
+            request.userInfo["usingFirefox"] = false
         }
+        next()
     }
+
+    public init () {
+    }
+}
+```
 
 Let’s analyze this a bit.
 
@@ -54,34 +58,36 @@ Now create a new Kitura project and add KituraFirefoxDetector as a dependency. (
 
 Okay, now that our new project has the new middleware package we’ve created, let’s actually use it. This is done by instantiating an object of the middleware’s class and then adding it to a path by way of our friend the Router object. We’ll then create a route handler which shows a different message depending on whether our middleware detected the user was using Firefox or not. Place the following in `Sources/main.swift`.
 
-    import Foundation
-    import Kitura
-    import KituraFirefoxDetector
-    
-    let router = Router()
-    
-    let detector = FirefoxDetector()
-    
-    // Declare middleware for a path.
-    router.get("/ffclub", middleware: detector)
-    // Now add a handler.
-    router.get("/ffclub") { request, response, next in
-        guard let clubStatus = request.userInfo["usingFirefox"] as? Bool else {
-            response.send("Oops! Our middleware didn't run.")
-            next()
-            return
-        }
-        if clubStatus {
-            response.send("Congrats! You're in the club!")
-        }
-        else {
-            response.send("Hey! You need to use Firefox to be in the club.")
-        }
+```swift
+import Foundation
+import Kitura
+import KituraFirefoxDetector
+
+let router = Router()
+
+let detector = FirefoxDetector()
+
+// Declare middleware for a path.
+router.get("/ffclub", middleware: detector)
+// Now add a handler.
+router.get("/ffclub") { request, response, next in
+    guard let clubStatus = request.userInfo["usingFirefox"] as? Bool else {
+        response.send("Oops! Our middleware didn't run.")
         next()
+        return
     }
-    
-    Kitura.addHTTPServer(onPort: 8080, with: router)
-    Kitura.run()
+    if clubStatus {
+        response.send("Congrats! You're in the club!")
+    }
+    else {
+        response.send("Hey! You need to use Firefox to be in the club.")
+    }
+    next()
+}
+
+Kitura.addHTTPServer(onPort: 8080, with: router)
+Kitura.run()
+```
 
 (An aside: This is a simple and contrived example for the sake of teaching middleware usage. In reality, it is a *very* bad practice to alter your site’s content or restrict access based on what browser a visitor is using. Please have fun experimenting, but *never* do this sort of thing on a real site. Thank you.)
 
@@ -91,36 +97,44 @@ Build and run the site, and try visiting it with both Firefox and other clients.
 
 Okay, so that was interesting, but why did we bother using middleware to do this? We could have just put the same code that’s in the middleware handler into the standard route handler. Well, one of the benefits of middleware is that it is simple to reuse the code for different paths. Say we had a route with a path of `/admin` and we want to check that visitors to that path are using Firefox too.
 
-    router.get("/admin", middleware: detector)
-    router.get("/admin") { request, response, next in
-        // …
-    }
+```swift
+router.get("/admin", middleware: detector)
+router.get("/admin") { request, response, next in
+    // …
+}
+```
 
 And just like that, we will also have `request.userInfo["usingFirefox”]` available for this route handler too. (Note we don’t have to instantiate a new FirefoxDetector object; we can reuse the one we already created.)
 
 As with route handlers, we can use different methods on the Router object corresponding to different HTTP methods to apply our middleware to paths, as in the following.
 
-    router.post("/admin", middleware: detector)
-    
-    router.all("/admin", middleware: detector)
+```swift
+router.post("/admin", middleware: detector)
+
+router.all("/admin", middleware: detector)
+```
 
 We can also have middleware fire for *all* requests to a site regardless of path by omitting the path parameter. The first line below will have our middleware fire for all HTTP GET requests, regardless of path, and the second will have the middleware fire for all requests, regardless of path *or* method.
 
-    router.get(middleware: detector)
-    
-    router.all(middleware: detector)
+```swift
+router.get(middleware: detector)
+
+router.all(middleware: detector)
+```
 
 But back to our project. What were to happen if we added another handler that looks like this?
 
-    router.get("/admin/subpath") { request, response, next in
-        guard let clubStatus = request.userInfo["usingFirefox"] as? Bool else {
-            response.send("Oops! Our middleware didn't run.")
-            next()
-            return
-        }
-        response.send("The middleware ran.")
+```swift
+router.get("/admin/subpath") { request, response, next in
+    guard let clubStatus = request.userInfo["usingFirefox"] as? Bool else {
+        response.send("Oops! Our middleware didn't run.")
         next()
+        return
     }
+    response.send("The middleware ran.")
+    next()
+}
+```
 
 Well, we didn’t do `router.get("/admin/subpath“, middleware: detector)`, so if we try to access `http://localhost:8080/admin/subpath`, we’ll get the “Our middleware didn’t run” message, right? Go ahead and try it, and you’ll see that we actually see the “The middleware ran” message. What’s happening?
 
@@ -128,24 +142,28 @@ Well, there is one difference between how handler closures and how middleware ar
 
 Should you wish to disable this subpath behavior and bind a middleware handler to a path without also allowing it to run on subpaths, you can add an `allowPartialMatch` parameter and explicitly set it to false. The following example will have our middleware fire when the `/admin` path is accessed regardless of HTTP method, but will *not* have it fire on any subpaths.
 
-    router.all("/admin", allowPartialMatch: false, middleware: detector)
+```swift
+router.all("/admin", allowPartialMatch: false, middleware: detector)
+```
 
 ## Subrouters
 
 I won’t spend too much time on subrouters as they’re kind of an unusual feature which may not be widely useful, but you should at least know about them. The gist is that Kitura Router objects themselves conform to the RouterMiddleware protocol, so you can actually add a router as middleware to another router. What do you think the effect of the following is?
 
-    let router = Router()
-    let subrouter = Router()
-    
-    subrouter.get("/apple") { request, response, next in
-        response.send("Hello world!")
-        next()
-    }
-    
-    router.get("/banana", middleware: subrouter)
-    
-    Kitura.addHTTPServer(onPort: 8080, with: router)
-    Kitura.run()
+```swift
+let router = Router()
+let subrouter = Router()
+
+subrouter.get("/apple") { request, response, next in
+    response.send("Hello world!")
+    next()
+}
+
+router.get("/banana", middleware: subrouter)
+
+Kitura.addHTTPServer(onPort: 8080, with: router)
+Kitura.run()
+```
 
 The answer is that you’ll see the “Hello World!” message at the `/banana/apple` path. What good is that? For one use case, I again bring up my own Kitura Language Negotiation project. It’s possible to configure KLN so that the language the site should use is defined by a path prefix; for example, the paths `/en/news`, `/es/news` and `/fr/news` can show the news page in English, Spanish, and French, respectively. But developers using my middleware just develop a `/news` route and put it in a router, and KLN simplifies defining the `/en`, `/es`, and `/fr` paths in another router which then uses the developer’s router as a subrouter.
 

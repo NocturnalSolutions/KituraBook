@@ -6,10 +6,12 @@
 
 Let’s look back at that router handler we wrote in the last chapter.
 
-    router.get("/") { request, response, next in
-        response.send("Hello world!\n")
-        next()
-    }
+```swift
+router.get("/") { request, response, next in
+    response.send("Hello world!\n")
+    next()
+}
+```
 
 You may recall that I mentioned that `request` was a RouterRequest object and that `response` was a RouterResponse object. Every route and middleware handler that we write will receive instances of these two objects. In this chapter, we’ll take a closer look at these objects and what we can do with them.
 
@@ -18,20 +20,22 @@ You may recall that I mentioned that `request` was a RouterRequest object and th
 RouterRequest contains information about the incoming HTTP request. Here’s a non-exhaustive example of some things we can find there. Try adding this to your project from the last chapter. (Or create a new project, if you prefer; just don’t forget you need to instantiate the `router` variable and initiate Kitura at the end.)
 
 
-    router.all("/request-info") { request, response, next in
-        response.send("You are accessing \(request.hostname) on port \(request.port).\n")
-        response.send("You're coming from \(request.remoteAddress).\n")
-        // request.method contains the request method as a RouterMethod enum
-        // case, but we can use the rawValue property to get the method as a
-        // printable string.
-        response.send("The request method was \(request.method.rawValue).\n")
-        // Request headers are in the headers property, which itself is an instance
-        // of a Headers struct. The important part is that it's subscriptable, so
-        // go ahead and treat it like a simple [String: String] dictionary.
-        if let agent = request.headers["User-Agent"] {
-            response.send("Your user-agent is \(agent).\n")
-        }
+```swift
+router.all("/request-info") { request, response, next in
+    response.send("You are accessing \(request.hostname) on port \(request.port).\n")
+    response.send("You're coming from \(request.remoteAddress).\n")
+    // request.method contains the request method as a RouterMethod enum
+    // case, but we can use the rawValue property to get the method as a
+    // printable string.
+    response.send("The request method was \(request.method.rawValue).\n")
+    // Request headers are in the headers property, which itself is an instance
+    // of a Headers struct. The important part is that it's subscriptable, so
+    // go ahead and treat it like a simple [String: String] dictionary.
+    if let agent = request.headers["User-Agent"] {
+        response.send("Your user-agent is \(agent).\n")
     }
+}
+```
 
 Note that we’re using the `all()` method here instead of the `get()` one as we’ve used before. Using `get()` tells Kitura we want our handler to fire only on GET requests, whereas using `all()` tells Kitura we want it to fire on *all* request methods - GET, POST, and so on. These methods and Router objects in general will be examined in more depth later in this book.
 
@@ -45,14 +49,16 @@ Now we’ll request the path using Curl’s `-d` flag to post an empty string to
 
 The `queryParameters` property is a [String: String] dictionary of the query parameters.
 
-    router.get("/hello-you") { request, response, next in
-        if let name = request.queryParameters["name"] {
-            response.send("Hello, \(name)!\n")
-        }
-        else {
-            response.send("Hello, whoever you are!\n")
-        }
+```swift
+router.get("/hello-you") { request, response, next in
+    if let name = request.queryParameters["name"] {
+        response.send("Hello, \(name)!\n")
     }
+    else {
+        response.send("Hello, whoever you are!\n")
+    }
+}
+```
 
 And the result:
 
@@ -69,10 +75,12 @@ The flip side to RouterRequest, which manages data coming in, is RouterResponse,
 
 We can use RouterResponse’s `status()` method to set a custom status code. Pass it a case from the `HTTPStatusCode` struct (defined in KituraNet’s `HTTP/HTTP.swift` file). Let’s have a little bit of fun with that.
 
-    router.get("/admin") { request, response, next in
-        response.status(.forbidden)
-        response.send("Hey, you don't have permission to do that!")
-    }
+```swift
+router.get("/admin") { request, response, next in
+    response.status(.forbidden)
+    response.send("Hey, you don't have permission to do that!")
+}
+```
 
 When we test with Curl, we get the expected status code.
 
@@ -87,11 +95,13 @@ When we test with Curl, we get the expected status code.
 
 RouterResponse has a `headers` property that works just like the one on RouterResponse.
 
-    router.get("/custom-headers") { request, response, next in
-        response.headers["Content-Type"] = "text/plain; charset=utf-8"
-        response.headers["X-Generator"] = "Kitura!"
-        response.send("Hello!")
-    }
+```swift
+router.get("/custom-headers") { request, response, next in
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    response.headers["X-Generator"] = "Kitura!"
+    response.send("Hello!")
+}
+```
 
 Here’s the response. Note the new headers.
 
@@ -108,10 +118,12 @@ Here’s the response. Note the new headers.
 
 We could set a 301 Moved Permanently or 308 Moved Temporarily status and a “Location” header to redirect the user from one path to another, but RouterRequest provides some shorthand to do that.
 
-    router.get("/redirect") { request, response, next in
-        // Redirect the client to the home page.
-        try! response.redirect("/", status: .movedPermanently)
-    }
+```swift
+router.get("/redirect") { request, response, next in
+    // Redirect the client to the home page.
+    try! response.redirect("/", status: .movedPermanently)
+}
+```
 
 (Confused by `try!` above? See the “Error Handling” section of *The Swift Programming Language* for more information.)
 
@@ -135,33 +147,43 @@ We’ll test by using Curl’s `--location` flag to tell it to follow “Locatio
 
 Really, though, the star of the show is RouterResponse’s `send()` method - or, should I say, *methods.* The one we’ve used in this book so far has had the following signature:
 
-    @discardableResult public func send(_ str: String) -> RouterResponse
+```swift
+@discardableResult public func send(_ str: String) -> RouterResponse
+```
 
 (That’s right; this whole time, the method has been returning a reference to the RouterResponse object itself, for chaining purposes. We’ve been ignoring it thus far and will probably continue to do so in this book, but just know this basically means you can do something like `response.send("foo").send("bar")` if you wish.)
 
 RouteResponse has many other `send()` methods, though. For example, if we wanted to send binary data to the server - say, an image generated by an image library - we can use this one:
 
-    @discardableResult public func send(data: Data) -> RouterResponse
+```swift
+@discardableResult public func send(data: Data) -> RouterResponse
+```
 
 Or we can send a file read from the disk:
 
-    @discardableResult public func send(fileName: String) throws -> RouterResponse
+```swift
+@discardableResult public func send(fileName: String) throws -> RouterResponse
+```
 
 This book will not demonstrate these methods, but it might be handy to know they exists in the future.
 
 For those of you interested in using Kitura to build a REST API server, you might be glad to know that RouterResponse has many methods for sending JSON responses, including the following two for sending a response currently in the form of a Foundation JSON object and a [String: Any] dictionary, respectively:
 
-    @discardableResult public func send(json: JSON) -> RouterResponse
-    
-    @discardableResult public func send(json: [String: Any]) -> RouterResponse
+```swift
+@discardableResult public func send(json: JSON) -> RouterResponse
+
+@discardableResult public func send(json: [String: Any]) -> RouterResponse
+```
 
 Later chapters in this book *will* give examples of sending JSON responses to the client, so let’s play with that last one now.
 
-    router.get("/stock-data") { request, response, next in
-        // Completely made up stock value data
-        let stockData = ["AAPL": 120.44, "MSFT": 88.48, "IBM": 74.11, "DVMT": 227.44]
-        response.send(json: stockData)
-    }
+```swift
+router.get("/stock-data") { request, response, next in
+    // Completely made up stock value data
+    let stockData = ["AAPL": 120.44, "MSFT": 88.48, "IBM": 74.11, "DVMT": 227.44]
+    response.send(json: stockData)
+}
+```
 
 And here’s the output:
 
@@ -223,23 +245,24 @@ If you’ve been doing all right following along so far, I challenge you to stop
 
 Okay, here’s my code. How does yours compare? (Of course, if yours is quite different, that doesn’t mean it’s wrong!)
 
-    router.get("/calc") { request, response, next in
-        guard let aParam = request.queryParameters["a"], let bParam = request.queryParameters["b"] else {
-            response.status(.badRequest)
-            response.send("\"a\" and/or \"b\" parameter missing\n")
-            Log.error("Parameter missing from client request")
-            return
-        }
-        guard let aVal = Float(aParam), let bVal = Float(bParam) else {
-            response.status(.badRequest)
-            response.send("\"a\" and/or \"b\" parameter could not be converted to Float\n")
-            Log.error("Parameter uncastable")
-            return
-        }
-        let sum = aVal + bVal
-        Log.info("Successful calculation: \(sum)")
-        response.send("The result is \(sum)\n")
+```swift
+router.get("/calc") { request, response, next in
+    guard let aParam = request.queryParameters["a"], let bParam = request.queryParameters["b"] else {
+        response.status(.badRequest)
+        response.send("\"a\" and/or \"b\" parameter missing\n")
+        Log.error("Parameter missing from client request")
+        return
     }
-
+    guard let aVal = Float(aParam), let bVal = Float(bParam) else {
+        response.status(.badRequest)
+        response.send("\"a\" and/or \"b\" parameter could not be converted to Float\n")
+        Log.error("Parameter uncastable")
+        return
+    }
+    let sum = aVal + bVal
+    Log.info("Successful calculation: \(sum)")
+    response.send("The result is \(sum)\n")
+}
+```
 
 If you’re an experienced web developer, you may be cringing at the use of query parameters. Can’t Kitura let us use a nice pretty path with no query parameters instead - maybe something like “/calc/12.44/-88.2”? Well, of course it can, and we’ll find out how when we examine Kitura’s Router object in the next chapter.
