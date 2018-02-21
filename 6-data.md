@@ -142,25 +142,27 @@ On these lines, we are setting the status code of the HTTP response. There are d
 
 Let’s fire up our server and do some testing with Curl.
 
-    > curl localhost:8080/songs/w -i -H "Accept: text/json"
-    HTTP/1.1 200 OK
-    Date: Thu, 23 Nov 2017 20:54:33 GMT
-    Content-Type: text/json
-    Content-Length: 24
-    Vary: Accept
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60
-    
-    Not yet implemented. :(
-    > curl localhost:8080/songs/w -i -H "Accept: image/png"
-    HTTP/1.1 406 Not Acceptable
-    Date: Thu, 23 Nov 2017 20:55:13 GMT
-    Content-Length: 0
-    Vary: Accept
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60
+```shell
+$ curl localhost:8080/songs/w -i -H "Accept: text/json"
+HTTP/1.1 200 OK
+Date: Thu, 23 Nov 2017 20:54:33 GMT
+Content-Type: text/json
+Content-Length: 24
+Vary: Accept
+Connection: Keep-Alive
+Keep-Alive: timeout=60
 
-    >
+Not yet implemented. :(
+$ curl localhost:8080/songs/w -i -H "Accept: image/png"
+HTTP/1.1 406 Not Acceptable
+Date: Thu, 23 Nov 2017 20:55:13 GMT
+Content-Length: 0
+Vary: Accept
+Connection: Keep-Alive
+Keep-Alive: timeout=60
+
+$
+```
 
 Note the “Content-Type” and “Vary” headers, as well as the status codes.
 
@@ -189,28 +191,31 @@ Now we go back to our route handler, and specifically the switch case for `text/
 
 Can it really be that easy? Build and test:
     
-    > curl localhost:8080/songs/w -H "Accept: text/json"
-    [{"name":"W.M.A.","albumTitle":"Vs.","composer":"Dave Abbruzzese\/Eddie Vedder\/Jeff Ament\/Mike McCready\/Stone Gossard"},{"name":"W\/Brasil (Chama O Síndico)","albumTitle":"Jorge Ben Jor 25 Anos"},{"name":"Wainting On A Friend","albumTitle":"No Security","composer":"Jagger\/Richards"},{"name":"Waiting","albumTitle":"Judas 0: B-Sides and Rarities","composer":"Billy Corgan"},{"name":"Waiting","albumTitle":"International Superhits","composer":"Billie Joe Armstrong -Words Green Day -Music"}, …]
-
+```shell
+$ curl localhost:8080/songs/w -H "Accept: text/json"
+[{"name":"W.M.A.","albumTitle":"Vs.","composer":"Dave Abbruzzese\/Eddie Vedder\/Jeff Ament\/Mike McCready\/Stone Gossard"},{"name":"W\/Brasil (Chama O Síndico)","albumTitle":"Jorge Ben Jor 25 Anos"},{"name":"Wainting On A Friend","albumTitle":"No Security","composer":"Jagger\/Richards"},{"name":"Waiting","albumTitle":"Judas 0: B-Sides and Rarities","composer":"Billy Corgan"},{"name":"Waiting","albumTitle":"International Superhits","composer":"Billie Joe Armstrong -Words Green Day -Music"}, …]
+```
 Let’s clean up that output a bit.
 
-    [
-      {
-        "name": "W.M.A.",
-        "albumTitle": "Vs.",
-        "composer": "Dave Abbruzzese\/Eddie Vedder\/Jeff Ament\/Mike McCready\/Stone Gossard"
-      },
-      {
-        "name": "W\/Brasil (Chama O Síndico)",
-        "albumTitle": "Jorge Ben Jor 25 Anos"
-      },
-      {
-        "name": "Wainting On A Friend",
-        "albumTitle": "No Security",
-        "composer": "Jagger\/Richards"
-      }
-      …
-    ]
+```json
+[
+  {
+    "name": "W.M.A.",
+    "albumTitle": "Vs.",
+    "composer": "Dave Abbruzzese\/Eddie Vedder\/Jeff Ament\/Mike McCready\/Stone Gossard"
+  },
+  {
+    "name": "W\/Brasil (Chama O Síndico)",
+    "albumTitle": "Jorge Ben Jor 25 Anos"
+  },
+  {
+    "name": "Wainting On A Friend",
+    "albumTitle": "No Security",
+    "composer": "Jagger\/Richards"
+  }
+  …
+]
+```
 
 So just as our `tracks` variable in our Swift code was an array of `Track` objects, this JSON code represents an array (delineated by the square brackets) of objects (delineated by the curly braces) with properties for `name`, `albumTitle`, and, when available, `composer` properties.
 
@@ -222,44 +227,52 @@ Unfortunately, publishing our data in XML is going to be a little more difficult
 
 For example, consider the following:
 
-    let arrayOfInts: [Int] = [1, 2, 3]
+```swift
+let arrayOfInts: [Int] = [1, 2, 3]
+```
 
 What is the correct way to encode `arrayOfInts` into JSON? If you asked a hundred coders familiar with JSON this question, I’ll bet you a nice dinner that every single one of them would give you this answer:
 
-    [1, 2, 3]
+```json
+[1, 2, 3]
+```
 
 But how would you encode it as XML? Again, you could ask 100 coders familiar with XML this question, but this time around my bet is that you’d get several dozen different answers *at least.* They might or might not include the following:
 
-    <arrayOfInts>
-      <int>1</int>
-      <int>2</int>
-      <int>3</int>
-    </arrayOfInts>
-    
-    <array type="Int">
-      <value>1</value>
-      <value>2</value>
-      <value>3</value>
-    </array>
-    
-    <collection type="array" name="arrayOfInts">
-      <item position="0" value="1" />
-      <item position="1" value="2" />
-      <item position="2" value="3" />
-    </collection>
+```xml
+<arrayOfInts>
+  <int>1</int>
+  <int>2</int>
+  <int>3</int>
+</arrayOfInts>
+
+<array type="Int">
+  <value>1</value>
+  <value>2</value>
+  <value>3</value>
+</array>
+
+<collection type="array" name="arrayOfInts">
+  <item position="0" value="1" />
+  <item position="1" value="2" />
+  <item position="2" value="3" />
+</collection>
+```
 
 …And so on. And none of these are necessarily wrong.
 
 So can we just throw the `Encodable` protocol on a class or struct and get it to generate XML as easily as we can with JSON? Well… kind of. You see, besides JSON, Foundation has built-in support to generate *property lists,* or “plists.” Property lists are files that serialize Foundation data types into a particular XML format, but that XML format, or *schema,* is rather verbose and not well optimized to a particular use case. Property lists originate in the NeXTSTEP operating system developed in the late ‘80s, which was eventually purchased by Apple and molded into macOS, which itself served as the basis of Apple’s other operating systems. So outside of the Apple ecosystem, property lists are practically unheard of. So let’s just forget about them and implement our own schema, shall we? I think something that looks like this will work nicely:
 
-    <tracks>
-      <track>
-        <name>W.M.A.</name>
-        <albumTitle>Vs.</albumTitle>
-        <composer>Dave Abbruzzese/Eddie Vedder/Jeff Ament/Mike McCready/Stone Gossard</composer>
-      </track>
-      …
-    </tracks>
+```xml
+<tracks>
+  <track>
+    <name>W.M.A.</name>
+    <albumTitle>Vs.</albumTitle>
+    <composer>Dave Abbruzzese/Eddie Vedder/Jeff Ament/Mike McCready/Stone Gossard</composer>
+  </track>
+  …
+</tracks>
+```
 
 So the *root element* of our XML document will be `<tracks>`, which will contain several child `<track>` elements. Each `<track>` element will itself contain `<name>`, `<albumTitle>` and `<composer>` elements. This is pretty straightforward, right?
 
@@ -299,33 +312,36 @@ Now let’s go back to our router callback and the switch case for an XML reques
 
 So we are creating a `<tracks>` element, looping through our `tracks` array, and appending child `<track>` elements to it. Finally, we’re creating an `XMLDocument` and setting our `<tracks>` element as the root element. We get a `Data` object out of that, and after it’s converted to a `String`, it will have our XML. Let’s give it a try.
 
-    > curl localhost:8080/songs/k -i -H "Accept: text/xml"
-    HTTP/1.1 200 OK
-    Date: Wed, 29 Nov 2017 03:35:22 GMT
-    Content-Type: text/xml
-    Content-Length: 3496
-    Vary: Accept
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60
-    
-    <tracks><track><name>Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto)</name><composer>Jean Sibelius</composer><albumTitle>Sibelius: Finlandia</albumTitle></track><track><name>Kashmir</name><composer>John Bonham</composer><albumTitle>Physical Graffiti [Disc 1]</albumTitle></track><track><name>Kayleigh</name><composer>Kelly, Mosley, Rothery, Trewaves</composer><albumTitle>Misplaced Childhood</albumTitle></track><track><name>Keep It To Myself (Aka Keep It To Yourself)</name><composer>Sonny Boy Williamson [I]</composer><albumTitle>The Best Of Buddy Guy - The Millenium Collection</albumTitle></track>
+```shell
+> curl localhost:8080/songs/k -i -H "Accept: text/xml"
+HTTP/1.1 200 OK
+Date: Wed, 29 Nov 2017 03:35:22 GMT
+Content-Type: text/xml
+Content-Length: 3496
+Vary: Accept
+Connection: Keep-Alive
+Keep-Alive: timeout=60
 
+<tracks><track><name>Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto)</name><composer>Jean Sibelius</composer><albumTitle>Sibelius: Finlandia</albumTitle></track><track><name>Kashmir</name><composer>John Bonham</composer><albumTitle>Physical Graffiti [Disc 1]</albumTitle></track><track><name>Kayleigh</name><composer>Kelly, Mosley, Rothery, Trewaves</composer><albumTitle>Misplaced Childhood</albumTitle></track><track><name>Keep It To Myself (Aka Keep It To Yourself)</name><composer>Sonny Boy Williamson [I]</composer><albumTitle>The Best Of Buddy Guy - The Millenium Collection</albumTitle></track>
+```
 
 Again, let’s clean that output up and see what we have.
 
-    <tracks>
-      <track>
-        <name>Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto)</name>
-        <composer>Jean Sibelius</composer>
-        <albumTitle>Sibelius: Finlandia</albumTitle>
-      </track>
-      <track>
-        <name>Kashmir</name>
-        <composer>John Bonham</composer>
-        <albumTitle>Physical Graffiti [Disc 1]</albumTitle>
-      </track>
-      …
-    </tracks>
+```xml
+  <tracks>
+    <track>
+      <name>Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto)</name>
+      <composer>Jean Sibelius</composer>
+      <albumTitle>Sibelius: Finlandia</albumTitle>
+    </track>
+    <track>
+      <name>Kashmir</name>
+      <composer>John Bonham</composer>
+      <albumTitle>Physical Graffiti [Disc 1]</albumTitle>
+    </track>
+    …
+  </tracks>
+```
 
 Yep, that looks about right.
 

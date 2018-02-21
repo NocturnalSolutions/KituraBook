@@ -15,10 +15,12 @@ router.get("/get-only") { request, response, next in
 
 Let’s try accessing that route with both GET and POST requests.
 
-    $ curl localhost:8080/get-only
-    GET Success!
-    $ curl -d "" localhost:8080/get-only
-    Cannot POST /get-only.
+```shell
+$ curl localhost:8080/get-only
+GET Success!
+$ curl -d "" localhost:8080/get-only
+Cannot POST /get-only.
+```
 
 And let’s try that again with one of the more unusual methods.
     
@@ -31,12 +33,14 @@ router.lock("/lock-only") { request, response, next in
 
 Curl’s `--request` option will let us define any arbitrary HTTP method to send in the request, so let’s use that when we test.
 
-    $ curl --request LOCK localhost:8080/lock-only
-    LOCK success!
-    $ curl -d "" localhost:8080/lock-only
-    Cannot POST /lock-only.
-    $ curl localhost:8080/lock-only
-    Cannot GET /lock-only.
+```shell
+$ curl --request LOCK localhost:8080/lock-only
+LOCK success!
+$ curl -d "" localhost:8080/lock-only
+Cannot POST /lock-only.
+$ curl localhost:8080/lock-only
+Cannot GET /lock-only.
+```
 
 Okay, so nothing too surprising there.
 
@@ -50,19 +54,23 @@ router.all("/request-info") { request, response, next in
 
 And, as we test:
 
-    $ curl localhost:8080/request-info
-    The request method was GET.
-    $ curl -d "" localhost:8080/request-info
-    The request method was POST.
-    curl --request UNSUBSCRIBE localhost:8080/request-info
-    The request method was UNSUBSCRIBE.
+```shell
+$ curl localhost:8080/request-info
+The request method was GET.
+$ curl -d "" localhost:8080/request-info
+The request method was POST.
+curl --request UNSUBSCRIBE localhost:8080/request-info
+The request method was UNSUBSCRIBE.
+```
 
 The request type still has to be one as known by Kitura’s RouterMethod enum, however, so we can’t get *too* crazy.
 
-    $ curl --request BEANSANDRICE --include localhost:8080/request-info
-    HTTP/1.1 400 Bad Request
-    Date: Sun, 03 Sep 2017 03:20:36 GMT
-    Connection: Close
+```shell
+$ curl --request BEANSANDRICE --include localhost:8080/request-info
+HTTP/1.1 400 Bad Request
+Date: Sun, 03 Sep 2017 03:20:36 GMT
+Connection: Close
+```
 
 If you enabled logging, you’ll also see “Failed to parse a request. Parsed fewer bytes than were passed to the HTTP parser” logged. Note that, despite the wording of the error, if you see it in the future, it may be because you’re using an incorrect HTTP method to make a request to your server. And remember, capitalization counts!
 
@@ -131,8 +139,10 @@ router.get("/post/:postId") { request, response, next in
 
 Let’s test.
 
-    $ curl localhost:8080/post/4
-    Now showing post #4
+```shell
+$ curl localhost:8080/post/4
+Now showing post #4
+```
 
 Note that you can easily use more than one parameter in your paths, and they don’t have to be at the end of the path.
 
@@ -147,8 +157,10 @@ router.get("/:authorName/post/:postId") { request, response, next in
 
 We test, and it works as expected.
 
-    $ curl localhost:8080/Nocturnal/post/4
-    Now showing post #4 by Nocturnal
+```shell
+$ curl localhost:8080/Nocturnal/post/4
+Now showing post #4 by Nocturnal
+```
 
 Okay, that’s pretty cool. But let’s go back and look at that simpler path parameter example one more time.
 
@@ -162,8 +174,10 @@ router.get("/post/:postId") { request, response, next in
 
 There’s a potential problem here in that the postId parameter can be *anything.* For example…
 
-    $ curl localhost:8080/post/hello
-    Now showing post #hello
+```shell
+$ curl localhost:8080/post/hello
+Now showing post #hello
+```
 
 Okay, no sweat, right? If we want to make sure the post ID is a positive number, we can just do something like…
 
@@ -182,8 +196,10 @@ router.get("/post/:postId") { request, response, next in
 
 And, yes, this works well enough.
 
-    $ curl localhost:8080/post/hello
-    Not a proper post ID!
+```shell
+$ curl localhost:8080/post/hello
+Not a proper post ID!
+```
 
 But there’s another way. We can use regular expressions to define that we want a path parameter to fit a certain format. So let’s do it that way instead. To implement a path parameter with a regular expression, name it with a colon as normal, but then follow the name with the regular expression pattern in parentheses. The pattern to match one or more digits is `\d+`, but we need to escape that backslash with another backslash. So let’s implement it this way.
 
@@ -197,12 +213,16 @@ router.get("/post/:postId(\\d+)") { request, response, next in
 
 Now let’s test. You’ll see that trying a non-numeric path parameter now causes Kitura to return its standard 404 Not Found error; we didn’t have to write any extra code in our handler to make it happen.
 
-    $ curl localhost:8080/post/hello
-    Cannot GET /post/hello.
-    $ curl localhost:8080/post/85
-    Now showing post #85
+```shell
+$ curl localhost:8080/post/hello
+Cannot GET /post/hello.
+$ curl localhost:8080/post/85
+Now showing post #85
+```
 
 Note that you don’t want to use the `^` and `$` regular expression tokens in your pattern to signify the beginning and end of the path parameter value; they are effectively implicitly added by Kitura.
 
-    $ curl localhost:8080/post/3-bananas
-    Cannot GET /post/3-bananas.
+```shell
+$ curl localhost:8080/post/3-bananas
+Cannot GET /post/3-bananas.
+```

@@ -28,13 +28,17 @@ On the Mac, your approach will depend on which package manager you decide to use
 
 If you’re using Homebrew, the package you’ll want to install is `sqlite`.
 
-    brew install sqlite
+```shell
+brew install sqlite
+```
 
 On MacPorts, you’ll want to install the `sqlite3` port. Additionally, you’ll need to symlink some things into the places that Homebrew would put them, since Swift Kuery SQLite was written expecting you to have used Homebrew. The three commands below should do it.
 
-    sudo port install sqlite3
-    mkdir -p /usr/local/opt/sqlite/include
-    ln -s /opt/local/include/sqlite3.h /usr/local/opt/sqlite/include/
+```shell
+sudo port install sqlite3
+mkdir -p /usr/local/opt/sqlite/include
+ln -s /opt/local/include/sqlite3.h /usr/local/opt/sqlite/include/
+```
 
 (If you get permissions errors running any of the above commands, remember you probably need to prefix them with `sudo`.)
 
@@ -42,7 +46,9 @@ On MacPorts, you’ll want to install the `sqlite3` port. Additionally, you’ll
 
 Assuming you’re on some variant of Ubuntu Linux (other versions of Linux are not officially supported by Apple as of this writing), you’ll want to install the `sqlite3` and `libsqlite3-dev` packages.
 
-    apt-get install sqlite3 libsqlite3-dev
+```shell
+apt-get install sqlite3 libsqlite3-dev
+```
 
 ## Importing some data
 
@@ -104,18 +110,22 @@ Kitura.run()
 
 Now build your project and watch what happens when you visit the “/albums” path.
 
-    > curl localhost:8080/albums 
-    ...And Justice For All
-    20th Century Masters - The Millennium Collection: The Best of Scorpions
-    A Copland Celebration, Vol. I
-    A Matter of Life and Death
-    A Real Dead One
-    A Real Live One
-    [continued…]
+```shell
+> curl localhost:8080/albums 
+...And Justice For All
+20th Century Masters - The Millennium Collection: The Best of Scorpions
+A Copland Celebration, Vol. I
+A Matter of Life and Death
+A Real Dead One
+A Real Live One
+[continued…]
+```
 
 So you can probably see what happened here, but just in case, let’s go over that router handler bit by bit.
 
-        cxn.execute("SELECT Title FROM Album ORDER BY Title ASC") { queryResult in
+```swift
+    cxn.execute("SELECT Title FROM Album ORDER BY Title ASC") { queryResult in
+```
 
 The `execute()` method here takes a string containing an SQL query and an escaping closure that is executed after the query is made. The closure is passed a `QueryResult` enum which we name `queryResult`.
 
@@ -205,7 +215,9 @@ print(try! titleQuery.build(queryBuilder: cxn.queryBuilder))
 
 Now, if you build and run your project, you should see the following appear in the console when a request for the “/albums” path is made.
 
-    SELECT Album.Title FROM Album ORDER BY Album.Title ASC
+```sql
+SELECT Album.Title FROM Album ORDER BY Album.Title ASC
+```
 
 Yep, that SQL looks about right to me.
 
@@ -287,10 +299,12 @@ Let’s do something a little tricker. Let’s make a route which returns a list
 
 What would that query look like if we wrote it in SQL? Here’s what I came up with to find all songs with titles that begin with the letter “N”.
 
-    SELECT track.Name, track.Composer, album.Title FROM track
-    INNER JOIN album ON track.AlbumID = album.AlbumID
-    WHERE track.Name LIKE "k%"
-    ORDER BY track.name ASC
+```sql
+SELECT track.Name, track.Composer, album.Title FROM track
+INNER JOIN album ON track.AlbumID = album.AlbumID
+WHERE track.Name LIKE "k%"
+ORDER BY track.name ASC
+```
 
 Go ahead and give that query a try and check out the result.
 
@@ -344,12 +358,14 @@ router.get("/songs/:letter([a-z])") { request, response, next in
 
 Let’s test.
 
-    > curl localhost:8080/songs/k
-    Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto) by Jean Sibelius from Sibelius: Finlandia
-    Kashmir by John Bonham from Physical Graffiti [Disc 1]
-    Kayleigh by Kelly, Mosley, Rothery, Trewaves from Misplaced Childhood
-    Keep It To Myself (Aka Keep It To Yourself) by Sonny Boy Williamson [I] from The Best Of Buddy Guy - The Millenium Collection
-    [continued…]
+```shell
+> curl localhost:8080/songs/k
+Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto) by Jean Sibelius from Sibelius: Finlandia
+Kashmir by John Bonham from Physical Graffiti [Disc 1]
+Kayleigh by Kelly, Mosley, Rothery, Trewaves from Misplaced Childhood
+Keep It To Myself (Aka Keep It To Yourself) by Sonny Boy Williamson [I] from The Best Of Buddy Guy - The Millenium Collection
+[continued…]
+```
 
 Oh, that’s nice.
 

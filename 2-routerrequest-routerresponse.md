@@ -41,11 +41,13 @@ Note that we’re using the `all()` method here instead of the `get()` one as we
 
 Now we’ll request the path using Curl’s `-d` flag to post an empty string to our request path.
 
-    $ curl -d "" localhost:8080/request-info 
-    You are accessing localhost on port 8080.
-    You're coming from 127.0.0.1.
-    The request method was POST.
-    Your user-agent is curl/7.54.0.
+```shell
+$ curl -d "" localhost:8080/request-info 
+You are accessing localhost on port 8080.
+You're coming from 127.0.0.1.
+The request method was POST.
+Your user-agent is curl/7.54.0.
+```
 
 The `queryParameters` property is a [String: String] dictionary of the query parameters.
 
@@ -62,10 +64,12 @@ router.get("/hello-you") { request, response, next in
 
 And the result:
 
-    $ curl localhost:8080/hello-you
-    Hello, whoever you are!
-    $ curl "localhost:8080/hello-you?name=Nocturnal"
-    Hello, Nocturnal!
+```shell
+$ curl localhost:8080/hello-you
+Hello, whoever you are!
+$ curl "localhost:8080/hello-you?name=Nocturnal"
+Hello, Nocturnal!
+```
 
 There are a few more things that RouterRequest contains that are of varying level of interest, but these are the most relevant ones in my not so humble opinion. For now, have a look at `RouterRequest.swift` in the Kitura project if you’re curious what else you can find there - but then come right back, because things will get more interesting soon.
 
@@ -84,14 +88,16 @@ router.get("/admin") { request, response, next in
 
 When we test with Curl, we get the expected status code.
 
-    $ curl --include localhost:8080/admin
-    HTTP/1.1 403 Forbidden
-    Date: Wed, 30 Aug 2017 20:50:44 GMT
-    Content-Length: 42
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    Hey, you don't have permission to do that!
+```shell
+$ curl --include localhost:8080/admin
+HTTP/1.1 403 Forbidden
+Date: Wed, 30 Aug 2017 20:50:44 GMT
+Content-Length: 42
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+Hey, you don't have permission to do that!
+```
 
 RouterResponse has a `headers` property that works just like the one on RouterResponse.
 
@@ -105,16 +111,18 @@ router.get("/custom-headers") { request, response, next in
 
 Here’s the response. Note the new headers.
 
-    $ curl --include localhost:8080/custom-headers
-    HTTP/1.1 200 OK
-    Date: Wed, 30 Aug 2017 21:09:49 GMT
-    Content-Type: text/plain; charset=utf-8
-    Content-Length: 6
-    X-Generator: Kitura!
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    Hello!
+```shell
+$ curl --include localhost:8080/custom-headers
+HTTP/1.1 200 OK
+Date: Wed, 30 Aug 2017 21:09:49 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 6
+X-Generator: Kitura!
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+Hello!
+```
 
 We could set a 301 Moved Permanently or 308 Moved Temporarily status and a “Location” header to redirect the user from one path to another, but RouterRequest provides some shorthand to do that.
 
@@ -129,21 +137,23 @@ router.get("/redirect") { request, response, next in
 
 We’ll test by using Curl’s `--location` flag to tell it to follow “Location” headers when encountered.
 
-    $ curl --include --location localhost:8080/redirect
-    HTTP/1.1 301 Moved Permanently
-    Date: Wed, 30 Aug 2017 20:46:24 GMT
-    Location: /
-    Content-Length: 0
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    HTTP/1.1 200 OK
-    Date: Wed, 30 Aug 2017 20:46:24 GMT
-    Content-Length: 13
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=98
-    
-    Hello world!
+```shell
+$ curl --include --location localhost:8080/redirect
+HTTP/1.1 301 Moved Permanently
+Date: Wed, 30 Aug 2017 20:46:24 GMT
+Location: /
+Content-Length: 0
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+HTTP/1.1 200 OK
+Date: Wed, 30 Aug 2017 20:46:24 GMT
+Content-Length: 13
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=98
+
+Hello world!
+```
 
 Really, though, the star of the show is RouterResponse’s `send()` method - or, should I say, *methods.* The one we’ve used in this book so far has had the following signature:
 
@@ -187,20 +197,22 @@ router.get("/stock-data") { request, response, next in
 
 And here’s the output:
 
-    $ curl --include localhost:8080/stock-data
-    HTTP/1.1 200 OK
-    Date: Wed, 30 Aug 2017 21:23:12 GMT
-    Content-Type: application/json
-    Content-Length: 75
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    {
-      "MSFT" : 88.48,
-      "DVMT" : 227.44,
-      "IBM" : 74.11,
-      "AAPL" : 120.44
-    }
+```shell
+$ curl --include localhost:8080/stock-data
+HTTP/1.1 200 OK
+Date: Wed, 30 Aug 2017 21:23:12 GMT
+Content-Type: application/json
+Content-Length: 75
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+{
+  "MSFT" : 88.48,
+  "DVMT" : 227.44,
+  "IBM" : 74.11,
+  "AAPL" : 120.44
+}
+```
 
 Note how Kitura automatically added a “Content-Type: application/json” header for us.
 
@@ -210,38 +222,40 @@ Let’s make a route with a path of “/calc” that takes two query parameters,
 
 If you’ve been doing all right following along so far, I challenge you to stop reading now and go ahead and try to implement this yourself before peeking at the code sample below. My code doesn’t use anything that hasn’t been covered in this book so far. This time I’m going to show you my code’s output when I test it with Curl first, and show you the code later.
 
-    $ curl --include localhost:8080/calc
-    HTTP/1.1 400 Bad Request
-    Date: Wed, 30 Aug 2017 21:55:57 GMT
-    Content-Length: 33
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    "a" and/or "b" parameter missing
-    $ curl --include "localhost:8080/calc?a=7&b=kitura"
-    HTTP/1.1 400 Bad Request
-    Date: Wed, 30 Aug 2017 21:56:18 GMT
-    Content-Length: 57
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    "a" and/or "b" parameter could not be converted to Float
-    $ curl --include "localhost:8080/calc?a=7&b=8"
-    HTTP/1.1 200 OK
-    Date: Wed, 30 Aug 2017 21:56:24 GMT
-    Content-Length: 19
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    The result is 15.0
-    $ curl --include "localhost:8080/calc?a=12.44&b=-88.2"
-    HTTP/1.1 200 OK
-    Date: Wed, 30 Aug 2017 21:56:42 GMT
-    Content-Length: 21
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    The result is -75.76
+```shell
+$ curl --include localhost:8080/calc
+HTTP/1.1 400 Bad Request
+Date: Wed, 30 Aug 2017 21:55:57 GMT
+Content-Length: 33
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+"a" and/or "b" parameter missing
+$ curl --include "localhost:8080/calc?a=7&b=kitura"
+HTTP/1.1 400 Bad Request
+Date: Wed, 30 Aug 2017 21:56:18 GMT
+Content-Length: 57
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+"a" and/or "b" parameter could not be converted to Float
+$ curl --include "localhost:8080/calc?a=7&b=8"
+HTTP/1.1 200 OK
+Date: Wed, 30 Aug 2017 21:56:24 GMT
+Content-Length: 19
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+The result is 15.0
+$ curl --include "localhost:8080/calc?a=12.44&b=-88.2"
+HTTP/1.1 200 OK
+Date: Wed, 30 Aug 2017 21:56:42 GMT
+Content-Length: 21
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+The result is -75.76
+```
 
 Okay, here’s my code. How does yours compare? (Of course, if yours is quite different, that doesn’t mean it’s wrong!)
 

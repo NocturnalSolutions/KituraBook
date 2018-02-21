@@ -12,32 +12,44 @@ First, if you are on a Mac and prefer to use MacPorts rather than Homebrew, you 
 
 Don't worry about any other code for now; try to build your project from the CLI with `swift build` as is. (Don't use Xcode for building yet, Mac users.) It will fail with an error which includes something like this:
 
-    ld: library not found for -lmysqlclient for architecture x86_64
-    <unknown>:0: error: link command failed with exit code 1 (use -v to see invocation)
+```shell
+ld: library not found for -lmysqlclient for architecture x86_64
+<unknown>:0: error: link command failed with exit code 1 (use -v to see invocation)
+```
 
 Aside from the header files, we also need to tell Kuery where to find the MySQL (in this case) libraries themselves. If you are using Homebrew, this directory will always be `/usr/local/lib`. If you're using MacPorts, the path will again vary depending on which type and version of MySQL you installed; it should be the same path you had to symlink as above, but with `include` swapped for `lib`; so `/opt/local/lib/mariadb-10.0/mysql` in my case. At any rate, now that you have this path, here’s how you pass them to the Swift compiler so your project builds:
 
-    swift build -Xlinker -L[the path found above]
+```shell
+swift build -Xlinker -L[the path found above]
+```
 
 So, for Homebrew users:
 
-    swift build -Xlinker -L/usr/local/lib
+```shell
+swift build -Xlinker -L/usr/local/lib
+```
 
 And for me, with my `mariadb-10` variant of MySQL:
 
-    swift build -Xlinker -L/opt/local/lib/mariadb-10.0/mysql
+```shell
+swift build -Xlinker -L/opt/local/lib/mariadb-10.0/mysql
+```
 
 What a pain! Fortunately, there’s a couple things you can do to make things easier. First, if you are using Xcode, you can pass those extra flags to `swift package generate-xcodeproj` too, and it will automatically add the magic pixie dust to the generated Xcode project so that it builds just by hitting that “Build” button. (If you generate an Xcode project with the extra flags omitted, your project will fail to build just as it will on the CLI.) So in my case, I do the following:
 
-    swift package generate-xcodeproj -Xlinker -L/opt/local/lib/mariadb-10.0/mysql
+```shell
+swift package generate-xcodeproj -Xlinker -L/opt/local/lib/mariadb-10.0/mysql
+```
 
 Just remember to include those flags when you generate a new Xcode project, for example after adding new packages.
 
 If you still prefer to build from the CLI, you can create a shell script that includes all that junk in it and then just invoke that script instead of `swift build`:
 
-    echo "swift build -Xlinker -L/opt/local/lib/mariadb-10/mysql" > build.sh
-    chmod +x build.sh
-    ./build.sh
+```shell
+echo "swift build -Xlinker -L/opt/local/lib/mariadb-10/mysql" > build.sh
+chmod +x build.sh
+./build.sh
+```
 
 ### On Linux
 

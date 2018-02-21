@@ -8,9 +8,11 @@ Let’s create a classic [Hello World](http://www.catb.org/jargon/html/H/hello-w
 
 Create a new Swift project by doing the following in a command line shell:
 
-    $ mkdir hello-world
-    $ cd hello-world
-    $ swift package init --type=executable
+```shell
+$ mkdir hello-world
+$ cd hello-world
+$ swift package init --type=executable
+```
 
 Now open up the `Package.swift` file and add a dependency for Kitura. It will have a bit of boilerplate in there that you’ll have to modify to add a dependency to Kitura. The end result should look like this.
 
@@ -40,12 +42,16 @@ let package = Package(
 
 Have the Swift Package Manager resolve Kitura and its dependencies and add them to your project.
 
-    $ swift package resolve
+```shell
+$ swift package resolve
+```
 
 If you’re on macOS and wish to use Xcode as your code editor, now’s the time to create a new Xcode project and open it up. (If you’re not on macOS or not using Xcode, ignore the following.)
 
-    $ swift package generate-xcodeproj
-    $ open hello-world.xcodeproj
+```shell
+$ swift package generate-xcodeproj
+$ open hello-world.xcodeproj
+```
 
 Now note that your project won’t build properly in Xcode unless you change the scheme to be your real application. I don’t know why this is; if it’s a glitch in Swift Package Manager, Xcode, or both. At any rate, you have to do it every time you use `generate-xcodeproj`. From the scheme menu to the right of the “stop” button, change the scheme from “hello-world-Package” to just “hello-world.”
 
@@ -71,49 +77,63 @@ Kitura.run()
 
 Now build and run your project. Back in your console window, enter:
 
-    $ swift build
+```shell
+$ swift build
+```
 
 If all goes well, the last line will be:
 
-    Linking ./.build/[Your hardware architecture and OS]/debug/hello-world
+```shell
+Linking ./.build/[Your hardware architecture and OS]/debug/hello-world
+```
     
 That’s where your compiled binary was saved. So let’s run that.
 
-    $ ./.build/[Your hardware architecture and OS]/debug/hello-world
+```shell
+$ ./.build/[Your hardware architecture and OS]/debug/hello-world
+```
 
 If all goes well, the program will execute without any output.
 
 Now open up a second terminal window and hit your new Kitura site!
 
-    $ curl localhost:8080/
-    Hello world!
+```shell
+$ curl localhost:8080/
+Hello world!
+```
 
 Note that I will use the Curl command line client for this and other examples in this book, but you can of course use wget if you prefer it or simply don’t have Curl installed.
 
-    $ wget localhost:8080/
-    Hello world!
+```shell
+$ wget localhost:8080/
+Hello world!
+```
 
 Aside from just the body of your response, your Kitura site is sending standard HTTP headers. You can check this by adding the `--include` flag to your Curl command. (If you’re using wget, add a `--server-response` flag.)
 
-    $ curl --include localhost:8080/
-    HTTP/1.1 200 OK
-    Date: Sun, 27 Aug 2017 03:37:28 GMT
-    Content-Length: 13
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
+```shell
+$ curl --include localhost:8080/
+HTTP/1.1 200 OK
+Date: Sun, 27 Aug 2017 03:37:28 GMT
+Content-Length: 13
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
 
-    Hello world!
+Hello world!
+```
 
 Now just for fun, let’s see what happens if we access a path other than “/“ on our server. Let’s try the “/hello” path:
 
-    $ curl --include localhost:8080/hello
-    HTTP/1.1 404 Not Found
-    Date: Sun, 27 Aug 2017 03:39:23 GMT
-    Content-Length: 18
-    Connection: Keep-Alive
-    Keep-Alive: timeout=60, max=99
-    
-    Cannot GET /hello.
+```shell
+$ curl --include localhost:8080/hello
+HTTP/1.1 404 Not Found
+Date: Sun, 27 Aug 2017 03:39:23 GMT
+Content-Length: 18
+Connection: Keep-Alive
+Keep-Alive: timeout=60, max=99
+
+Cannot GET /hello.
+```
 
 Oh, we got a 404 error. You may be able to guess why, but if not, I’ll explain it later in this chapter.
 
@@ -133,11 +153,15 @@ import Kitura
 
 We are importing the Kitura module into the scope of `main.swift` for further use by our code.
 
-    let router = Router()
+```swift
+let router = Router()
+```
 
 We are instantiating a new Router object, which is provided by Kitura. Routers will be covered in more depth in a future chapter. For now, know that routers are how we define paths that our site will listen for and what happens when a request for that path is made to the server.
 
-    router.get("/") { request, response, next in
+```swift
+router.get("/") { request, response, next in
+```
 
 We are creating a handler for the “/“ path; specifically, for GET HTTP requests made to the “/“ path. (We’ll learn how to handle other types of requests in a later chapter.) Note that in our code, this is the only path for which we are creating a handler. This is why we got a 404 error when we tried the “/hello” path above. (Up for a bit of experimentation? Try changing this to “/hello” or any other path and rebuild your project. Just remember to keep that slash at the beginning of the path.)
 
@@ -198,14 +222,18 @@ router.get("/") { request, response, next in
 
 Our code now has two simple handlers for the “/“ path. (If you experimented by changing “/“ to “/hello” or some other path in the first route handler above, either change it back or have this handler use that same new path; either way, make sure the first parameter to the `get` method is equivalent). Now do another request in the command line, and check out how the output has changed.
 
-    $ curl localhost:8080/
-    Hello world!
-    And hello again!
+```shell
+$ curl localhost:8080/
+Hello world!
+And hello again!
+```
 
 See? Our handlers fired one after the other, as expected. But now go back to the first handler and comment out or delete the `next()` line. Build your project and test your site again:
 
-    $ curl localhost:8080/
-    Hello world!
+```shell
+$ curl localhost:8080/
+Hello world!
+```
 
 Oops. As you can see, failing to call `next()` from our first handler means our second one didn’t get invoked. So don’t forget your `next()` line!
 
