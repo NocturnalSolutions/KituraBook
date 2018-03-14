@@ -34,6 +34,7 @@ router.all("/request-info") { request, response, next in
     if let agent = request.headers["User-Agent"] {
         response.send("Your user-agent is \(agent).\n")
     }
+    next()
 }
 ```
 
@@ -59,6 +60,7 @@ router.get("/hello-you") { request, response, next in
     else {
         response.send("Hello, whoever you are!\n")
     }
+    next()
 }
 ```
 
@@ -83,6 +85,7 @@ We can use RouterResponse’s `status()` method to set a custom status code. Pas
 router.get("/admin") { request, response, next in
     response.status(.forbidden)
     response.send("Hey, you don't have permission to do that!")
+    next()
 }
 ```
 
@@ -106,6 +109,7 @@ router.get("/custom-headers") { request, response, next in
     response.headers["Content-Type"] = "text/plain; charset=utf-8"
     response.headers["X-Generator"] = "Kitura!"
     response.send("Hello!")
+    next()
 }
 ```
 
@@ -130,6 +134,7 @@ We could set a 301 Moved Permanently or 308 Moved Temporarily status and a “Lo
 router.get("/redirect") { request, response, next in
     // Redirect the client to the home page.
     try! response.redirect("/", status: .movedPermanently)
+    next()
 }
 ```
 
@@ -192,6 +197,7 @@ router.get("/stock-data") { request, response, next in
     // Completely made up stock value data
     let stockData = ["AAPL": 120.44, "MSFT": 88.48, "IBM": 74.11, "DVMT": 227.44]
     response.send(json: stockData)
+    next()
 }
 ```
 
@@ -276,6 +282,7 @@ router.get("/calc") { request, response, next in
     let sum = aVal + bVal
     Log.info("Successful calculation: \(sum)")
     response.send("The result is \(sum)\n")
+    next()
 }
 ```
 
