@@ -1,4 +1,4 @@
-![Kitura Until Dawn](../images/logo-vert.png)
+![Kitura Until Dawn](images/logo-vert.png)
 
 ## A completely unauthorized Kitura guidebook
 
