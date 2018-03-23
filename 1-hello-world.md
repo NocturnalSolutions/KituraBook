@@ -55,7 +55,7 @@ $ open hello-world.xcodeproj
 
 Now note that your project won’t build properly in Xcode unless you change the scheme to be your real application. I don’t know why this is; if it’s a glitch in Swift Package Manager, Xcode, or both. At any rate, you have to do it every time you use `generate-xcodeproj`. From the scheme menu to the right of the “stop” button, change the scheme from “hello-world-Package” to just “hello-world.”
 
-![Scheme selection](../images/scheme-select.png)
+![Scheme selection](images/scheme-select.png)
 
 Okay, let’s add some code. Open up the `Sources/main.swift` file in your editor. Delete what SPM has put in there by default and enter the following:
 

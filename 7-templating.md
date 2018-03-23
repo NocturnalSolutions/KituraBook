@@ -332,7 +332,7 @@ Note that we added “text/html” to the array we send to `request.accepts()`. 
 
 Now go back to your web browser and request `/songs/T` (or any other letter). You should see something like the image below.
 
-![Web browser display of our new song list template](../images/songs.png)
+![Web browser display of our new song list template](images/songs.png)
 
 Uh oh. The `default` filter doesn’t seem to be working for the tracks which have a nil composer value. Yes, as I write this, the base Stencil project has a bug… but *our* code is correct. (Feel free to implement a workaround for this if you wish; I leave that as an exercise for the reader as well. And yes, “exercises for the reader” are often “lazinesses for the author” in thin disguise.)
 

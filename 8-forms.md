@@ -25,7 +25,7 @@ For example, given the following HTML:
 
 The browser will create a form which looks something like this.
 
-![Example form](../images/example-form.png)
+![Example form](images/example-form.png)
 
 Now let’s say we enter “Kitura” in the “Search for” field, check the “Text” checkbox, and then click the “Submit” button. The browser will build a query which looks something like:
 
