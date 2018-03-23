@@ -170,7 +170,7 @@ That’s better.
 
 ## Handling POST Submissions
 
-### POST submissions with `enctype=“application/x-www-form-urlencoded”`
+### POST submissions with `enctype="application/x-www-form-urlencoded"`
 
 For this sort of form, it would probably be best to keep it as a GET form, since it’s fairly simple and we don’t mind if the results page is bookmarkable. But we’ll turn it into a POST form just so we can see how they would work.
 
@@ -221,7 +221,7 @@ Note that, just as with `queryParameters`, in the case that there are multiple v
 
 Go ahead and build your project and test it out. You should see that the behavior is exactly the same as it was when you were making GET requests, except that the path won’t have the query string.
 
-### POST Submisssions with `enctype="multipart/form-data”`
+### POST Submisssions with `enctype="multipart/form-data"`
 
 Okay, let’s round out the trifecta by seeing how we’d take a form submission with the `multipart/form-data` encoding. Let’s tweak our template again to add the `enctype` attribute, and change the `action` path to something else while we’re at it. We’ll also change the `action` path to something else. 
 
