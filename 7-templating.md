@@ -35,7 +35,7 @@ A templating engine allows us to build web pages using templates, which are basi
 </table>
 ```
 
-Just as the Swift Kuery project was a protocol upon which implementations like Swift Kuery MySQL and Swift Kuery PostgreSQL could be implemented, the Kitura Template Engine project is a protocol upon which templating engines could be implemented. As of this writing, the IBM@Swift project has three implementations available; Mustache, Stencil, and Markdown. We’ll ignore the Markdown implementation as it’s not a true full templating engine, and the Mustache implementation hasn’t been updated in several months, so we’ll work with the Stencil implementation here.
+Just as the Swift Kuery project was a protocol upon which implementations like Swift Kuery MySQL and Swift Kuery PostgreSQL could be implemented, the [Kitura Template Engine](https://github.com/IBM-Swift/Kitura-TemplateEngine) project is a protocol upon which templating engines could be implemented. As of this writing, the IBM@Swift project has three implementations available; [Mustache](https://github.com/IBM-Swift/Kitura-MustacheTemplateEngine), [Stencil](https://github.com/IBM-Swift/Kitura-StencilTemplateEngine), and [Markdown](https://github.com/IBM-Swift/Kitura-Markdown). We’ll ignore the Markdown implementation as it’s not a true full templating engine, and the Mustache implementation hasn’t been updated in several months, so we’ll work with the Stencil implementation here.
 
 Stencil is a templating engine inspired by the one provided for Django, a popular web framework for the Python language. It has a pretty good balance of simplicity and advanced features.
 

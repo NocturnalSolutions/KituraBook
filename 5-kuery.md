@@ -18,7 +18,7 @@ MySQL, PostgreSQL, and SQLite use slightly different dialects of SQL. (It wouldn
 
 ## Building projects with Kuery
 
-Start a new project and add the Swift-Kuery-SQLite package to it via Swift Package Manager.
+Start a new project and add the [Swift-Kuery-SQLite](https://github.com/IBM-Swift/Swift-Kuery-SQLite) package to it via Swift Package Manager.
 
 This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to be a little bit tricky - you’re going to need to install some additional libraries on your system so that your code can communicate with SQLite databases.
 
@@ -52,7 +52,7 @@ apt-get install sqlite3 libsqlite3-dev
 
 ## Importing some data
 
-Let’s get a database with some data we can work with in this and later chapters. For this purpose, we’re going to use the Chinook Database, a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository at https://github.com/lerocha/chinook-database.git. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
+Let’s get a database with some data we can work with in this and later chapters. For this purpose, we’re going to use the [Chinook Database](https://github.com/lerocha/chinook-database), a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository at https://github.com/lerocha/chinook-database.git. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
 
 The repository contains SQL dumps for various SQL systems in the `ChinookDatabase/DataSources` directory. Find the `Chinook_Sqlite.sqlite` file and copy it to a useful location. (We don’t want to use the `Chinook_Sqlite.sql` file; make sure you copy the one with an extension of `.sqlite`.) For the purposes of simplicity, I’m going to just copy it to my home folder, so the path I will use in the code samples below is `~/Chinook_Sqlite.sqlite`, but you can put it anywhere else you’d like.
 

@@ -2,7 +2,7 @@
 
 ## What is Kitura?
 
-Kitura is a lightweight web development framework written in the Swift programming language. It was developed by a team at IBM and released as open source software under the Apache 2.0 license (the same as Swift itself) in early 2016.
+[Kitura](http://www.kitura.io) is a lightweight web development framework written in the [Swift programming language](https://swift.org). It was developed by a team at IBM and released as open source software under the [Apache 2.0 license](https://tldrlegal.com/license/apache-license-2.0-%28apache-2.0%29#summary) (the same as Swift itself) in early 2016.
 
 Though Kitura has received continued attention and promotion from Big Blue, Kitura hasn't quite caught the world on fire yet. Perhaps the world does not need Yet Another Web Framework. Even if you decide to use Swift to write your server-side application, Kitura has competition among other Swift web frameworks like Vapor and Perfect. That, and Kitura’s documentation is sort of all over the place, and of uneven quality and coverage among its various sister packages like Kuery (for database connectivity) and Kitura-TemplateEngine (for templating). Well, I can’t fix all those other problems, but I can fix that last one.
 
@@ -36,15 +36,19 @@ If you don’t like this book or just want a few more long-form tutorials for Ki
 
 * [*Server-Side Swift*](https://www.hackingwithswift.com/store/server-side-swift) is another e-book that covers Swift; this one is by Paul “twostraws” Hudson, who has written several books on Swift development. At US$40, Hudson’s book is certainly more pricey than this one, but in both cases you probably get what you paid for… I haven’t read *Server-Side Swift* myself, but I’ve read one of Hudson’s other books and found it to be pretty high-quality stuff.
 
-* [*Swift in the Cloud*](https://www.wiley.com/en-us/Swift+in+the+Cloud-p-9781119368472) is a print book straight from IBM, with e-book versions also available. Unfortunately, it has, as of this writing, not yet been updated for Swift 4 and Kitura 2, so I cannot recommend it.
+* David Okun, Developer Advocate at IBM, has posted two entry-level articles at RayWenderlich.com: [Kitura Tutorial: Getting Started with Server Side Swift](https://www.raywenderlich.com/180721/kitura-tutorial-getting-started-with-server-side-swift), which covers basic REST responses and CouchDB database integration (the latter of which is not covered in this book), and [Kitura Stencil Tutorial: How to make Websites with Swift](https://www.raywenderlich.com/181130/kitura-stencil-tutorial-how-to-make-websites-with-swift), which covers templating with the Stencil templating engine.
+
+* Like blogs? I suggest adding the [Swift@IBM Blog](https://developer.ibm.com/swift/blogs/) to your feed reader of choice. Its updates are sporadic, but often content-rich.
 
 * If you like to learn with video, LinkedIn Learning (formerly Lynda.com) has released a video series entitled [Learning Server-Side Swift Using IBM Kitura](https://www.linkedin.com/learning/learning-server-side-swift-using-ibm-kitura). You can watch the first couple videos in the series without needing an account. LinkedIn Learning/Lynda.com subscriptions can be pricey, but both offer you free one-month trial subscriptions.
+
+* [*Swift in the Cloud*](https://www.wiley.com/en-us/Swift+in+the+Cloud-p-9781119368472) is a print book straight from IBM, with e-book versions also available. Unfortunately, it has, as of this writing, not yet been updated for Swift 4 and Kitura 2, so I cannot recommend it.
 
 ## Getting Help
 
 You are not alone. As you go along, if you get stumped by something, don’t hesitate to reach out for help and clarification.
 
-The Swift@IBM team site has a public Slack instance at http://swift-at-ibm-slack.mybluemix.net/ . (Slack is a feature-rich yet resource-intensive chat application targeted towards teams and workgroups.) There are several channels including #kitura for Kitura discussion and #general which is good for general Swift development or other topics in the ecosystem. You can find me there under the username “nocturnal.” Feel free to reach out to me if you’re having any trouble with something in this book.
+The Swift@IBM team site has a [public Slack instance](http://swift-at-ibm-slack.mybluemix.net/). (Slack is a feature-rich yet resource-intensive chat application targeted towards teams and workgroups.) There are several channels including #kitura specifically for Kitura discussion and #general which is good for general Swift development or other topics in the ecosystem. You can find me there under the username “nocturnal.” Feel free to reach out to me if you’re having any trouble with something in this book.
 
 If Slack’s not your thing, you can also join the [Freenode IRC network](https://freenode.net). It doesn’t have any Kitura-specific channels currently (unfortunately), but it does have #swift-lang which is great for general Swift discussion; there’s lots of smart people there. There may be other Swift-related channels in the IRC universe, but I like Freenode because its focus on open-source software means that if you need help with any other open-source (and some not-so-open-source) software you use throughout the day, you can probably find a channel related to it on Freenode. If you’re a Cocoa developer, #iphonedev and/or #macdev may also be of interest; #iphonedev-chat is a fun channel to hang out and shoot the stuff with others in the community. On Freenode, you can find me using the “_Nocturnal” alias. Again, feel free to reach out and say hi!
 
