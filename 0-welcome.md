@@ -53,3 +53,25 @@ The Swift@IBM team site has a [public Slack instance](http://swift-at-ibm-slack.
 If Slack’s not your thing, you can also join the [Freenode IRC network](https://freenode.net). It doesn’t have any Kitura-specific channels currently (unfortunately), but it does have #swift-lang which is great for general Swift discussion; there’s lots of smart people there. There may be other Swift-related channels in the IRC universe, but I like Freenode because its focus on open-source software means that if you need help with any other open-source (and some not-so-open-source) software you use throughout the day, you can probably find a channel related to it on Freenode. If you’re a Cocoa developer, #iphonedev and/or #macdev may also be of interest; #iphonedev-chat is a fun channel to hang out and shoot the stuff with others in the community. On Freenode, you can find me using the “_Nocturnal” alias. Again, feel free to reach out and say hi!
 
 Finally, don’t forget about the GitHub Issues queues on most projects hosted there. They’re generally intended for reporting bugs and such, but you’re generally welcome to ask for help with usage there too.
+
+## Notably Absent Topics
+
+There are some things that this book does not currently cover, but probably should. (Perhaps it will in future versions.) I list them here so that you may peruse these topics on your own, should you so desire, as well as explain why I omitted them.
+
+### `kitura create`
+
+[`kitura create`](http://www.kitura.io/en/starter/generator.html) is an optional CLI tool which can be used in place of `swift package init` to start a new Kitura project. It can automatically add the Kitura dependency to your project as well as insert boilerplate code into your project based on your answers to some questions it asks you.
+
+I ultimately decided not to cover it in this book because it is written in Node.js, and that's a rather large dependency to install for those that don't already have it (why the authors of this tool chose to write something in JavaScript when they could have chosen Swift itself is beyond me), and also I feel that learning how to do “by hand” the things that this tool does for you, such as defining router paths, is very important.
+
+### Swift-Kuery-ORM
+
+The [chapter on Kuery](5-kuery.md) and following chapters use Kuery as a rather thin interface between the application and the underlying SQL engine - just a step up from writing direct SQL queries, really. [Swift-Kuery-ORM](https://github.com/IBM-Swift/Swift-Kuery-ORM) abstracts things further by basically letting you save and load objects themselves directly to and from the database, at least from the perspective of your app - of course things are still ending up as SQL queries at the very bottom, but manually breaking objects down into insert or update queries or building them back up from the result of select queries is handled for you.
+
+I didn't cover Swift-Kuery-ORM as I personally am more familiar with using databases without ORM tools. However, as using an ORM is quite common in some ecosystems, I can appreciate that some experienced web developers may be more comfortable using them than not. Thus, I may add coverage of Swift-Kuery-ORM in the future, once I improve my own familiarity with it.
+
+### Automated Testing
+
+Automated testing is an important concept in ensuring software quality and avoiding bugs and functionality regressions as software evolves. Kitura and its related packages have rather good automated tests, and I encourage anyone building a “production-ready” project in Kitura also implement automated testing - especially if that project is intended to be a package used by others.
+
+However, automated testing is a rather broad and complex topic, and for Kitura projects it can be doubly complex since the test has to both run the server part of it as well as the client part, ensuring the server is returning the appropriate responses. I ultimately decided that this all was just too complex to cover competently in what is intended to be an introductory-level, wide-but-shallow Kitura tutorial. But perhaps my mind will be changed in the future.
