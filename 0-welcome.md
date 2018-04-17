@@ -75,3 +75,7 @@ I didn't cover Swift-Kuery-ORM as I personally am more familiar with using datab
 Automated testing is an important concept in ensuring software quality and avoiding bugs and functionality regressions as software evolves. Kitura and its related packages have rather good automated tests, and I encourage anyone building a “production-ready” project in Kitura also implement automated testing - especially if that project is intended to be a package used by others.
 
 However, automated testing is a rather broad and complex topic, and for Kitura projects it can be doubly complex since the test has to both run the server part of it as well as the client part, ensuring the server is returning the appropriate responses. I ultimately decided that this all was just too complex to cover competently in what is intended to be an introductory-level, wide-but-shallow Kitura tutorial. But perhaps my mind will be changed in the future.
+
+### Deploying
+
+Okay, so you’ve written a great Kitura web app, and it runs fine on your local machine; now how do you get that up and running on the public internet? There are many options, from IBM’s own [Bluemix](https://console.bluemix.net/docs/runtimes/swift/getting-started.html#getting-started-tutorial) cloud hosting tutorial to using Docker containers to simply just building the app as normal and letting it go. The latter is my preferred method, though I know it’s pretty much unheard of in today’s Linux container culture.
