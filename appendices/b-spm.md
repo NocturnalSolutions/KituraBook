@@ -131,7 +131,6 @@ On the resultant page, find the top-most (most recent) release. It will be title
 5. Finally, we want to add our new dependency to the `dependencies` array for our “SPMTest” target. But what do we add to that array? You might think we can just use the name of the repository, so “Swift-Kuery-SQLite” in this case, but I’m afraid it’s not that simple. To get the name of the library to put in here, we actually need to look at the Package.swift file for the corresponding library. Here’s what [Swift-Kuery-SQLite’s Package.swift](https://github.com/IBM-Swift/Swift-Kuery-SQLite/blob/master/Package.swift) looks like - again, as I write this, anyway:
 ```swift
 import PackageDescription
-  
 let package = Package(
     name: "SwiftKuerySQLite",
     products: [
