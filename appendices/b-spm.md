@@ -120,7 +120,7 @@ Let’s say we want to create an app which interacts with an SQLite database (as
         .package(url: /* package url */, from: "1.0.0"),
     ],
 ```
-We will now “fill in the blanks“ on our new line.
+We will now “fill in the blanks” on our new line.
 3. We need to get the URL to the Git repository itself. Fortunately, GitHub makes this very easy. We can just take the URL of the front page of the repository as hosted on GitHub and append “.git” to the end. So you can just copy the address of the [Swift-Kuery-SQLite project on GitHub](https://github.com/IBM-Swift/Swift-Kuery-SQLite) and paste it into the new line we just created in our Package.swift file, replacing the `/* package url */` part and appending “.git”. We want this to be a string, so we’ll add double-quote characters to the beginning and end as well. The resulting line will appear as:
 ```swift
         .package(url: "https://github.com/IBM-Swift/Swift-Kuery-SQLite.git", from: "1.0.0"),
