@@ -141,7 +141,7 @@ Back in the terminal window that’s running your program, you can stop executio
 
 Note that Xcode users can run your project by using the “Run” command in the “Product” menu or by pressing the “Play” button in the toolbar rather than using the command line to build and execte your compiled project, and indeed this process is generally faster for Xcode users. You should also know how to do it via the command line, however. You can try it now, but don’t forget to halt the program in the terminal first.
 
-## So what did we do?
+## So What Did We Do?
 
 First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[Swift Package Manager basics](../appendices/spm-basics/spm-basics.md)” appendix in this book for the basics as far as Kitura development is concerned. As fair warning, later chapters in this book will not give you a step-by-step process for adding new packages to your project and instead merely say something like “add package X to your project.”
 
@@ -207,7 +207,7 @@ Finally, start the HTTP server. The server will continue running until either a 
 
 Congratulations, you are now a Kitura hacker! The rest of the book will basically just be expanding on what we’ve learned here.
 
-## About that `next` parameter…
+## About That `next` Parameter…
 
 The `next` parameter needs further explanation. In Kitura, it’s perfectly valid to have more than one handler for a given route. You can think of each handler which is going to respond to a request as being in a chain. The next link in the chain - the next handler that should be invoked for the route - is passed in as the `next` parameter. That’s why it’s important to remember to always include `next()` after normal execution of the code in your handler. The exception - when you do *not* want to invoke `next` - is when an error has happened and we want to abort any further “normal” response to the client; for example, if the user is trying to access a resource they don’t have access to, we should send their client a 403 error and stop any further execution.
 
@@ -250,7 +250,7 @@ router.get("/") { request, response, next in
 
 Code in the `defer` block is executed right before the function returns, no matter where or how the function returns, so the code in this handler closure is functionally equivalent to the first one we wrote above. (See the “Defer Statement” section in *The Swift Programming Language* for more information on this structure.) However, since we don’t *always* want to call `next()` - as above, there will be important exceptions - I don’t want you to get in the habit of using `defer` blocks in your handlers this way, and will not use it in further examples in this book. You will see this pattern used frequently in others’ Kitura code around the web, however, so I feel it’s important to explain what’s happening in that code.
 
-## Kitura serves itself?!
+## Kitura Serves Itself?!
 
 Now if you’re familiar with web development with scripted languages like Ruby and PHP, you may be surprised right now that our Kitura application is serving itself directly to the browser without having to connect to a web server daemon like Apache or Nginx through FastCGI or SCGI. Yes, this is a feature inherent in Kitura; it itself is a web server, and unlike PHP or Ruby’s built-in web servers, it’s fully performant enough to use in production environments.
 
@@ -270,7 +270,7 @@ And then configure your web daemon accordingly. See the [Kitura FastCGI](http://
 
 For consistency and simplicity’s sake, however, all examples in this book will use Kitura’s built-in server functionality.
 
-## Adding logging with HeliumLogger
+## Adding Logging with HeliumLogger
 
 Logging can be quite helpful when developing web applications. To that end, IBM has developed [LoggerAPI](https://github.com/IBM-Swift/LoggerAPI), an API for logging implementations, and [HeliumLogger](https://github.com/IBM-Swift/HeliumLogger), a lightweight implementation of a logger for that API.
 

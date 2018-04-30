@@ -170,7 +170,7 @@ That’s better.
 
 ## Handling POST Submissions
 
-### POST submissions with `enctype="application/x-www-form-urlencoded"`
+### POST Submissions with `enctype="application/x-www-form-urlencoded"`
 
 For this sort of form, it would probably be best to keep it as a GET form, since it’s fairly simple and we don’t mind if the results page is bookmarkable. But we’ll turn it into a POST form just so we can see how they would work.
 

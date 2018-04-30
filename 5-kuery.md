@@ -1,4 +1,4 @@
-# Chapter 5: Database connectivity with Kuery
+# Chapter 5: Database Connectivity with Kuery
 
 Pretty much any web application with more than a trivial level of complexity will be interfacing with a database. Consider a massive site like Wikipedia or a lowly WordPress blog; both are, when you get down to it, interfaces for a database of articles.
 
@@ -6,7 +6,7 @@ There are various types of databases, but for historical reasons, the type most 
 
 IBM provides a library called Swift Kuery for communicating with SQL databases from within Swift. Kuery is not actually a Kitura dependency, so you can use Kuery from non-Kitura applications; also, there are other ways to connect to various SQL databases than using Kuery. However, since Kuery is part of the Swift@IBM ecosystem along with Kitura, you will typically see the two used together.
 
-## Selecting and installing an SQL database type
+## Selecting a Database System
 
 Officially, Swift Kuery supports three types of SQL databases: MySQL, PostgreSQL, and SQLite. If you're not familiar with these systems, indulge me a bit while I explain the differences.
 
@@ -50,13 +50,13 @@ Assuming you’re on some variant of Ubuntu Linux (other versions of Linux are n
 apt-get install sqlite3 libsqlite3-dev
 ```
 
-## Importing some data
+## Importing Data
 
 Let’s get a database with some data we can work with in this and later chapters. For this purpose, we’re going to use the [Chinook Database](https://github.com/lerocha/chinook-database), a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository at https://github.com/lerocha/chinook-database.git. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
 
 The repository contains SQL dumps for various SQL systems in the `ChinookDatabase/DataSources` directory. Find the `Chinook_Sqlite.sqlite` file and copy it to a useful location. (We don’t want to use the `Chinook_Sqlite.sql` file; make sure you copy the one with an extension of `.sqlite`.) For the purposes of simplicity, I’m going to just copy it to my home folder, so the path I will use in the code samples below is `~/Chinook_Sqlite.sqlite`, but you can put it anywhere else you’d like.
 
-## Back to Kitura (finally!)
+## Back to Kitura (Finally!)
 
 Now let’s access that database file from our code. We are going to instantiate a `SQLiteConnection` object. Its simplest `init()` function takes a `filename` parameter which is a string to the file path where our database file resides. Here’s what it looks like on my end.
 
@@ -86,7 +86,7 @@ cxn.connect() { error in
 
 Adapt the above and build and run on your system. Did you see the success message? If not, confirm that the path to the database file is correct and that your user has read and write permissions to it and so on. You’re not going to be able to get much done until you get this part working, so don’t continue until you no longer get an error.
 
-## Selecting data
+## Selecting Data
 
 Okay, now let’s try doing some more interesting things. We’ll make a page which lists every album in the database. Put this in your `main.swift`, right underneath the connection testing code.
 
@@ -148,7 +148,7 @@ The `execute()` method here takes a string containing an SQL query and an escapi
 
 The rest of this should be self-explanatory at this point.
 
-## Abstracting SQL queries
+## Abstracting SQL Queries
 
 Now if you’re familiar with other database libraries in various other frameworks and languages, you may have bristled when you saw above that we used an actual SQL query string to make our query. Isn’t there a better way than basically embedding ugly SQL (which is itself its own programming language, in a way) into our beautiful Swift projects? Yes, there is! We’ll learn how to use it next.
 
@@ -221,7 +221,7 @@ SELECT Album.Title FROM Album ORDER BY Album.Title ASC
 
 Yep, that SQL looks about right to me.
 
-## A more complicated but more useful query
+## Adding Where Parameters
 
 Okay, so right now, we have a router handler that returns a list of all albums. That’s a lot of albums. Let’s make things a little more practical by setting up a route where, for example, if the path “albums/t” is requested, we return all albums with titles that start with the letter T. In SQL this is done by using a “LIKE” condition on a “WHERE” clause, such as `“SELECT Title FROM Album WHERE Title LIKE "t%"`. We can do this kind of query with Kuery too by using a `like()` method on the field in the schema of the desired table. (If you’re like me, the code will make more sense than that sentence.)
 
@@ -293,7 +293,7 @@ router.get("/albums/:letter([a-z])") { request, response, next in
 
 And certainly, that’s not a bad thing to do *in addition to* the sanitized, parameterized query construction in order to be doubly safe. Your cleverness has been duly noted. However, this chapter is about Kuery, so we’re learning about Kuery today, okay? Okay. Now sit back down.)
 
-## Complicating things further with a join
+## Joining Across Tables
 
 Let’s do something a little tricker. Let’s make a route which returns a list of songs (tracks) for a given letter, but along with the track name, we want to include the corresponding artist (composer) and album names for each track. This is a little trickier than our earlier example because while the track and artist names are in the respective `Name` and `Composer` fields in the `track` table, the album name is in the `Title` field in the `album` table. However, there is an `AlbumId` field in the `track` table with a numeric ID which corresponds to an `AlbumId` field in the `album` table. We need to do a *join* to associate information in the `track` table with corresponding information in the `album` table in order to get all the information we need in a single query.
 
@@ -381,7 +381,7 @@ The answer is… well, I have no idea. Even digging into the code, I’m stumped
 
 (Hey, I never said I was some god-tier Swift ninja rockstar Chuck Norris or anything.)
 
-## We’re just getting started, baby.
+## This Is Just The Beginning!
 
 This chapter was quite lengthy, but it really only scratches the surface of what Kuery is capable of. We didn’t even bother trying to insert or update data in this chapter, and of course Kuery is capable of doing that as well. For more examples of what you can do with Kuery and how to do it, check out the front page of the [Kuery GitHub repository](https://github.com/IBM-Swift/Swift-Kuery).
 

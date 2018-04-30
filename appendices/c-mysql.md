@@ -2,7 +2,7 @@
 
 What follows was originally part of the [standard Kuery chapter](5-kuery.md) of the book before I decided to rewrite it to use SQLite instead of MySQL, as the former is much simpler than the latter. It covers getting Kuery and MySQL to talk to each other. I include it for the benefit of those already familiar with MySQL who would prefer to continue using it rather than using SQLite. If that doesn’t sound like you, I strongly suggest sticking with using SQLite as outlined in the original chapter, as it's generally much simpler to work with.
 
-## Building projects with Kuery
+## Building Projects with Kuery
 
 Start a new project and add SwiftKueryMySQL to it via Swift Package Manager. This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to get tricky.
 
@@ -55,7 +55,7 @@ chmod +x build.sh
 
 Congratulations, Linux fans; life is easier for you in this case. Just install the `libmysqlclient-dev` package (you’ll need to install this in addition to the actual MySQL server), and the Swift toolchain will know where to find the libraries. `swift build` is still all you need.
 
-## Importing some data
+## Importing Data
 
 Now that we can build a project that includes Swift-Kuery-MySQL, start up your MySQL server and connect to it with either the `mysql` command line tool or a graphical database manager of some sort. Take note of whatever credentials and network hostnames and ports and so on you need to use, because we’re going to put them in our code later.
 
@@ -65,7 +65,7 @@ The repository contains SQL dumps for various SQL systems in the `ChinookDatabas
 
 Once you’ve done that, let’s see about connecting to our database from Kuery.
 
-## Back to Kitura (finally!)
+## Back to Kitura (Finally!)
 
 Now let’s connect to our MySQL server from our code. We are going to instantiate a `MySQLConnection` object. The `init()` function for this class has a lot of parameters, but they are all optional. Let’s see its signature:
 

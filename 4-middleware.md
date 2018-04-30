@@ -6,7 +6,7 @@ For example, I myself wrote a package called Kitura Language Negotiation which p
 
 Let’s write some simple middleware, then see how we would use it on a site.
 
-## Writing middleware
+## Writing Middleware
 
 An important thing to note when starting a new project which will contain only middleware and no router handlers itself is that, when you run `swift package init`, you want to use `library` for your `--type` option instead of `executable`. In other words, instead of running `swift package init --type=executable` as you would for new Kitura site, you use `swift package init --type=library`. This is because we are building a bit of code which can be used in other sites which will be actual executables, but we aren’t building anything that should be built as an executable itself. Go ahead and do that now; start a new library project in a directory called KituraFirefoxDetector.
 
@@ -52,7 +52,7 @@ Finally, note how we need to call `next()` at the end of our code just as with a
 
 Create a new Git repository in your project’s directory, but before you commit anything, edit the `.gitignore` file and add the `Pacakge.resolved` file - we don’t want that file included in repositories for libraries like Kitura middleware. Commit your code and tag it as version `0.0.1`.
 
-## Using middleware
+## Using Middleware
 
 Now create a new Kitura project and add KituraFirefoxDetector as a dependency. (Remember, you don’t need to push the project to GitHub or some other hosting service first; give it a URL comprised of “file://” followed by the absolute path to your KituraFirefoxDetector directory (including the initial slash) and it will work just fine.) Resolve the dependencies.
 

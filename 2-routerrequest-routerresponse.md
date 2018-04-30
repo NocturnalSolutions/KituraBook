@@ -222,7 +222,7 @@ Keep-Alive: timeout=60, max=99
 
 Note how Kitura automatically added a “Content-Type: application/json” header for us.
 
-## Bringing it together
+## Bringing it Together
 
 Let’s make a route with a path of “/calc” that takes two query parameters, “a” and “b,” adds them together, and returns the response. Let’s have our handler respond accordingly in the case that one or both parameters are missing or could not be converted to numbers (in this case, Float objects).
 
