@@ -1,9 +1,5 @@
 # Chapter 1: Hello World
 
-> TODO
-> * Test on Ubuntu
-> * Confirm `--server-response` is the right wget flag
-
 Let’s create a classic [Hello World](http://www.catb.org/jargon/html/H/hello-world.html) example.
 
 Create a new Swift project by doing the following in a command line shell:
@@ -102,10 +98,10 @@ $ curl localhost:8080/
 Hello world!
 ```
 
-Note that I will use the Curl command line client for this and other examples in this book, but you can of course use wget if you prefer it or simply don’t have Curl installed.
+Note that I will use the Curl command line client for this and other examples in this book, but you can of course use wget if you prefer it or simply don’t have Curl installed. Use `-qO-` (that's a capital letter “oh”, not a zero) to have wget print the result to the screen instead of saving it to a file.
 
 ```shell
-$ wget localhost:8080/
+$ wget -qO- localhost:8080/
 Hello world!
 ```
 
