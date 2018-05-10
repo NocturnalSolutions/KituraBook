@@ -7,6 +7,8 @@
 * [Download as EPUB](https://legacy.gitbook.com/download/epub/book/nocturnalsolutions/kitura-book) (iBooks, Nook)
 * [Download as PDF](https://legacy.gitbook.com/download/pdf/book/nocturnalsolutions/kitura-book)
 
+(Due to quirks of Gitbook’s e-book generation system, the code samples in each of the downloadable versions are visually glitchy in different ways. Please consult the online version of the book for the most readable code samples.)
+
 ## This Book is Free!
 
 But if you find this or my other projects to be useful to you, please consider [sponsoring me on Patreon](https://www.patreon.com/NocturnalSolutions)! Your support will go a long way towards helping keep my work on these sorts of free projects financially viable.
