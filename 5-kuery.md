@@ -16,7 +16,7 @@ Given that SQLite is substantially simpler to install and use for the reasons ab
 
 MySQL, PostgreSQL, and SQLite use slightly different dialects of SQL. (It wouldn’t be a standard if there weren’t differing implementations of it!) Fortunately, Kuery has an “abstraction layer” which makes it possible to interact with databases without actually directly writing SQL. That means that almost all of the code in this chapter will work no matter which SQL system you choose to use; only the code which is used to connect to or open the database will change. So if you start a project using SQLite and then later decide you want to switch to MySQL or PostgreSQL, in theory you’ll only have to change the parts of the code that initialize the connection to the database.
 
-## Building projects with Kuery
+## Building Projects with Kuery
 
 Start a new project and add the [Swift-Kuery-SQLite](https://github.com/IBM-Swift/Swift-Kuery-SQLite) package to it via Swift Package Manager.
 
