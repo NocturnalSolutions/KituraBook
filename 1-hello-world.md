@@ -2,7 +2,17 @@
 
 Let’s create a classic [Hello World](http://www.catb.org/jargon/html/H/hello-world.html) example.
 
-Create a new Swift project by doing the following in a command line shell:
+First, install Swift and get it running. On your system, you should be able to type `swift` into a terminal window to start up the Swift REPL. (Press Control-D to exit the REPL.) If you’re on a macOS system, installing Apple’s full-featured Xcode IDE from the App Store should be all you need to do. (It’s not necessary to use Xcode to edit Swift code on your Mac, but when you install Xcode, the Swift binaries and other software development goodies will come along for the ride.) On Ubuntu Linux, install the following packages using `apt-get install`:
+
+* `clang`
+* `python-dev`
+* `libicu-dev`
+* `libcurl4-openssl-dev`
+* `libssl-dev`
+
+Then [download Swift](https://swift.org/download/) and unpack it to a convenient place on your system. See the [Installing Swift](https://swift.org/getting-started/#installing-swift) page on the official Swift site for more info.
+
+Once you’ve confirmed Swift is up and running on your system, you can start a new Swift project by doing the following in a terminal:
 
 ```shell
 $ mkdir hello-world
