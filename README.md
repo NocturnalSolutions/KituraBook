@@ -13,7 +13,7 @@
 
 But if you find this or my other projects to be useful to you, please consider [sponsoring me on Patreon](https://www.patreon.com/NocturnalSolutions)! Your support will go a long way towards helping keep my work on these sorts of free projects financially viable.
 
-Kitura Until Dawn is still being written, and may, in fact, never be finished as Swift and Kitura continue to evolve, Feedback and bug reports are welcome! Please file an issue or pull request on [this book's GitHub project](https://github.com/NocturnalSolutions/KituraBook) or email the author at [contact@nocturnal.solutions](mailto:contact@nocturnal.solutions). 
+Kitura Until Dawn is still being written, and may, in fact, never be finished as Swift and Kitura continue to evolve. Feedback and bug reports are welcome! Please file an issue or pull request on [this book's GitHub project](https://github.com/NocturnalSolutions/KituraBook) or email the author at [contact@nocturnal.solutions](mailto:contact@nocturnal.solutions).
 
 This book covers Kitura 2 running on Swift 4.
 
