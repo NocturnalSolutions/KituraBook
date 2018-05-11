@@ -145,11 +145,11 @@ Oh, we got a 404 error. You may be able to guess why, but if not, I’ll explain
 
 Back in the terminal window that’s running your program, you can stop execution by typing Control-C, or ^C in standard Unix notation.
 
-Note that Xcode users can run your project by using the “Run” command in the “Product” menu or by pressing the “Play” button in the toolbar rather than using the command line to build and execte your compiled project, and indeed this process is generally faster for Xcode users. You should also know how to do it via the command line, however. You can try it now, but don’t forget to halt the program in the terminal first.
+Note that Xcode users can run your project by using the “Run” command in the “Product” menu or by pressing the “Play” button in the toolbar rather than using the command line to build and execute your compiled project, and indeed this process is generally faster for Xcode users. You should also know how to do it via the command line, however. You can try it now, but don’t forget to halt the program in the terminal first.
 
 ## So What Did We Do?
 
-First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[Swift Package Manager basics](../appendices/spm-basics/spm-basics.md)” appendix in this book for the basics as far as Kitura development is concerned. As fair warning, later chapters in this book will not give you a step-by-step process for adding new packages to your project and instead merely say something like “add package X to your project.”
+First, we created a new project with Swift Package Manager. The full scope of what SPM can do is outside the scope of this book; if you are unfamiliar with it, have a look at the “[Swift Package Manager basics](appendices/b-spm.md)” appendix in this book for the basics as far as Kitura development is concerned. As fair warning, later chapters in this book will not give you a step-by-step process for adding new packages to your project and instead merely say something like “add package X to your project.”
 
 Then we added some code. Let’s go through it line by line.
 
