@@ -1,4 +1,4 @@
-# User Credentials and Sessions
+# User Sessions and Authentication
 
 HTTP is a stateless protocol. That means that each HTTP transaction is (broadly speaking) made independently of any other transaction; the client (like a web browser) connects to a server and sends data to make a request; the server sends the response data in reply, then disconnects the client. If the client needs another resource from the server, it needs to reconnect to the server all over again. (This is not *entirely* true, but close enough for the purposes of this chapter.) This differs from protocols like IRC, where clients maintain a constant connection to the server as they trade data back and forth.
 
@@ -54,17 +54,17 @@ router.get("/") { request, response, next in
     else {
         // Name not found, so prompt the user for their name.
         let logInForm = """
-    <!DOCTYPE html>
-    <html>
-        <body>
-            <p>What is your name?</p>
-            <form method="post" action="/submit">
-                <input type="text" name="name" />
-                <input type="submit" />
-            </form>
-        </body>
-    </html>
-    """
+<!DOCTYPE html>
+<html>
+    <body>
+        <p>What is your name?</p>
+        <form method="post" action="/submit">
+            <input type="text" name="name" />
+            <input type="submit" />
+        </form>
+    </body>
+</html>
+"""
         response.send(logInForm)
     }
     next()
@@ -145,4 +145,18 @@ So you see above how session data is stored by Kitura-Session between page reque
 
 To alleviate these issues, it’s possible to have Kitura-Session use an external storage system for session data. As I write this, there are currently integration plugins for Kuery (which in turn lets you use any database Kuery supports as a back-end) and the Redis No-SQL database system. Check out the [“Plugins” section in the Kitura-Session documentation](https://github.com/IBM-Swift/Kitura-Session#plugins) for links to these plugins. For simplicity, sake, I won’t be using one of them in the examples in this chapter, but you should definitely use one if you’re going to be writing a real web app.
 
-## Credentials
+Now while using one of these plugins will more permanently store the data you store in a session, it should be noted that it’s a best practice to not use a session’s data storage as a primary data storage location anyway. For example, after a user logs in to your site, you may load their name and email address from your site’s database and store it in a session for easy retrieval, but if they later change their name or email address, you should update *the database* with that new information and not only the session. After all, remember that that session will be destroyed when the user logs out - and all of the data stored in it will go with it.
+
+## Kitura-Credentials and Authentication
+
+So by now you should have an idea of how you can use sessions to track a logged-in user between requests, and how they can log out. But what’s a good way to handle logging them in in the first place?
+
+Well, please try to contain your shock as I tell you that the Kitura project has a solution for that in the form of a middleware package called [Kitura-Credentials](https://github.com/IBM-Swift/Kitura-Credentials) which provides a framework by which various plugins can implement various ways to authenticate users. There are plugins for allowing users to log in via their Facebook and GitHub accounts, among others, as well as plugins that handle authentication via local databases of usernames and passwords; you’ll find a list of existing plugins on the Kitura-Credentials repo page. It’s possible to use more than one plugin on your site; so, for example, you can allow users to log in to your site with their Facebook account, or to create a new account on your site and then log in with the username and password they used when creating an account. This sort of thing is generally a good idea because, despite what it may seem or what Mr. Zuckerburg would like, not *everyone* on the internet has a Facebook account, and those that do may not wish to grant your web site access to it.
+
+Originally I was planning to give a walkthrough of implementing Kitura-Credentials here, but since the method of implementing each method of authentication on your site can be quite different, there’s a good chance that any code I give you will be useless at best and confusion-inducing at worst. So instead I will speak of how Credentials works in general and then ask you to have a look at the instructions in the Git repos for the specific implementations you are interested in.
+
+Implementing Kitura-Credentials should be quite familiar at this point. You instantiate `Credentials`; you instantiate the Credentials plugin; you register the latter as a plugin to the former; then you add the `Credentials` instance as middleware to the relevant paths.
+
+Kitura-Credentials provides the `UserProfile` class. This is a class which contains many properties for a user’s display name, real name, email address, profile photos, and other arbitrary data. Kitura-Credentials plugins will instantiate one of these classes and pass it to your application when a user successfully authenticates, though of course not all of these properties will be populated in all cases. It will also handle storing the instance into the session storage and restoring it on future page loads from that user; you’ll find it in the `userProfile` property of the `RouterRequest` object that your route handlers will receive.
+
+Using Kitura-Credentials may or may not actually be the best way to authenticate users for your site, given its circumstances. As with Kitura’s other pluggable middleware, you can write your own Kitura-Credentials plugin if the existing ones don’t match your needs - but you can use what you learned above with Kitura-Session to bypass it entirely. This may be desirable if you don’t want to be forced to use the (needlessly comprehensive, in my opinion) `UserProfile` class. Just remember that, if you’re storing user passwords locally, you need to [securely hash those passwords](https://crackstation.net/hashing-security.htm)!
