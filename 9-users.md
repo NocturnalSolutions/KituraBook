@@ -1,4 +1,4 @@
-# User Sessions and Authentication
+# Chapter 9: User Sessions and Authentication
 
 HTTP is a stateless protocol. That means that each HTTP transaction is (broadly speaking) made independently of any other transaction; the client (like a web browser) connects to a server and sends data to make a request; the server sends the response data in reply, then disconnects the client. If the client needs another resource from the server, it needs to reconnect to the server all over again. (This is not *entirely* true, but close enough for the purposes of this chapter.) This differs from protocols like IRC, where clients maintain a constant connection to the server as they trade data back and forth.
 
