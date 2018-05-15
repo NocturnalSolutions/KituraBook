@@ -42,8 +42,6 @@ If you don’t like this book or just want a few more long-form tutorials for Ki
 
 * If you like to learn with video, LinkedIn Learning (formerly Lynda.com) has released a video series entitled [Learning Server-Side Swift Using IBM Kitura](https://www.linkedin.com/learning/learning-server-side-swift-using-ibm-kitura). You can watch the first couple videos in the series without needing an account. LinkedIn Learning/Lynda.com subscriptions can be pricey, but both offer you free one-month trial subscriptions.
 
-* [*Swift in the Cloud*](https://www.wiley.com/en-us/Swift+in+the+Cloud-p-9781119368472) is a print book straight from IBM, with e-book versions also available. Unfortunately, it has, as of this writing, not yet been updated for Swift 4 and Kitura 2, so I cannot recommend it.
-
 ## Getting Help
 
 You are not alone. As you go along, if you get stumped by something, don’t hesitate to reach out for help and clarification.
@@ -51,6 +49,8 @@ You are not alone. As you go along, if you get stumped by something, don’t hes
 The Swift@IBM team site has a [public Slack instance](http://swift-at-ibm-slack.mybluemix.net/). (Slack is a feature-rich yet resource-intensive chat application targeted towards teams and workgroups.) There are several channels including #kitura specifically for Kitura discussion and #general which is good for general Swift development or other topics in the ecosystem. You can find me there under the username “nocturnal.” Feel free to reach out to me if you’re having any trouble with something in this book.
 
 If Slack’s not your thing, you can also join the [Freenode IRC network](https://freenode.net). It doesn’t have any Kitura-specific channels currently (unfortunately), but it does have #swift-lang which is great for general Swift discussion; there’s lots of smart people there. There may be other Swift-related channels in the IRC universe, but I like Freenode because its focus on open-source software means that if you need help with any other open-source (and some not-so-open-source) software you use throughout the day, you can probably find a channel related to it on Freenode. If you’re a Cocoa developer, #iphonedev and/or #macdev may also be of interest; #iphonedev-chat is a fun channel to hang out and shoot the stuff with others in the community. On Freenode, you can find me using the “_Nocturnal” alias. Again, feel free to reach out and say hi!
+
+The [official Swift forums](https://forums.swift.org/) have a [Kitura category](https://forums.swift.org/c/related-projects/kitura). As I write this, the category is still fairly new and hasn’t seen much activity; also, I find the forum system that they are using to be quite confusing and borderline unusable. Nonetheless, forums are often a better place to ask long-form questions than the chant-based systems listed above.
 
 Finally, don’t forget about the GitHub Issues queues on most projects hosted there. They’re generally intended for reporting bugs and such, but you’re generally welcome to ask for help with usage there too.
 
