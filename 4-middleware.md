@@ -104,7 +104,7 @@ router.get("/admin") { request, response, next in
 }
 ```
 
-And just like that, we will also have `request.userInfo["usingFirefox”]` available for this route handler too. (Note we don’t have to instantiate a new FirefoxDetector object; we can reuse the one we already created.)
+And just like that, we will also have `request.userInfo["usingFirefox"]` available for this route handler too. (Note we don’t have to instantiate a new FirefoxDetector object; we can reuse the one we already created.)
 
 As with route handlers, we can use different methods on the Router object corresponding to different HTTP methods to apply our middleware to paths, as in the following.
 
@@ -136,7 +136,7 @@ router.get("/admin/subpath") { request, response, next in
 }
 ```
 
-Well, we didn’t do `router.get("/admin/subpath“, middleware: detector)`, so if we try to access `http://localhost:8080/admin/subpath`, we’ll get the “Our middleware didn’t run” message, right? Go ahead and try it, and you’ll see that we actually see the “The middleware ran” message. What’s happening?
+Well, we didn’t do `router.get("/admin/subpath", middleware: detector)`, so if we try to access `http://localhost:8080/admin/subpath`, we’ll get the “Our middleware didn’t run” message, right? Go ahead and try it, and you’ll see that we actually see the “The middleware ran” message. What’s happening?
 
 Well, there is one difference between how handler closures and how middleware are assigned to routes. By default, middleware will run for the path given, plus any and all subpaths. So when we did `router.get("/admin", middleware: detector)` above, we implicitly told Kitura to run that middleware for any subpaths of `/admin` too, of which `/admin/subpath` is an example. This can be quite handy at times. For example, say you have a section of your site that should only be accessible to site administrators. You can write some middleware which checks that the current user is logged in and has an administrator account and bind it to the `/admin` path. Now just have all the paths for that secret administrator-only section of your site have a path under `/admin`. There you go.
 
