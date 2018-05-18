@@ -126,7 +126,7 @@ We will now “fill in the blanks” on our new line.
         .package(url: "https://github.com/IBM-Swift/Swift-Kuery-SQLite.git", from: "1.0.0"),
 ```
 4. Now we also want to tell SPM what version of Swift-Kuery-SQLite we want to use. Generally, the easiest way to do this is to click on the “releases” link on the GitHub repo page. This link can be a little bit easy to miss; here’s a screenshot highlighting where you can find it given GitHub’s current UI.
-![“Releases” link on GitHub repository](../github-releases.png)
+![“Releases” link on GitHub repository](images/github-releases.png)
 On the resultant page, find the top-most (most recent) release. It will be titled with a version number in a format similar to “1.2.3” - so three numbers separated by dots. Copy that version number, then go back to your code editor and paste that in place in the version number in the `from` parameter. In this case, as I write this, the most recent release of Swift-Kuery-SQLite really is “1.0.0,” so there’s nothing I need to change here, but there may be a newer release by the time you read this.
 5. Finally, we want to add our new dependency to the `dependencies` array for our “SPMTest” target. But what do we add to that array? You might think we can just use the name of the repository, so “Swift-Kuery-SQLite” in this case, but I’m afraid it’s not that simple. To get the name of the library to put in here, we actually need to look at the Package.swift file for the corresponding library. Here’s what [Swift-Kuery-SQLite’s Package.swift](https://github.com/IBM-Swift/Swift-Kuery-SQLite/blob/master/Package.swift) looks like - again, as I write this, anyway:
 ```swift
