@@ -1,4 +1,4 @@
-# Chapter 5: Database Connectivity with Kuery
+# Chapter 5: Database Connectivity with Kuery {#kuery}
 
 Pretty much any web application with more than a trivial level of complexity will be interfacing with a database. Consider a massive site like Wikipedia or a lowly WordPress blog; both are, when you get down to it, interfaces for a database of articles.
 

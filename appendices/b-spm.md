@@ -1,4 +1,4 @@
-# Swift Package Manager Basics
+# Swift Package Manager Basics {#spm-intro}
 
 For those new to cross-platform Swift, using the Swift Package Manager (SPM) is often a major point of confusion - especially when something goes wrong. This appendix will attempt to teach you just enough about SPM to make it work for you without overloading you with minutiae and details.
 

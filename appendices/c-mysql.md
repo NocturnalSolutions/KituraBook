@@ -1,4 +1,4 @@
-# Using MySQL with Kuery
+# Using MySQL with Kuery {#mysql-kuery}
 
 What follows was originally part of the [standard Kuery chapter](5-kuery.md) of the book before I decided to rewrite it to use SQLite instead of MySQL, as the former is much simpler than the latter. It covers getting Kuery and MySQL to talk to each other. I include it for the benefit of those already familiar with MySQL who would prefer to continue using it rather than using SQLite. If that doesn’t sound like you, I strongly suggest sticking with using SQLite as outlined in the original chapter, as it's generally much simpler to work with.
 
