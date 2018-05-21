@@ -3,7 +3,8 @@
 # Call from .git/hooks/pre-push
 setenv MDLIST "README.md `ls README.md *.md appendices/*.md | sed -E -e 's/(README|SUMMARY).md//g' | paste -s -d ' ' -`"
 setenv TOCSETS "--toc --toc-depth=2"
-setenv PDFSETS "$TOCSETS --include-in-header=tex-addons.tex -V fontfamily:bookman --listings"
+setenv GEOM "-V geometry:top=1.5cm -V geometry:bottom=1.5cm -V geometry:left=2cm -V geometry:right=2cm -V geometry:includefoot"
+setenv PDFSETS "$TOCSETS $GEOM --include-in-header=tex-addons.tex -V fontfamily:bookman --listings"
 pandoc -o ebooks/Kitura-Until-Dawn.pdf -V papersize:letter $PDFSETS $MDLIST && echo "Letter size PDF exported"
 pandoc -o ebooks/Kitura-Until-Dawn-A4.pdf -V papersize:A4 $PDFSETS $MDLIST && echo "A4 size PDF exported"
 pandoc -o ebooks/Kitura-Until-Dawn.epub --epub-metadata=epub-metadata.xml --epub-cover-image=images/logo-vert.png $TOCSETS $MDLIST && echo "Epub exported"
