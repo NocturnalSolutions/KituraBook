@@ -17,7 +17,8 @@ Kitura Until Dawn is still being written, and may, in fact, never be finished as
 
 This book covers Kitura 2 running on Swift 4.
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">![CC license badge](images/cc-badge.png)</a>   
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
 Copyright, such as it is, by Nocturnal, 2017-2018. If you paid any money for this book, then we *both* got cheated. Kitura may or may not be a trademark of International Business Machines, of which I have no affiliation.
 
