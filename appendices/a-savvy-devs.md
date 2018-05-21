@@ -1,4 +1,4 @@
-# Cross-Platform Swift for Cocoa Developers: What to Learn (And Unlearn)
+# Appendix: Cross-Platform Swift for Cocoa Developers: What to Learn (And Unlearn) {#savvy-devs}
 
 This chapter addresses developers who have experience using Swift to write graphical macOS or iOS applications, but are new to Kitura or to the concept of writing cross-platform CLI applications in Swift in general. Our community is young, but it has swiftly developed (terrible pun partially intended) its own best practices which, generally due to Swift’s much higher focus on cross platform compatibility compared to Objective-C, are often at odds with how experienced Cocoa developers do things. The changes you’ll need to make to ensure maximum compatibility of your code and minimum friction with the rest of the community may feel annoying and unnecessary, but all told, they’re really not that difficult.
 
