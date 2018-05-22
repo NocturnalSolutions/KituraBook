@@ -1,9 +1,5 @@
 # Chapter 2: Ins and Outs of RouterRequest and RouterResponse
 
-> TODO: 
-> - Follow my own advice and test on Linux
-> - How do you do a POST with Wget?
-
 Let’s look back at that router handler we wrote in the last chapter.
 
 ```swift
@@ -17,13 +13,12 @@ You may recall that I mentioned that `request` was a RouterRequest object and th
 
 ## RouterRequest
 
-RouterRequest contains information about the incoming HTTP request. Here’s a non-exhaustive example of some things we can find there. Try adding this to your project from the last chapter. (Or create a new project, if you prefer; just don’t forget you need to instantiate the `router` variable and initiate Kitura at the end.)
+RouterRequest contains information about the incoming HTTP request. Here’s a non-exhaustive example of some things we can find there. Try adding this to your project from the last chapter. (Or create a new project, if you prefer; just don’t forget you need to instantiate the `router` variable and start Kitura at the end.)
 
 
 ```swift
 router.all("/request-info") { request, response, next in
     response.send("You are accessing \(request.hostname) on port \(request.port).\n")
-    response.send("You're coming from \(request.remoteAddress).\n")
     // request.method contains the request method as a RouterMethod enum
     // case, but we can use the rawValue property to get the method as a
     // printable string.
@@ -102,12 +97,12 @@ Keep-Alive: timeout=60, max=99
 Hey, you don't have permission to do that!
 ```
 
-RouterResponse has a `headers` property that works just like the one on RouterResponse.
+RouterResponse has a `headers` property that we can use as a [String: String] dictionary to set headers. It also has a few methods to shortcut the setting of some common headers. 
 
 ```swift
 router.get("/custom-headers") { request, response, next in
-    response.headers["Content-Type"] = "text/plain; charset=utf-8"
     response.headers["X-Generator"] = "Kitura!"
+    response.headers.setType("text/plain", charset: "utf-8")
     response.send("Hello!")
     next()
 }
@@ -133,12 +128,12 @@ We could set a 301 Moved Permanently or 308 Moved Temporarily status and a “Lo
 ```swift
 router.get("/redirect") { request, response, next in
     // Redirect the client to the home page.
-    try! response.redirect("/", status: .movedPermanently)
+    try? response.redirect("/", status: .movedPermanently)
     next()
 }
 ```
 
-(Confused by `try!` above? See the “Error Handling” section of *The Swift Programming Language* for more information.)
+(Confused by `try?` above? See the “Error Handling” section of *The Swift Programming Language* for more information.)
 
 We’ll test by using Curl’s `--location` flag to tell it to follow “Location” headers when encountered.
 
@@ -180,7 +175,7 @@ Or we can send a file read from the disk:
 @discardableResult public func send(fileName: String) throws -> RouterResponse
 ```
 
-This book will not demonstrate these methods, but it might be handy to know they exists in the future.
+This book will not demonstrate these methods, but it might be handy to know they exist in the future.
 
 For those of you interested in using Kitura to build a REST API server, you might be glad to know that RouterResponse has many methods for sending JSON responses, including the following two for sending a response currently in the form of a Foundation JSON object and a [String: Any] dictionary, respectively:
 
@@ -190,7 +185,7 @@ For those of you interested in using Kitura to build a REST API server, you migh
 @discardableResult public func send(json: [String: Any]) -> RouterResponse
 ```
 
-Later chapters in this book *will* give examples of sending JSON responses to the client, so let’s play with that last one now.
+A later chapter in this book will give a more complex example of sending JSON responses to the client, but let’s play with a simple one now.
 
 ```swift
 router.get("/stock-data") { request, response, next in
