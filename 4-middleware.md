@@ -91,7 +91,7 @@ Kitura.run()
 
 (An aside: This is a simple and contrived example for the sake of teaching middleware usage. In reality, it is a *very* bad practice to alter your site’s content or restrict access based on what browser a visitor is using. Please have fun experimenting, but *never* do this sort of thing on a real site. Thank you.)
 
-So we added the middleware to the path with `router.get("/ffclub", middleware: detector)`. More on that later. The only other thing I’ll mention about this bit of code is a reminder that `request.userInfo` is a [String: Any] dictionary, which is why we need to cast it to a useful type (`as? Bool`). The rest should be straightforward.
+So we added the middleware to the path with `router.get("/ffclub", middleware: detector)`. More on that later. The only other thing I’ll mention about this bit of code is a reminder that `request.userInfo` is a [String: Any] dictionary, which is why we need to cast values taken out of it to a useful type (`as? Bool`). The rest should be straightforward.
 
 Build and run the site, and try visiting it with both Firefox and other clients. (If you don’t have Firefox, you can usually use the developer tools of other browsers to make them pretend to be Firefox.)
 

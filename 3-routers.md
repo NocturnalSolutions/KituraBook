@@ -1,6 +1,6 @@
 # Chapter 3: Routers
 
-We’ve already used Kitura’s Router class quite a bit in this book, and you might be thinking that you’ve already got a pretty good idea of how they work. Well, if that’s what you think… you’re probably right. Nonetheless, there are still a few tricks we can learn.
+We’ve already used Kitura’s Router class quite a bit in this book, and you might be thinking that you’ve already got a pretty good idea of how it works. Well, if that’s what you think… you’re probably right. Nonetheless, there are still a few new tricks we can learn.
 
 ## HTTP Methods
 
@@ -44,7 +44,7 @@ Cannot GET /lock-only.
 
 Okay, so nothing too surprising there.
 
-Aside from these methods, you may recall in an earlier example that we used `all()`. Setting a handler with this method will cause the handler to fire no matter what HTTP method was used to access the path. To extract part of a previous example from this book…
+Aside from these methods, you may recall in an earlier example that we used `all()`. Setting a handler with this method will cause the handler to fire no matter what HTTP method was used to access the path. This bit of code may look a little familiar:
 
 ```swift
 router.all("/request-info") { request, response, next in
@@ -52,7 +52,7 @@ router.all("/request-info") { request, response, next in
 }
 ```
 
-And, as we test:
+Let’s test it out.
 
 ```shell
 $ curl localhost:8080/request-info
@@ -63,7 +63,7 @@ curl --request UNSUBSCRIBE localhost:8080/request-info
 The request method was UNSUBSCRIBE.
 ```
 
-The request type still has to be one as known by Kitura’s RouterMethod enum, however, so we can’t get *too* crazy.
+The request type still has to be one included in Kitura’s RouterMethod enum, however, so we can’t get *too* crazy.
 
 ```shell
 $ curl --request BEANSANDRICE --include localhost:8080/request-info
@@ -74,7 +74,7 @@ Connection: Close
 
 If you enabled logging, you’ll also see “Failed to parse a request. Parsed fewer bytes than were passed to the HTTP parser” logged. Note that, despite the wording of the error, if you see it in the future, it may be because you’re using an incorrect HTTP method to make a request to your server. And remember, capitalization counts!
 
-At any rate, I generally would not recommend using `all()` rather than `get()`, `post()` and friends. If you’re using `all()`, then either you want the same thing to happen no matter what HTTP method was used to access a path, which is incorrect behavior speaking on a technical level and just generally silly, or you have a logic fork in your code along the lines of…
+At any rate, I generally would not recommend using `all()` in most cases and instead use `get()`, `post()` and friends. If you’re using `all()`, then either you want the same thing to happen no matter what HTTP method was used to access a path, which is incorrect behavior speaking on a technical level and just generally silly, or you’ll have to implement a convoluted logic fork in your code along the lines of…
 
 ```swift
 router.all("/some-path") { request, response, next in
@@ -105,6 +105,9 @@ router.post("/some-path") { request, response, next in
     // Do something else
     next()
 }
+
+// Requests to "/some-path" with methods other than GET and POST will still
+// automatically result in a "404 Not Found" response.
 ```
 
 ## Path Parameters
@@ -183,8 +186,7 @@ Okay, no sweat, right? If we want to make sure the post ID is a positive number,
 
 ```swift
 router.get("/post/:postId") { request, response, next in
-    let postId = request.parameters["postId"]!
-    guard let numericPostId = UInt(postId) else {
+    guard let postId = request.parameters["postId"], let numericPostId = UInt(postId) else {
         response.status(.notFound)
         response.send("Not a proper post ID!\n")
         return
