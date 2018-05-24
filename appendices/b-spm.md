@@ -222,13 +222,19 @@ If you check out your SPMTest directory, you might be surprised to see that noth
 
 ### Specifying Versions
 
-Let’s look at the line where we added the Swift-Kuery-SQlite dependency one more time.
+Before we continue, let’s do a quick overview of semantic versioning.
+
+*Semantinc versioning,* or *semver,* is a standard method of assigning version numbers to software that SPM packages are assumed to follow. Each “version number“ consists of three separate numbers separated by periods, such as “1.2.3”. The first number is the *major version;* the second, the *minor version;* the third, the *patch number.* For new releases which only fix bugs from previous releases, the *patch number* should be incremented; for releases which may introduce new features, but only in a way that won’t break compatibility with software that integrated with previous versions, the minor version is incremented; for releases which have major changes which break compatibility with software that integrated with previous versions, the major version is incremented.
+
+What this means is that if your software is using a package at version 1.2.3 and a new 1.2.4 release comes out, you can assume that the new release will be functionally equivalent, but fixes at least one bug that exists in the 1.2.3 release. If a new 1.3.0 release comes out, you can assume that the release has at least one new feature that you may want to take advantage of, but you can safely update the package and assume that all previous functionality will continue working as it used to without you having to change any of your code to integrate with it (if that assumption ends up being false, that in itself is a bug). If you see a new 2.0.0 release, you can assume that that release will have major changes and compatibility with the integration between this package and your own code is not guaranteed; you quite likely will have to rewrite parts of your code.
+
+Okay, back to SPM. Let’s look at the line where we added the Swift-Kuery-SQLite dependency one more time.
 
 ```swift
         .package(url: "https://github.com/IBM-Swift/Swift-Kuery-SQLite.git", from: "1.0.0"),
 ```
 
-Note the second parameter, the `from` parameter. What this is saying is that you want to use the newest available release in this repository starting from and including the “1.0.0” release up to, but not including, the “2.0.0” release. So if and when a release with a version number of “1.0.1” becomes available, `swift package resolve` will fetch that version without any change in the Package.swift file necessary - and same with “1.0.2” and “1.1.0 and “1.5.7” and so on. However, since it’s presumed that a “2.0.0” release will have changes so major that it’s possible your project will severely break if that release is used.
+Note the second parameter, the `from` parameter. What this is saying is that you want to use the newest available release in this repository starting from and including the “1.0.0” release up to, but not including, the “2.0.0” release. So if and when a release with a version number of “1.0.1” becomes available, `swift package resolve` will fetch that version without any change in the Package.swift file necessary - and same with “1.0.2” and “1.1.0” and “1.5.7” and so on. However, since it’s presumed that a “2.0.0” release will have changes so major that it’s possible your project will severely break if that release is used.
 
 There’s a couple other options we can use in place of the “from” parameter. Consider the following:
 
