@@ -5,7 +5,7 @@ Okay, so we know how to tell Kitura to output plain text, and we know how to tel
 Well, since HTML pages are based in plain text, we could do some silly things like…
 
 ```swift
-response.send("<!doctype html><html><head><title>My awesome web page!</title></head><body><p>…")
+response.send("<!DOCTYPE html><html><head><title>My awesome web page!</title></head><body><p>…")
 ```
 
 But Kitura Template Engine gives us a better way.
@@ -35,17 +35,17 @@ A templating engine allows us to build web pages using templates, which are basi
 </table>
 ```
 
-Just as the Swift Kuery project was a protocol upon which implementations like Swift Kuery MySQL and Swift Kuery PostgreSQL could be implemented, the [Kitura Template Engine](https://github.com/IBM-Swift/Kitura-TemplateEngine) project is a protocol upon which templating engines could be implemented. As of this writing, the IBM@Swift project has three implementations available; [Mustache](https://github.com/IBM-Swift/Kitura-MustacheTemplateEngine), [Stencil](https://github.com/IBM-Swift/Kitura-StencilTemplateEngine), and [Markdown](https://github.com/IBM-Swift/Kitura-Markdown). We’ll ignore the Markdown implementation as it’s not a true full templating engine, and the Mustache implementation hasn’t been updated in several months, so we’ll work with the Stencil implementation here.
+Just as the Swift Kuery project was a protocol upon which implementations like Swift-Kuery-MySQL and Swift-Kuery-PostgreSQL could be implemented, the [Kitura Template Engine](https://github.com/IBM-Swift/Kitura-TemplateEngine) project is a protocol upon which specific templating engines could be implemented. As of this writing, the IBM@Swift project has three implementations available; [Mustache](https://github.com/IBM-Swift/Kitura-MustacheTemplateEngine), [Stencil](https://github.com/IBM-Swift/Kitura-StencilTemplateEngine), and [Markdown](https://github.com/IBM-Swift/Kitura-Markdown). We’ll ignore the Markdown implementation as it’s not a complete templating engine in my opinion, and Stencil seems to be more widely used than Mustache in the Swift ecosystem, so we’ll work with the Stencil implementation here.
 
 Stencil is a templating engine inspired by the one provided for Django, a popular web framework for the Python language. It has a pretty good balance of simplicity and advanced features.
 
-For this chapter, we’re going to continue to use the project we used for the previous two chapters. Go ahead and crack open its `Package.swift` file and add Kitura Stencil to your project.
+For this chapter, we’re going to continue to use the project we used for the previous two chapters. Go ahead and crack open its `Package.swift` file and add Kitura-StencilTemplateEngine to your project.
 
 ## Getting Started
 
-Unfortunately, Kitura Template Engine is severely under-documented at the moment. But that’s part of the reason this book exists.
+Unfortunately, Kitura-TemplateEngine is severely under-documented at the moment. But that’s part of the reason this book exists.
 
-First, we’ll create our template file. Create a new directory at the top level of your project and name it “Views” (with a capital V). Inside that, create a new file, name it `hello.stencil`, and put the following in there.
+For this chapter, we’ll continue to tinker with our Kuery project. First, we’ll create our template file. Create a new directory at the top level of your project and name it “Views” (with a capital V). Inside that, create a new file, name it `hello.stencil`, and put the following in there.
 
 ```django
 <!doctype html>
@@ -84,9 +84,9 @@ response.headers["Content-Type"] = "text/html; charset=utf-8"
 }
 ```
 
-Now visit `/hello/(your name)` in your browser (so, `/hello/Nocturnal` in my case), and you should see that the page now says “Hello, (your name)!”
+Now visit “/hello/(your name)” in your browser (so, “/hello/Nocturnal” in my case), and you should see that the page now says “Hello, (your name)!”
 
-Okay, let’s look at what we built here. Let’s start with the `hello.stencil` file. You probably recognize it as a straightforward HTML file, except for this part:
+Okay, let’s look at what we built here. Let’s start with the hello.stencil file. You probably recognize it as a straightforward HTML file, except for this part:
 
 ```django
 Hello, {{ name }}!
@@ -121,17 +121,17 @@ First, go back to your route handler we created previously and change the route 
 router.get("/hello/:name?") { request, response, next in
 ```
 
-Do you see the difference? There’s a question mark after the `:name`. That means that the `name` parameter is optional in this path, and that the route handler will still fire even if that parameter isn’t included in the given path; in other words, the handler will fire both for `/hello/(your name)` and simply `/hello`.
+Do you see the difference? There’s a question mark after the `:name`. That means that the `name` parameter is optional in this path, and that the route handler will still fire even if that parameter isn’t included in the given path; in other words, the handler will fire both for “/hello/(your name)” and simply “/hello”.
 
-So rebuild your project and try accessing just the `/hello` path. You should see a page which awkwardly says “Hello, !” You can probably guessed what happened; since there was no `name` parameter, the `String?` that Stencil eventually got handed for its `name` variable had a nil value, so it just rendered nothing in its place.
+So rebuild your project and try accessing just the “/hello” path. You should see a page which awkwardly says “Hello, !” You can probably guessed what happened; since there was no `name` parameter, the `String?` that Stencil eventually got handed for its `name` variable had a nil value, so it just rendered nothing in its place.
 
-To fix this, we’ll go back to `hello.stencil` and tell it to use the `default` filter. We tell Stencil to apply a filter to a variable by putting a pipe followed by a filter name right after the variable name. In this case we also need to pass in a default value. That default value will be used when the filtered variable is nil. Let’s use “World” as our default value. So go back to `hello.stencil` and modify the line with the variable to match the following.
+To fix this, we’ll go back to hello.stencil and tell it to use the `default` filter. We tell Stencil to apply a filter to a variable by putting a pipe followed by a filter name right after the variable name. In this case we also need to pass in a default value. That default value will be used when the filtered variable is nil. Let’s use “World” as our default value. So go back to hello.stencil and modify the line with the variable to match the following.
 
 ```django
 Hello, {{ name|default: "World" }}!
 ```
 
-Now switch back to your browser and reload the page, and it will now show “Hello, World!” for the `/hello` path, but still properly drop in your name if you visit `/hello/(your name)`.
+Now switch back to your browser and reload the page, and it will now show “Hello, World!” for the “/hello” path, but still properly drop in your name if you visit “/hello/(your name)”.
 
 ## Blocks
 
@@ -140,7 +140,7 @@ Next, let’s look at Blocks, a method by which we can reduce replication in our
 An example should clarify things here. Inside that `Views` directory you created earlier, create a file named `layout.stencil` and fill it in as follows.
 
 ```django
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>My Music Collection: {% block pageTitle %}Oops - no title!{% endblock %}</title>
@@ -151,7 +151,7 @@ An example should clarify things here. Inside that `Views` directory you created
 </html>
 ```
 
-Now go back to `hello.stencil` and let’s change things up a bit.
+Now go back to hello.stencil and let’s change things up a bit.
 
 ```django
 {% extends "layout.stencil" %}
@@ -165,13 +165,13 @@ Now go back to `hello.stencil` and let’s change things up a bit.
 {% endblock %}
 ```
 
-Build and run. (Note we didn't make any changes to the Swift code here; just the templates.) You should see that the output is pretty much the same as it was before. So what changed under the hood?
+Build and run. (Note we didn't make any changes to the Swift code here; just the templates.) When visiting the “/hello” and “/hello/(your name)” routes, you should see that the output is pretty much the same as it was before. So what changed under the hood?
 
-Well, in `layout.stencil`, we defined two blocks, named `pageTitle` and `pageContent`. A block begins with `{% block blockName %}` and ends with `{% endblock %}`. Inside each block, we gave a little bit of placeholder content, the “Oops” messages, but that content will only be visible if those blocks aren't given new content by a child template.
+Well, in layout.stencil, we defined two blocks named `pageTitle` and `pageContent`. A block begins with `{% block blockName %}` and ends with `{% endblock %}`. Inside each block, we gave a little bit of placeholder content (the “Oops” messages), but that content will only be visible if those blocks aren't given new content by a child template.
 
-`hello.stencil` became such a child template when we added the `{% extends "layout.stencil" %}` directive at the top. Stencil will now pull in and render `layout.stencil`, but will override the blocks therein with blocks we define in this file. We then go on to define `pageTitle` and `pageContent` blocks which get dropped into place of the respective blocks in the parent template. 
+hello.stencil became such a child template when we added the `{% extends "layout.stencil" %}` directive at the top. Stencil will now pull in and render layout.stencil, but will override the blocks therein with blocks we define in this file. We then go on to define `pageTitle` and `pageContent` blocks which get dropped into place of the respective blocks in the parent template. 
 
-How is this any better than what we initially had? Because it reduces duplication. Let’s say that in addition to our `/hello` route, we also had a `/goodbye` route which worked similarly. We could then create a `goodbye.stencil` template that looks like this:
+How is this any better than what we initially had? Because it reduces duplication. Let’s say that in addition to our “/hello” route, we also had a “/goodbye” route which worked similarly. We could then create a goodbye.stencil template that looks like this:
 
 ```django
 {% extends "layout.stencil" %}
@@ -185,7 +185,7 @@ How is this any better than what we initially had? Because it reduces duplicatio
 {% endblock %}
 ```
 
-…And maybe we also had `/good-afternoon` and `/happy-birthday` routes, with corresponding templates. Now we decide that the page looks too plain, so we want to add a CSS file to our pages. We can simply do it by editing `layout.stencil`:
+…And maybe we also had “/good-afternoon” and “/happy-birthday” routes, with corresponding templates. Now we decide that the page looks too plain, so we want to add a CSS file to our pages. We can simply do it by editing layout.stencil:
 
 ```django
 <!doctype html>
@@ -201,11 +201,11 @@ And that’s it - the changes will be reflected across every route on our site t
 
 ## Sanitation and Sanity
 
-In case you missed it, this book contains a section warning that many of the examples in this book contain security issues which are not fixed due to simplicity’s sake. Well, let’s address that a bit now.
+In case you missed it, this book contains a section at the beginning warning that many of the examples in this book contain security issues which are not fixed due to simplicity’s sake. Well, let’s address that a bit now.
 
-The page for the `/hello` route in its current state has a cross-site scripting (XSS) vulnerability. It takes a value directly from the request URL and prints it back to the page. That means that the user could craft a naughty URL which contains some JavaScript code which then gets executed by a user’s browser.
+The page for the “/hello” route in its current state has a cross-site scripting (XSS) vulnerability. It takes a value directly from the request URL and prints it back to the page. That means that the user could craft a naughty URL which contains some JavaScript code which then gets executed by a user’s browser.
 
-Try this out by going to `/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E`. That last part is the URL-encoded equivalent of `<script>alert('oh no');</script>`. The resultant HTML code will contain:
+Try this out by going to “/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E”. That last part is the URL-encoded equivalent of `<script>alert('oh no');</script>`. The resultant HTML code will contain:
 
 ```django
 <p>
@@ -215,7 +215,7 @@ Try this out by going to `/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E`. 
 
 So after visiting this URL, your browser will execute the script in the `<script>` tags and show an alert box with the text “oh no” in it. (Well, maybe. The current version of Safari actually detects what is going on and refuses to execute the script. Things still work in the current version of Firefox, however.) Now the code in this particular example is perfectly benign, but if this example works, then more malicious ones will work, too.
 
-This bugs me, and I’ve raised an issue to propose a fix to make Kitura Template Engine more secure by default. In the meantime, let’s do a little tweaking to fix this problem. Create a new file in your project and name it `String+webSanitize.swift`, and put in the following.
+This bugs me, and I’ve raised an issue to propose a fix to make Kitura Template Engine more secure by default. In the meantime, let’s do a little tweaking to fix this problem. Create a new file in your project and name it String+webSanitize.swift, and put in the following.
 
 ```swift
 extension String {
@@ -236,7 +236,7 @@ extension String {
 }
 ```
 
-This is an *extension* - a way to add methods to classes, in this case the `String` class, without fully subclassing them. Subclassing is not possible in many cases due to access restriction levels (see the Access Control section in *The Swift Programming Language* for more on that), and in other cases it may be possible but still undesirable as code you want to interact with (in this case, Kitura) will still expect to see things using the base class. The filename of `String+webSanitize.swift` matches the “standard” (such as it is) pattern for Swift code files that have extensions in them; namely, `BaseClassName+AddedFunctionality.swift`.
+This is an *extension* - a way to add methods to classes, in this case the `String` class, without fully subclassing them. Subclassing is not possible in many cases due to access restriction levels (see the Access Control section in *The Swift Programming Language* for more on that), and in other cases it may be possible but still undesirable as code you want to interact with (in this case, Kitura) will still expect to see things using the base class. The filename of String+webSanitize.swift matches the “standard” (such as it is) pattern for Swift code files that have extensions in them; namely, BaseClassName+AddedFunctionality.swift.
 
 At any rate, let’s tweak our route handler to use a sanitized string.
 
@@ -250,7 +250,7 @@ router.get("/hello/:name?") { request, response, next in
 }
 ```
 
-And now try loading the page with the naughty path again, `/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E`. Note that you won’t see the alert box anymore, and the page markup will have the following:
+And now try loading the page with the naughty path again, “/hello/%3Cscript%3Ealert('oh%20no');%3C%2Fscript%3E”. Note that you won’t see the alert box anymore, and the page markup will have the following:
 
 ```django
 <p>
@@ -262,9 +262,9 @@ Ah, much better. All right, I think you get the idea of how Stencil works. Let�
 
 ## The Song List in HTML
 
-Check back to the `/songs/:letter` route handler in your project. Right now it outputs JSON or XML responses as requested. We’re going to tweak it so it can output an HTML page as well.
+Check back to the “/songs/:letter” route handler in your Kuery project. Right now it outputs JSON or XML responses as requested. We’re going to tweak it so it can output an HTML page as well.
 
-Let’s start by creating a template. Add a `songs.stencil` file and put in the following. 
+Let’s start by creating a template. Add a songs.stencil file and put in the following. 
 
 ```django
 {% extends "layout.stencil" %}
@@ -336,4 +336,4 @@ Now go back to your web browser and request `/songs/T` (or any other letter). Yo
 
 Uh oh. The `default` filter doesn’t seem to be working for the tracks which have a nil composer value. Yes, as I write this, the base Stencil project has a bug… but *our* code is correct. (Feel free to implement a workaround for this if you wish; I leave that as an exercise for the reader as well. And yes, “exercises for the reader” are often “lazinesses for the author” in thin disguise.)
 
-What about that `{% empty %}` part in our template? Well, the Chinook database actually has songs with titles that start with every letter in the alphabet, so even if you go to `/songs/X` or `/songs/Z` you’ll still get a table full of songs. But we can do tricky things to see how the `{% empty %}` bit would work here. Try going to `/songs/-` (that’s a hyphen) and see what happens; since there are no song titles that begin with a hyphen, you’ll see the “There are no songs that begin with -.” message where the table rows were before. So that works!
+What about that `{% empty %}` part in our template? Well, the Chinook database actually has songs with titles that start with every letter in the alphabet, so even if you go to “/songs/X” or “/songs/Z” you’ll still get a table full of songs. But we can do tricky things to see how the `{% empty %}` bit would work here. Try going to “/songs/-” (that’s a hyphen) and see what happens; since there are no song titles that begin with a hyphen, you’ll see the “There are no songs that begin with -.” message where the table rows were before. So that works!
