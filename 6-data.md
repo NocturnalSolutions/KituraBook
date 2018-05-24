@@ -13,7 +13,7 @@ Now strictly speaking, this data *does* have a structure:
 
     [song name] by [composer] from [album title]
 
-But nonetheless, it’s structured as an English sentence and not really intended to be easily “read” by a computer. For example, let’s say you wanted to write a smartphone app that would display your current music collection, and it got its data by requesting it from your Kitura-powered web site. If your data was formatted as above, you would have to write a custom parser in your smartphone app that would analyze each line returned by your Kitura app to determine the song name, composer, and album title for each line. “Oh, that’s easy!“ you might say. “I just split the line on the words ‘by’ and ‘from,’ and I know the first part will be the song name, the second will be the composer, and the third will be the album title!“ Okay, smarty pants; what do you do if you have a song named “Trial by Fire” on an album named “Miles from Milwaukee?“
+But nonetheless, it’s structured as an English sentence and not really intended to be easily “read” by a computer. For example, let’s say you wanted to write a smartphone app that would display your current music collection, and it got its data by requesting it from your Kitura-powered web site. If your data was formatted as above, you would have to write a custom parser in your smartphone app that would analyze each line returned by your Kitura app to determine the song name, composer, and album title for each line. “Oh, that’s easy!” you might say. “I just split the line on the words ‘by’ and ‘from,’ and I know the first part will be the song name, the second will be the composer, and the third will be the album title!” Okay, smarty pants; what do you do if you have a song named “Trial by Fire” on an album named “Miles from Milwaukee?”
 
     Trial by Fire by John Doe from Miles from Milwaukee
 
@@ -23,7 +23,7 @@ When it comes to structured data, there are two formats in common use on the web
 
 ## Headings Up
 
-There’s a common HTTP request header called “Accept” that lists content types that it’s hoping to see in the response. Similarly, there’s a “Content-Type” response header to specify the content type of the response. We’ll use the former to figure out whether our response should be in XML or JSON, and then the latter to clarify that that is the type we are responding with. Should the client request a type in its “Accept” header that we can’t satisfy, we’ll send a “406 Not Acceptable” response code. Finally, our response will also include a “Vary” header that will tell proxy servers and the like that the response clients are going to get from our server will be different depending on the request’s “Accept” header, so they need to take that into consideration when caching. We touched on headers back in chapter 2, but we’re going to do quite a bit more with them here. (All of this is pedantic HTTP protocol stuff that many building testing/demo apps, and often even full production apps, don’t generally worry about, but the idea here is to learn about Kitura functionality in this regard, and if you pick up some good HTTP habits while we’re at it, all the better.)
+There’s a common HTTP request header called “Accept” that lists content types that the client is expecting to see in the response. Similarly, there’s a “Content-Type” response header to specify the content type of the response. We’ll use the former to figure out whether our response should be in XML or JSON, and then the latter to clarify that that is the type we are responding with. Should the client request a type in its “Accept” header that we can’t satisfy, we’ll send a “406 Not Acceptable” response code. Finally, our response will also include a “Vary” header that will tell proxy servers and the like that the response clients are going to get from our server will be different depending on the request’s “Accept” header, so they need to take that into consideration when caching. We touched on headers back in chapter 2, but we’re going to do quite a bit more with them here. (All of this is pedantic HTTP protocol stuff that many building testing/demo apps, and often even full production apps, don’t generally worry about, but the idea here is to learn about Kitura functionality in this regard, and if you pick up some good HTTP habits while we’re at it, all the better.)
 
 To start, I want to create a new Track struct for compartmentalizing information on tracks that are plucked from the database. I want to add an initializer to simplify creating a Track from a row we’ve plucked out of the database - which, you may recall, will be a `[String: Any?]` dictionary. Create a `Track.swift` file in your project and add the following.
 
@@ -34,11 +34,19 @@ struct Track {
     var name: String
     var composer: String?
     var albumTitle: String
+    
+    enum TrackError: Error {
+        case initFromRowFailed
+    }
 
-    init(fromRow row: [String: Any?]) {
-        name = row["Name"] as! String
-        composer = row["Composer"] as! String?
-        albumTitle = row["Title"] as! String
+    init(fromRow row: [String: Any?]) throws {
+        // Ensure we have at least a name and album title
+        guard let rowName = row["Name"] as? String, let rowTitle = row["Title"] as? String else {
+            throw TrackError.initFromRowFailed
+        }
+        name = rowName
+        albumTitle = rowTitle
+        composer = row["Composer"] as? String?
     }
 }
 ```
@@ -63,8 +71,13 @@ router.get("songs/:letter") { request, response, next in
         if let rows = queryResult.asRows {
             var tracks: [Track] = []
             for row in rows {
-                let track = Track(fromRow: row)
-                tracks.append(track)
+                do {
+                    let track = try? Track(fromRow: row)
+                    tracks.append(track)
+                }
+                catch {
+                    Log.error("Failed to initialize a track from a row.")
+                }
             }
 
             response.headers["Vary"] = "Accept"
@@ -111,7 +124,7 @@ Here, and on other lines where we use `response.headers`, we are setting a respo
 
 The `.accepts` methods on the `RouterRequest` object is really handy here. We throw it an array of types that we can support to its `types` parameter, and it will find the best match and return a `String?` with the matched value, or `nil` if no value matched.
 
-What do I mean by a “best match?“ Well, in the “Accept” header (and similar headers, like “Accept-Language”), the client can not only supply a list of types it wants to accept, but a sort of order in which it wants to accept them. For example, what follows is the “Accept” header that Firefox sends when it requests a web page.
+What do I mean by a “best match?” Well, in the “Accept” header (and similar headers, like “Accept-Language”), the client can not only supply a list of types it wants to accept, but a sort of order in which it wants to accept them. For example, what follows is the “Accept” header that Firefox sends when it requests a web page.
 
     Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
 
@@ -138,7 +151,7 @@ Okay, let’s move on.
             response.status(.internalServerError)
 ```
 
-On these lines, we are setting the status code of the HTTP response. There are dozens and dozens of possible status codes, and Kitura has the most common ones defined in its `HTTPStatusCode` enum for more readable code. As mentioned above, we send a “406 Not Acceptable” status when the client asks for a content type we cannot send them. In addition, we now send a “500 Internal Server Error” code if we can’t answer the request because an error occurred when attempting to query the database. (Note that we are also sending information about the query in the body of the HTTP response. This is useful for testing and debugging, but on a live server, sending this information may be a privacy and/or security vulnerability, so don’t do this on live servers!) If we don’t explicitly define a status code, as we haven’t in previous chapters in this book, Kitura automatically sends a “200 OK“ code for us.
+On these lines, we are setting the status code of the HTTP response. There are dozens and dozens of possible status codes, and Kitura has the most common ones defined in its `HTTPStatusCode` enum for more readable code. As mentioned above, we send a “406 Not Acceptable” status when the client asks for a content type we cannot send them. In addition, we now send a “500 Internal Server Error” code if we can’t answer the request because an error occurred when attempting to query the database. (Note that we are also sending information about the query in the body of the HTTP response. This is useful for testing and debugging, but on a live server, sending this information may be a privacy and/or security vulnerability, so don’t do this on live servers!) If we don’t explicitly define a status code, as we haven’t in previous chapters in this book, Kitura automatically sends a “200 OK” code for us.
 
 Let’s fire up our server and do some testing with Curl.
 
@@ -184,8 +197,15 @@ Now we go back to our route handler, and specifically the switch case for `text/
         case "text/json"?:
             response.headers["Content-Type"] = "text/json"
             let encoder: JSONEncoder = JSONEncoder()
-            let jsonData: Data = try! encoder.encode(tracks)
-            output = String(data: jsonData, encoding: .utf8)!
+            do {
+                let jsonData: Data = try encoder.encode(tracks)
+                output = String(data: jsonData, encoding: .utf8)!
+                response.send(output)
+            }
+            catch {
+                response.status(.internalServerError)
+                Log.error("Failed to JSON encode track list.")
+            }
             break
 ```
 
@@ -195,7 +215,7 @@ Can it really be that easy? Build and test:
 $ curl localhost:8080/songs/w -H "Accept: text/json"
 [{"name":"W.M.A.","albumTitle":"Vs.","composer":"Dave Abbruzzese\/Eddie Vedder\/Jeff Ament\/Mike McCready\/Stone Gossard"},{"name":"W\/Brasil (Chama O Síndico)","albumTitle":"Jorge Ben Jor 25 Anos"},{"name":"Wainting On A Friend","albumTitle":"No Security","composer":"Jagger\/Richards"},{"name":"Waiting","albumTitle":"Judas 0: B-Sides and Rarities","composer":"Billy Corgan"},{"name":"Waiting","albumTitle":"International Superhits","composer":"Billie Joe Armstrong -Words Green Day -Music"}, …]
 ```
-Let’s clean up that output a bit.
+I’ll clean up the formatting on the response a bit just for ease of reading below.
 
 ```json
 [
@@ -231,7 +251,7 @@ For example, consider the following:
 let arrayOfInts: [Int] = [1, 2, 3]
 ```
 
-What is the correct way to encode `arrayOfInts` into JSON? If you asked a hundred coders familiar with JSON this question, I’ll bet you a nice dinner that every single one of them would give you this answer:
+What is the correct way to encode `arrayOfInts` into JSON? If you asked this question to a hundred different coders familiar with JSON, I’ll bet you a nice dinner that every single one of them would give you this answer:
 
 ```json
 [1, 2, 3]
@@ -261,7 +281,7 @@ But how would you encode it as XML? Again, you could ask 100 coders familiar wit
 
 …And so on. And none of these are necessarily wrong.
 
-So can we just throw the `Encodable` protocol on a class or struct and get it to generate XML as easily as we can with JSON? Well… kind of. You see, besides JSON, Foundation has built-in support to generate *property lists,* or “plists.” Property lists are files that serialize Foundation data types into a particular XML format, but that XML format, or *schema,* is rather verbose and not well optimized to a particular use case. Property lists originate in the NeXTSTEP operating system developed in the late ‘80s, which was eventually purchased by Apple and molded into macOS, which itself served as the basis of Apple’s other operating systems. So outside of the Apple ecosystem, property lists are practically unheard of. So let’s just forget about them and implement our own schema, shall we? I think something that looks like this will work nicely:
+So can we just throw the `Encodable` protocol on a class or struct and get it to generate XML as easily as we can with JSON? Well… kind of. You see, besides JSON, Foundation has built-in support to generate *property lists,* or “plists.” Property lists are files that serialize Foundation data types into a particular XML format, but that XML format, or *schema,* is rather verbose and not well optimized to a particular use case. Property lists originate in the NeXTSTEP operating system developed in the late ’80s, which was eventually purchased by Apple and molded into macOS, which itself served as the basis of Apple’s other operating systems. So outside of the Apple ecosystem, property lists are practically unheard of. So let’s just forget about them and implement our own schema, shall we? I think something that looks like this will work nicely:
 
 ```xml
 <tracks>
@@ -345,7 +365,7 @@ Again, let’s clean that output up and see what we have.
 
 Yep, that looks about right.
 
-We were adding to our router callback in fits and starts in this chapter, so just in case you got lost, here’s what ours should look like - or at least reasonably similar to - in the end.
+We were adding to lots of code to our router callback in fits and starts in this chapter, so just in case you got lost, here’s what ours should look like - or at least reasonably similar to - in the end.
 
 ```swift
 router.get("songs/:letter") { request, response, next in
@@ -363,8 +383,13 @@ router.get("songs/:letter") { request, response, next in
         if let rows = queryResult.asRows {
             var tracks: [Track] = []
             for row in rows {
-                let track = Track(fromRow: row)
-                tracks.append(track)
+                do {
+                    let track = try? Track(fromRow: row)
+                    tracks.append(track)
+                }
+                catch {
+                    Log.error("Failed to initialize a track from a row.")
+                }
             }
 
             response.headers["Vary"] = "Accept"
@@ -373,9 +398,15 @@ router.get("songs/:letter") { request, response, next in
             case "text/json"?:
                 response.headers["Content-Type"] = "text/json"
                 let encoder: JSONEncoder = JSONEncoder()
-                let jsonData: Data = try! encoder.encode(tracks)
-                output = String(data: jsonData, encoding: .utf8)!
-                response.send(output)
+                do {
+                    let jsonData: Data = try encoder.encode(tracks)
+                    output = String(data: jsonData, encoding: .utf8)!
+                    response.send(output)
+                }
+                catch {
+                    response.status(.internalServerError)
+                    Log.error("Failed to JSON encode track list.")
+                }
                 break
             case "text/xml"?:
                 response.headers["Content-Type"] = "text/xml"
