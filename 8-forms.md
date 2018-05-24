@@ -42,11 +42,11 @@ So what happens if we go back to our form and change the `method` attribute of t
   …
 ```
 
-When this form is submitted via an HTTP POST query, the browser will not put the form values in the URL. That means the user will just be sent to `http://example.com/foo` no matter what values they enter or select in the form. The browser will, however, still serialize the data and send it as the body of the HTML request. This point is important because it means that the URLs created via forms that submit via GET are “bookmarkable” in the sense that, after submitting the from, if you add the resulting page to your browser’s bookmarks/favorites/hotlist and then revisit it later, you will see the same results of your submission. You could also share the URL with friends or family via email or text message or the like and know that, when they click on the web address, they will see the same results page that you did. This handy property does not hold true for results pages reached by a form that submits via POST; again, for our example form above, no matter what the user selects, the address of the resulting page will always be `http://example.com/foo`.
+When this form is submitted via an HTTP POST query, the browser will not put the form values in the URL. That means, if this page appears at the URL “http://example.com/“, the user will just be sent to “http://example.com/foo” no matter what values they enter or select in the form. The browser will, however, still serialize the data and send it as the body of the HTML request. This point is important because it means that the URLs created via forms that submit via GET are “bookmarkable” in the sense that, after submitting the from, if you add the resulting page to your browser’s bookmarks/favorites/hotlist and then revisit it later, you will see the same results of your submission. You could also share the URL with friends or family via email or text message or the like and know that, when they click on the web address, they will see the same results page that you did. This handy property does not hold true for results pages reached by a form that submits via POST; again, for our example form above, no matter what the user selects, the address of the resulting page will always be “http://example.com/foo”.
 
 So if forms submitted by GET have this handy “bookmarkable” property, why aren’t all forms submitted by GET? Well, there are a couple of reasons why we’d still want to use POST for some forms. For example, there may be cases where we *don’t* want to have the form values inside the URL; for example, for a form a user would use to log in to a site that would have a password field. We don’t want that sensitive password to be sticking around in a URL for anyone to see or get access to! Also, note that browsers have a finite limit to the length of a URL that it will support. The limit varies by browser, but just as a rule of thumb, if there’s a chance someone could enter an arbitrarily large amount of data into your form - for example, if it has a `<textarea>` element for entering a large amount of text, a file upload field (an `<input>` tag with a `type` attribute of `file`), or just lots and lots of standard text fields - it’s best to have your form submit via POST rather than GET.
 
-So when a POST request is done, as mentioned above, the form data is serialized into the body of a POST request to the server. There are two common method that this is done, and this can be changed by setting an `enctype` value on the `<form>` tab. The default method used when an `enctype` is not present (as on our form above) is `application/x-www-form-urlencoded`, but the other common method is `multipart/form-data`. I won’t go into detail about how either of these work under the hood, but suffice it to say that if your form has a file upload field, you *must* set `enctype` to `multipart/form-data`. Otherwise, it’s safe to just let the browser use the default behavior by omitting the `enctype` attribute (which will cause it to use `application/x-www-form-urlencoded` by default).
+So when a POST request is done, as mentioned above, the form data is serialized into the body of a POST request to the server. There are two common methods by which this is done, and the method can be changed by setting an `enctype` value on the `<form>` tab. The default method used when an `enctype` is not present (as on our form above) is `application/x-www-form-urlencoded`, but the other common method is `multipart/form-data`. I won’t go into detail about how either of these work under the hood, but suffice it to say that if your form has a file upload field, you *must* set `enctype` to `multipart/form-data`. Otherwise, it’s safe to just let the browser use the default behavior by omitting the `enctype` attribute (which will cause it to use `application/x-www-form-urlencoded` by default).
 
 So, to sum it up:
 
@@ -88,7 +88,7 @@ Kitura.run()
 Create your Views directory and add an `index.stencil` which looks like the following. Part of it will look very familiar.
 
 ```html
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>Search Page</title>
@@ -139,7 +139,7 @@ Note there are two values associated with the `mediaType` key. The text will loo
 You searched for Kitura in the text,audio type! Here's some results.
 ```
 
-Yes, when there are more than one values for a key in a query, Kitura concatenates the values with a comma in order that they all fit into a single string. To work around this and get the individual values in these cases where there might be multiples, we need to split the value that Kitura gives us on the comma character. (I think this is silly - what happens if one of the values itself has a comma? - and have submitted a pull request to the Kitura project to rectify this. I will update this chapter if and when it is accepted.) Let’s update our handler to deal with this.
+Yes, when there are more than one values for a key in a query, Kitura concatenates the values with a comma in order that they all fit into a single string. To work around this and get the individual values in these cases where there might be multiples, we need to split the value that Kitura gives us on the comma character. (I think this is silly - what happens if one of the values itself has a comma? - and have submitted a pull request to the Kitura project to rectify this. The pull request was accepted, but the changes have not yet appeared in a Kitura release as of this writing.) Let’s update our handler to deal with this.
 
 ```swift
 router.get("/search") { request, response, next in
@@ -201,7 +201,7 @@ router.post("/search") { request, response, next in
 }
 ```
 
-So note in that first line where we instantiate the `BodyParser` class and add it to handle POST requests made to the `/search` path. Yes, this is the same path we used in the code to handle GET requests above. Remember from Chapter 2 that Kitura lets us define different handlers for the same route segregated by the HTTP request method; the code we wrote above to handle GET requests won’t run when a POST request is made to `/search`, and vice versa. Also recall that we can omit a path when defining middleware or other route handlers, so what I often like to do is just have `BodyParser` kick into action on *all* POST requests, regardless of path, by doing:
+So note in that first line where we instantiate the `BodyParser` class and add it to handle POST requests made to the “/search” path. Yes, this is the same path we used in the code to handle GET requests above. Remember from Chapter 2 that Kitura lets us define different handlers for the same route segregated by the HTTP request method; the code we wrote above to handle GET requests won’t run when a POST request is made to “/search”, and vice versa. Also recall that we can omit a path when defining middleware or other route handlers, so what I often like to do is just have `BodyParser` kick into action on *all* POST requests, regardless of path, by doing:
 
 ```swift
 router.post(middleware: BodyParser())

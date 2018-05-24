@@ -4,9 +4,9 @@ HTTP is a stateless protocol. That means that each HTTP transaction is (broadly 
 
 Now this statelessness works just fine when a server is just dumbly serving static files to people who request them, but sometimes we, as web application developers, want to be able to track a user across requests, so that we can ascertain that a certain request was made by the same client that made a request earlier. For example, if we have a resource we want to customize for and/or restrict to certain users, we may ask them to log in by submitting a username and password, which we can then authenticate - but then we also want them to be able to see these resources on later requests as well without having to log in each time.
 
-In the very early days of the web, HTTP authentication was developed to solve this problem. With HTTP authentication, the server tells a connecting client that a certain resource requires authentication to access; the browser then prompts the user for credentials and sends them in the request headers in the next and subsequent requests to that server. This served the purpose, but wasn’t very flexible; for example, there wasn’t a standard way to “log out” a user by telling their browser to stop sending the credentials. Also, there wasn’t an elegant way to track a user across requests *without* having them do the authentication first, which is sometimes desirable.
+In the very early days of the web, HTTP authentication was developed to solve this problem. With HTTP authentication, the server tells a connecting client that a certain resource requires authentication to access; the browser then prompts the user for credentials and sends them in the request headers in the next and subsequent requests to that server. This served the purpose, but wasn’t very flexible; for example, there was no way to add extra fields other than username and password fields to the form that the browser prompts the user with. Also, there wasn’t an elegant way to track a user across requests *without* having them do the authentication first, which is sometimes desirable.
 
-To address this, HTTP cookies were developed. A *cookie* is a small bit of text which a server will send to a client and request that the client send the cookie back to the server on all future requests to the server. The cookie data may include instructions on how long the client should hold on and send the cookie data; the server can also tell a client to delete a previous cookie instantly, thus fixing the “log out” issue of HTTP authentication.
+To address this, HTTP cookies were developed. A *cookie* is a small bit of text which a server will send to a client and request that the client send the cookie back to the server on all future requests to the server. The cookie data may include instructions on how long the client should hold on and send the cookie data, and under what domain names and protocols it can be used.
 
 Cookies can contain text-encoded data, but more frequently they contain a distinctly unique identifier key. Many web frameworks, including Kitura, can use these keys to store and restore *sessions,* which are basically collections of data relevant to the user that sent the key.
 
@@ -16,7 +16,7 @@ Let’s see this working in practice with [Kitura-Session](https://github.com/IB
 
 To get sessions working in Kitura, we instantiate the Session middleware and add it to middleware to the routes we want to use it on; in the example below, I’m just going ahead and adding it to all routes, but you can be more particular and add it to only routes on which it will be used if you prefer. When we instantiate Session, we pass it a `secret` parameter which is a string used when generating the identifier in the cookie; to avoid cases where one user is able to guess another user’s cookie value, this should be a secret non-public string, and you should use a different one for each of your sites. Once the middleware is in place, incoming RouterRequest objects will have an optional `session` parameter which functions as a `[String: Any]` dictionary (it isn’t really, but it subscripts like one) into which we can stuff the data we want to persist across sessions.
 
-Here’s some code to dump into your main.swift and play with.
+Here’s some code to dump into your main.swift and play with. (Note that I'm cheating by putting HTML pages inline rather than properly using templates, but I think the code sample is easier to read this way.)
 
 ```swift
 import Foundation
@@ -87,13 +87,13 @@ Kitura.addHTTPServer(onPort: 8080, with: router)
 Kitura.run()
 ```
 
-Fire up your favorite web browser and head to `http://localhost:8080/`. You’ll be prompted with a page asking your name. After submitting the form, you’ll be taken back to the `/` path, except instead of seeing the form you just submitted, you’ll be greeted by name - but note that the browser isn’t sending your name to the server in any way. That data was stored server-side in the session data.
+Fire up your favorite web browser and head to "http://localhost:8080/". You’ll be prompted with a page asking your name. After submitting the form, you’ll be taken back to the “/” path, except instead of seeing the form you just submitted, you’ll be greeted by name - but note that the browser isn’t sending your name to the server in any way. That data was stored server-side in the session data.
 
-What you probably didn’t notice is that, when Kitura sent the response for the `/submit` path, it sent a response header to your browser telling it to store a cookie. When the browser then requested the `/` path immediately after, it sent that cookie in its request. When Kitura-Session saw that cookie, it was able to restore the session data into `request.session`.
+What you probably didn’t notice is that, when Kitura sent the response for the "/submit" path, it sent a response header to your browser telling it to store a cookie. When the browser then requested the “/” path immediately after, it sent that cookie in its request. When Kitura-Session saw that cookie, it was able to restore the session data into `request.session`.
 
-Now try reloading the browser page while it’s on the `/` path. The browser will once again send the cookie it has stored as part of the request, and Kitura-Session will again use it to restore the session, so you’ll once again see the “Hello” message rather than the name prompt form. But if you open up a separate web browser program (or, if you don’t have one, a new window using the private mode of your current browser) and request the `/` path, you’ll be prompted for your name again - cookies aren’t shared across browsers, so the server can’t use it to determine who you are.
+Now try reloading the browser page while it’s on the “/” path. The browser will once again send the cookie it has stored as part of the request, and Kitura-Session will again use it to restore the session, so you’ll once again see the “Hello” message rather than the name prompt form. But if you open up a separate web browser program (or, if you don’t have one, a new window using the private mode of your current browser) and request the “/” path, you’ll be prompted for your name again - cookies aren’t shared across browsers, so the server can’t use it to determine who you are.
 
-So now you’re “logged in” in your main browser and will see the “Hello” message when you visit the `/` path. But what if you want to be anonymous again? We can destroy the session, which causes all the data saved for the session to be deleted and to not be recreated on future requests from the browser, even if the browser continues to send the cookie it has stored. To do this, we call the `destroy` method on `request.session`. This method takes a callback to handle a case where an error occurs during session destruction, though this is incredibly unlikely. Go back to your code editor and add the following.
+So now you’re “logged in” in your main browser and will see the “Hello” message when you visit the “/” path. But what if you want to be anonymous again? We can destroy the session, which causes all the data saved for the session to be deleted and to not be recreated on future requests from the browser, even if the browser continues to send the cookie it has stored. To do this, we call the `destroy` method on `request.session`. This method takes a callback to handle a case where an error occurs during session destruction, though this is incredibly unlikely. Go back to your code editor and add the following.
 
 ```swift
 router.get("/log-out") { request, response, next in
@@ -107,7 +107,7 @@ router.get("/log-out") { request, response, next in
     next()
 }
 ```
-Then go back and add a link to our new route in the HTML sent in the `/` handler.
+Then go back and add a link to our new route in the HTML sent in the “/” handler.
 
 ```swift
 router.get("/") { request, response, next in
@@ -125,7 +125,7 @@ router.get("/") { request, response, next in
         // ...
 ```
 
-Now restart your application and try things again in your browser. When you go to the `/` path, you’ll be prompted for your name. After entering it, you’ll see the “Hello” message, but now you’ll also see the “Log out” link. After clicking that, you’ll again be redirected to the front page, but this time you’ll be prompted for your name again.
+Now restart your application and try things again in your browser. When you go to the “/” path, you’ll be prompted for your name. After entering it, you’ll see the “Hello” message, but now you’ll also see the “Log out” link. After clicking that, you’ll again be redirected to the front page, but this time you’ll be prompted for your name again.
 
 ### More on Cookies
 
@@ -143,7 +143,7 @@ $ curl -b /tmp/cookies.txt -c /tmp/cookies.txt -d "name=foobar" -L -v http://loc
 
 So you see above how session data is stored by Kitura-Session between page requests. How exactly is this data stored? By default, it’s just stored in memory like any other variable in your program. This is quite fast, but there are a couple issues with this. For one, if you have a lot of sessions created for your users (lots of users “logged in”) and/or a lot of data stored in your sessions, the memory usage of your program can quickly balloon out of control. Secondly, if your web app stops or crashes, all of that session data is lost with it and all of your users will have to log in again.
 
-To alleviate these issues, it’s possible to have Kitura-Session use an external storage system for session data. As I write this, there are currently integration plugins for Kuery (which in turn lets you use any database Kuery supports as a back-end) and the Redis No-SQL database system. Check out the [“Plugins” section in the Kitura-Session documentation](https://github.com/IBM-Swift/Kitura-Session#plugins) for links to these plugins. For simplicity, sake, I won’t be using one of them in the examples in this chapter, but you should definitely use one if you’re going to be writing a real web app.
+To alleviate these issues, it’s possible to have Kitura-Session use an external storage system for session data. As I write this, there are currently integration plugins for Kuery (which in turn lets you use any database Kuery supports as a back-end) and the Redis NoSQL database system. Check out the [“Plugins” section in the Kitura-Session documentation](https://github.com/IBM-Swift/Kitura-Session#plugins) for links to these plugins. For simplicity, sake, I won’t be using one of them in the examples in this chapter, but you should definitely use one if you’re going to be writing a real web app.
 
 Now while using one of these plugins will more permanently store the data you store in a session, it should be noted that it’s a best practice to not use a session’s data storage as a primary data storage location anyway. For example, after a user logs in to your site, you may load their name and email address from your site’s database and store it in a session for easy retrieval, but if they later change their name or email address, you should update *the database* with that new information and not only the session. After all, remember that that session will be destroyed when the user logs out - and all of the data stored in it will go with it.
 
