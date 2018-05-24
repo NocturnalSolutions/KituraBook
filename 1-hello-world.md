@@ -2,7 +2,15 @@
 
 Let’s create a classic [Hello World](http://www.catb.org/jargon/html/H/hello-world.html) example.
 
-First, install Swift and get it running. On your system, you should be able to type `swift` into a terminal window to start up the Swift REPL. (Press Control-D to exit the REPL.) If you’re on a macOS system, installing Apple’s full-featured Xcode IDE from the App Store should be all you need to do. (It’s not necessary to use Xcode to edit Swift code on your Mac, but when you install Xcode, the Swift binaries and other software development goodies will come along for the ride.) On Ubuntu Linux, install the following packages using `apt-get install`:
+First, install Swift and get it running. On your system, you should be able to type `swift` into a terminal window to start up the Swift REPL. (Press Control-D to exit the REPL.) Hopefully you already have this up and running, but if not, here’s some guidance.
+
+## On MacOS
+
+If you’re on a macOS system, installing Apple’s full-featured Xcode IDE from the App Store should be all you need to do. (It’s not necessary to use Xcode to edit Swift code on your Mac, but when you install Xcode, the Swift binaries and other software development goodies will come along for the ride.)
+
+## On Linux
+
+On Ubuntu Linux, install the following packages using `apt-get install`:
 
 * `clang`
 * `python-dev`
@@ -12,15 +20,17 @@ First, install Swift and get it running. On your system, you should be able to t
 
 Then [download Swift](https://swift.org/download/) and unpack it to a convenient place on your system. See the [Installing Swift](https://swift.org/getting-started/#installing-swift) page on the official Swift site for more info.
 
+## Starting a New Project
+
 Once you’ve confirmed Swift is up and running on your system, you can start a new Swift project by doing the following in a terminal:
 
 ```shell
-$ mkdir hello-world
-$ cd hello-world
-$ swift package init --type=executable
+mkdir hello-world
+cd hello-world
+swift package init --type=executable
 ```
 
-Now open up the `Package.swift` file and add a dependency for Kitura. It will have a bit of boilerplate in there that you’ll have to modify to add a dependency to Kitura. The end result should look like this.
+Now open up the `Package.swift` file and add a dependency for Kitura. It will have a bit of boilerplate in there that you’ll have to modify to add a dependency to Kitura. The end result should look like this. (Note that capitalization is important for the below.)
 
 ```swift
 // swift-tools-version:4.0
@@ -49,14 +59,14 @@ let package = Package(
 Have the Swift Package Manager resolve Kitura and its dependencies and add them to your project.
 
 ```shell
-$ swift package resolve
+swift package resolve
 ```
 
 If you’re on macOS and wish to use Xcode as your code editor, now’s the time to create a new Xcode project and open it up. (If you’re not on macOS or not using Xcode, ignore the following.)
 
 ```shell
-$ swift package generate-xcodeproj
-$ open hello-world.xcodeproj
+swift package generate-xcodeproj
+open hello-world.xcodeproj
 ```
 
 Now note that your project won’t build properly in Xcode unless you change the scheme to be your real application. I don’t know why this is; if it’s a glitch in Swift Package Manager, Xcode, or both. At any rate, you have to do it every time you use `generate-xcodeproj`. From the scheme menu to the right of the “stop” button, change the scheme from “hello-world-Package” to just “hello-world.”
@@ -128,7 +138,7 @@ Keep-Alive: timeout=60, max=99
 Hello world!
 ```
 
-Now just for fun, let’s see what happens if we access a path other than “/“ on our server. Let’s try the “/hello” path:
+Now just for fun, let’s see what happens if we access a path other than “/” on our server. Let’s try the “/hello” path:
 
 ```shell
 $ curl --include localhost:8080/hello
@@ -143,7 +153,7 @@ Cannot GET /hello.
 
 Oh, we got a 404 error. You may be able to guess why, but if not, I’ll explain it later in this chapter.
 
-Back in the terminal window that’s running your program, you can stop execution by typing Control-C, or ^C in standard Unix notation.
+Back in the terminal window that’s running your program, you can stop execution by typing Control-C.
 
 Note that Xcode users can run your project by using the “Run” command in the “Product” menu or by pressing the “Play” button in the toolbar rather than using the command line to build and execute your compiled project, and indeed this process is generally faster for Xcode users. You should also know how to do it via the command line, however. You can try it now, but don’t forget to halt the program in the terminal first.
 
@@ -169,15 +179,9 @@ We are instantiating a new Router object, which is provided by Kitura. Routers w
 router.get("/") { request, response, next in
 ```
 
-We are creating a handler for the “/“ path; specifically, for GET HTTP requests made to the “/“ path. (We’ll learn how to handle other types of requests in a later chapter.) Note that in our code, this is the only path for which we are creating a handler. This is why we got a 404 error when we tried the “/hello” path above. (Up for a bit of experimentation? Try changing this to “/hello” or any other path and rebuild your project. Just remember to keep that slash at the beginning of the path.)
+We are creating a handler for the “/” path; specifically, for GET HTTP requests made to the “/” path. (We’ll learn how to handle other types of requests in a later chapter.) Note that in our code, this is the only path for which we are creating a handler. This is why we got a 404 error when we tried the “/hello” path above. (Up for a bit of experimentation? Try changing this to “/hello” or any other path and rebuild your project. Just remember to keep that slash at the beginning of the path.)
 
-The part that begins with a curly brace is a *trailing closure.* It’s actually a closure which is passed as the final parameter to the “get()” method on the Router object instance, even though it is outside of the parentheses. If you’re like me, this syntax is pretty bizarre, but you’re going to want to get used to it, because Kitura uses it everywhere. Have a look at the “Trailing Closures” section of *The Swift Programming Language* for more information on what’s being done here. For now, if it helps, think of this line being functionally equivalent to:
-
-```swift
-router.get("/", handler: (request: RouterRequest, response: RouterResponse, next: RouterHandler) {
-```
-
-…even though that code won’t actually work.
+The part that begins with a curly brace is a *trailing closure.* It’s actually a closure which is passed as the final parameter to the “get()” method on the Router object instance, even though it is outside of the parentheses. If you’re like me, this syntax is pretty bizarre, but you’re going to want to get used to it, because Kitura uses it everywhere. Have a look at the “Trailing Closures” section of *The Swift Programming Language* for more information on what’s being done here. For now, know that `request` is an instance of Kitura’s RouterRequest object, `response` is an instance of RouterResponse, and `next` is a closure. (RouterRequest and RouterResponse will be covered further in later chapters.)
     
 Finally, `request, response, next in` specifies that our closure that we just began has three parameters passed to it: `request`, which is a Kitura RouterRequest instance with information about the incoming request; `response`, which is a Kitura RouterResponse object with information about the response we want to send to the client that made the request; and `next`, which is itself a closure. I’ll explain that `next` parameter more later in this chapter; first, we should explain the rest of the code in this example.
 
@@ -226,7 +230,7 @@ router.get("/") { request, response, next in
 }
 ```
 
-Our code now has two simple handlers for the “/“ path. (If you experimented by changing “/“ to “/hello” or some other path in the first route handler above, either change it back or have this handler use that same new path; either way, make sure the first parameter to the `get` method is equivalent). Now do another request in the command line, and check out how the output has changed.
+Our code now has two simple handlers for the “/” path. (If you experimented by changing “/” to “/hello” or some other path in the first route handler above, either change it back or have this handler use that same new path; either way, make sure the first parameter to the `get` method is equivalent). Now do another request in the command line, and check out how the output has changed.
 
 ```shell
 $ curl localhost:8080/
@@ -296,7 +300,7 @@ Now build and run your project instead. This time, instead of seeing nothing in 
     [2017-08-28T23:16:52.198-00:00] [VERBOSE] [Kitura.swift:82 start()] Starting an HTTP Server on port 8080...
     [2017-08-28T23:16:52.200-00:00] [INFO] [HTTPServer.swift:117 listen(on:)] Listening on port 8080
 
-Yep! Kitura is logging stuff now. Try accessing your server with a client and note how Kitura also logs page requests with lines such as the following:
+Yep! Kitura is logging things now. Try accessing your server with a client and note how Kitura also logs page requests with lines such as the following:
 
     [2017-08-28T23:22:40.488-00:00] [VERBOSE] [HTTPServerRequest.swift:215 parsingCompleted()] HTTP request from=127.0.0.1; proto=http;
 
@@ -322,10 +326,10 @@ You can also use these severity levels to determine which log messages you want 
 let helium = HeliumLogger(.verbose)
 ```
 
-This means that HeliumLogger will show messages of verbose severity and higher, but ignore debug messages. If you only want to show messages of the warning and error severity levels and ignore those of info severity and lower, simply do:
+This means that HeliumLogger will log messages of verbose severity and higher, but messages with the debug severity level will not be logged. If you only want to log messages of the warning and error severity levels and ignore those of info severity and lower, simply do:
 
 ```swift
-let helium = HeliumLogger(.debug)
+let helium = HeliumLogger(.warning)
 ```
 
 Later examples in this book will periodically use logging, and you are of course free to add your own logging to help you trace through the code.
