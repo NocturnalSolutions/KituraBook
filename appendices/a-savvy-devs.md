@@ -1,12 +1,14 @@
 # Appendix: Cross-Platform Swift for Cocoa Developers: What to Learn (And Unlearn) {#savvy-devs}
 
-This chapter addresses developers who have experience using Swift to write graphical macOS or iOS applications, but are new to Kitura or to the concept of writing cross-platform CLI applications in Swift in general. Our community is young, but it has swiftly developed (terrible pun partially intended) its own best practices which, generally due to Swift’s much higher focus on cross platform compatibility compared to Objective-C, are often at odds with how experienced Cocoa developers do things. The changes you’ll need to make to ensure maximum compatibility of your code and minimum friction with the rest of the community may feel annoying and unnecessary, but all told, they’re really not that difficult.
+This chapter addresses developers who have experience using Swift to write graphical macOS or iOS applications, but are new to Kitura or to the concept of writing cross-platform CLI applications in Swift in general. Our community is young, but it has swiftly developed (terrible pun partially intended) its own best practices which, generally due to Swift’s much higher focus on cross-platform compatibility compared to Objective-C, are often at odds with how experienced Cocoa developers do things. The changes you’ll need to make to ensure maximum compatibility of your code and minimum friction with the rest of the community may feel annoying and unnecessary, but all told, they’re really not that difficult.
 
 ## Don’t start a new project with Xcode.
 
-To start a new CLI project, create a new directory, `cd` into that directory in a terminal, then run `swift package init --type=executable` if you’re developing a Kitura site or `swift package init --type=library` if you’re developing Kitura middleware. Then run `swift package generate-xcodeproj` to generate an Xcode project file you can then open in Xcode.
+To start a new cross-platform project, create a new directory, `cd` into that directory in a terminal window, then run `swift package init --type=executable` if you’re developing a Kitura site or `swift package init --type=library` if you’re developing Kitura middleware. Then run `swift package generate-xcodeproj` to generate an Xcode project file you can then open in Xcode.
 
-Among the files created by this process is a `.gitignore` file which stops various unnecessary files from making it into your Git repository (you will still manually have to initialize the repo with `git init`). If you plan to use Mercurial, Subversion, or some other version control system, please “port” this `.gitignore` file to the filename and format expected for that system. 
+Among the files created by this process is a `.gitignore` file which stops various unnecessary files from making it into your Git repository (you will still manually have to initialize the repo with `git init`). If you plan to use Mercurial, Subversion, or some other version control system, please “port” this `.gitignore` file to the filename and format expected for that system.
+
+After adding new packages with Swift Package Manager, you will need to re-generate your Xcode project file in order for the new code to be seen in Xcode.
 
 Note that the Xcode project file is one of those excluded in `.gitignore`; if you are collaborating with others on this project, they will need to run the `generate-xcodeproj` command after cloning your project in order to get their own Xcode project file.
 

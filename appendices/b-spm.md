@@ -1,4 +1,4 @@
-# Swift Package Manager Basics {#spm-intro}
+# Appendix: Swift Package Manager Basics {#spm-intro}
 
 For those new to cross-platform Swift, using the Swift Package Manager (SPM) is often a major point of confusion - especially when something goes wrong. This appendix will attempt to teach you just enough about SPM to make it work for you without overloading you with minutiae and details.
 
@@ -23,9 +23,9 @@ A project utilizing Swift Package Manager will need a file named Package.swift. 
 Let’s start a new project and see all of these things in play. Create a directory named `SPMTest` and initialize a new project inside of it. You can do so by opening up a terminal prompt, moving to a nice path to put a new project, and then running: 
 
 ```
-> mkdir SPMTest
-> cd SPMTest
-> swift package init --type=executable
+mkdir SPMTest
+cd SPMTest
+swift package init --type=executable
 ```
 
 That last command is itself a command directed at SPM telling it to start a new Swift project with boilerplate code. (All SPM commands will begin with `swift package`.) Among the files it creates is a basic Package.swift file which looks like the below:
@@ -54,12 +54,12 @@ let package = Package(
 
 So when SPM does stuff, it basically executes this code file, checks out what gets stored in `package`, a `Package` struct, and uses that data to figure out what it needs to do. You can see that it used the directory name to create a `name` for our package, as well as a `target`. In the array given to the `dependencies` parameter, dependencies are defined; for the other `dependencies` parameter in the target definition, we associate the dependency with the target. 
 
-That might have been a bit confusing, so let’s try to clarify it. In SPM, a package can, in its Package.swift file, declare itself to be a library; a bit of code which is not intended to be an end product, but instead to be used in other end products. Kitura itself is a library. Let’s see what the Package.swift file in a bare-bones library looks like. Go back to your console, `cd` up a level, and run the following:
+That might have been a bit confusing, so let’s try to clarify it. In SPM, a package can, in its Package.swift file, declare itself to be a library; a bit of code which is not intended to be an end product, but instead to be used in other end products. Kitura itself is a library. Let’s see what the Package.swift file in a bare-bones library looks like. Go back to your terminal window, `cd` up a level, and run the following:
 
 ```
-> mkdir SPMLibraryTest
-> cd SPMLibraryTest
-> swift package init --type=library
+mkdir SPMLibraryTest
+cd SPMLibraryTest
+swift package init --type=library
 ```
 
 Note that instead of using `--type=executable` as we did with our previous example, we’re using `--type=library` when running `swift package init`.
@@ -264,11 +264,11 @@ There are actually other sorts of parameters you can use here, but these are the
 
 It was covered above, but just to clarify; you should use SPM to start a new cross-platform Swift project. Don’t do it via Xcode, as you may be used to if you’ve previously written Cocoa applications. (See the [Cross-Platform Swift for Cocoa Developers](a-savvy-devs.md) chapter for more.) Use `swift pacakge init --type=executable` to start a new standard application, or `swift package init --type=library` to start a new library.
 
-### Generate an Xcode project file
+### Generate an Xcode Project File
 
 If you’re using a Mac, you’ll probably want to use Xcode for your code editor. `swift package init` will not create an Xcode project file for you, and creating one “manually” via Xcode will be messy. Instead, simply run `swift package generate-xcodeproj` and a new Xcode project file will be created for you. You’ll also want to do this whenever you add or update dependencies using `swift package resolve` to make sure Xcode can “see” the newest code.
 
-Note that if you clone someone else’s cross-platform Swift project, customarily the repository will not include an Xcode project file (the .gitignore file `swift packagte init` creates for you actually blocks Xcode project files from being added to the repository). But you can use `swift package generate-xcodeproj` on others’ projects too to get a useful Xcode project file out of it.
+Note that if you clone someone else’s cross-platform Swift project, customarily the repository will not include an Xcode project file (the .gitignore file `swift package init` creates for you actually blocks Xcode project files from being added to the repository). But you can use `swift package generate-xcodeproj` on others’ projects too to get a useful Xcode project file out of it.
 
 Note that the Xcode project file’s name will be based on the name of the directory you run the `generate-xcodeproj` command in; so, for example, if you run the command in our SPMTest project directory, the Xcode project file name will be “SPMTest.xcodeproj”. However, for some reason (not sure if it’s a bug or something even weirder), if the directory name contains a space, the Xcode project file will not be usable; Xcode will tell you that a bunch of stuff is missing and such. Fortunately, there’s an easy fix here; use the `--output` option on the `generate-xcodeproj` command to manually specify a filename for the Xcode project which does not contain a space. For example, I have a project in a directory called “Midnight Post”. To generate a usable Xcode project file for this project, I have to use the command `swift package generate-xcodeproj --output=MidnightPost.xcodeproj` so that the filename of the Xcode project file does not contain a space.
 
@@ -289,6 +289,6 @@ If something goes wrong when you run `swift package resolve`, the following tips
 * Check that all of the paths to Git repositories in your Package.swift file end with `.git`; for example, `https://github.com/IBM-Swift/Kitura.git` instead of `https://github.com/IBM-Swift/Kitura`. If you try to access the latter as a Git repository, GitHub’s servers will dutifully represent it as a Git repository and let you get away with it - but then if some other project in your dependency tree depends on the same repository and its Package.swift *does* include the path with `.git`, SPM might get confused and think it’s looking at two separate packages.
 * Try narrowing down which line in your `dependencies` array is “broken” by commenting them out one by one and running `swift package resolve` after each. Once `swift package resolve` works, the problem probably lies with the last line you commented out.
 * Ensure that the release number you are trying to reference actually exists. Sometimes people copy-and-paste a line in the `dependencies` array and change the repo URL, but forget to change the release part and end up referencing releases that don’t exist.
-* Using Xcode and not seeing the dependency you added appear in your Xcode project? Remember that you have to re-run `swift package generate-xcodeproj` whenever you add or update a dependency. If you *do* see the dependency in Xcode but Xcode still shows you an error about the module not being available, try building your project anyway - it might just work. Xcode sometimes gets confused about what code it actually has available.
-* If a dependency is not being added to your project when you run `swift package resolve`, that you not only added the path and version information under the top-level `dependencies` parameter but also added the library name to the `dependencies` array in the target definition.
+* Using Xcode and not seeing the dependency you added appear in your Xcode project? Remember that you have to re-run `swift package generate-xcodeproj` whenever you add or update a dependency. If you *do* see the dependency in Xcode but Xcode still shows you an error about the module not being available, try building your project anyway - it might just work. Xcode sometimes gets confused about what code it actually has available for compilation.
+* If a dependency is not being added to your project when you run `swift package resolve`, check that you not only added the path and version information under the top-level `dependencies` parameter but also added the library name to the `dependencies` array in the target definition.
 * The Delete Freakin’ Everything approach: If at any time you think SPM might be confused about its own state, `swift package reset; rm Package.resolved; swift package resolve` will delete everything SPM has checked out so far and what tags/releases/commits it thinks it needs to check out based on the Package.swift file. It will then re-parse the Package.swift file and try again.
