@@ -6,7 +6,7 @@ What follows was originally part of the [standard Kuery chapter](5-kuery.md) of 
 
 Start a new project and add SwiftKueryMySQL to it via Swift Package Manager. This is going to be the first project in the book which uses code which isn't itself entirely written in Swift, so things are going to get tricky.
 
-### On the Mac
+### On macOS
 
 First, if you are on a Mac and prefer to use MacPorts rather than Homebrew, you will need to take a step to help the compiler find your MySQL header files. Create the directory `/opt/local/include` and symlink the `mysql` directory from under `/opt/local/include` under it. The precise path of that directory will depend on which variant of MySQL you installed; for example, I installed version 10 of the MariaDB fork of MySQL, so I had to run `ln -s /opt/local/include/mariadb-10.0/mysql/ /opt/local/include/`.
 
@@ -17,7 +17,7 @@ ld: library not found for -lmysqlclient for architecture x86_64
 <unknown>:0: error: link command failed with exit code 1 (use -v to see invocation)
 ```
 
-Aside from the header files, we also need to tell Kuery where to find the MySQL (in this case) libraries themselves. If you are using Homebrew, this directory will always be `/usr/local/lib`. If you're using MacPorts, the path will again vary depending on which type and version of MySQL you installed; it should be the same path you had to symlink as above, but with `include` swapped for `lib`; so `/opt/local/lib/mariadb-10.0/mysql` in my case. At any rate, now that you have this path, here’s how you pass them to the Swift compiler so your project builds:
+Aside from the header files, we also need to tell Kuery where to find the MySQL libraries themselves. If you are using Homebrew, this directory will always be `/usr/local/lib`. If you're using MacPorts, the path will again vary depending on which type and version of MySQL you installed; it should be the same path you had to symlink as above, but with `include` swapped for `lib`; so `/opt/local/lib/mariadb-10.0/mysql` in my case. At any rate, now that you have this path, here’s how you pass them to the Swift compiler so your project builds:
 
 ```shell
 swift build -Xlinker -L[the path found above]
@@ -59,7 +59,7 @@ Congratulations, Linux fans; life is easier for you in this case. Just install t
 
 Now that we can build a project that includes Swift-Kuery-MySQL, start up your MySQL server and connect to it with either the `mysql` command line tool or a graphical database manager of some sort. Take note of whatever credentials and network hostnames and ports and so on you need to use, because we’re going to put them in our code later.
 
-Let’s populate our database with some data we can work with in this and later chapters. For this purpose, we’re going to use the Chinook Database, a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository at https://github.com/lerocha/chinook-database.git. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
+Let’s populate our database with some data we can work with in this and later chapters. For this purpose, we’re going to use the [Chinook Database](https://github.com/lerocha/chinook-database), a database populated with music and movie information originally sourced from an iTunes playlist. Clone the repository to your development machine. (Don’t make it a dependency of a Kitura project; just clone the repository by itself.)
 
 The repository contains SQL dumps for various SQL systems in the `ChinookDatabase/DataSources` directory. Create a new database and import the `Chinook_MySql.sql` dump. Once you’ve got all the data imported, feel free to poke around and familiarize yourself with what the schema of the tables look like and what sort of data is in them.
 
