@@ -4,7 +4,7 @@ Let’s create a classic [Hello World](http://www.catb.org/jargon/html/H/hello-w
 
 First, install Swift and get it running. On your system, you should be able to type `swift` into a terminal window to start up the Swift REPL. (Press Control-D to exit the REPL.) Hopefully you already have this up and running, but if not, here’s some guidance.
 
-## On MacOS
+## On macOS
 
 If you’re on a macOS system, installing Apple’s full-featured Xcode IDE from the App Store should be all you need to do. (It’s not necessary to use Xcode to edit Swift code on your Mac, but when you install Xcode, the Swift binaries and other software development goodies will come along for the ride.)
 
@@ -25,8 +25,8 @@ Then [download Swift](https://swift.org/download/) and unpack it to a convenient
 Once you’ve confirmed Swift is up and running on your system, you can start a new Swift project by doing the following in a terminal:
 
 ```shell
-mkdir hello-world
-cd hello-world
+mkdir HelloWorld
+cd HelloWorld
 swift package init --type=executable
 ```
 
@@ -39,7 +39,7 @@ Now open up the `Package.swift` file and add a dependency for Kitura. It will ha
 import PackageDescription
 
 let package = Package(
-    name: "hello-world",
+    name: "HelloWorld",
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
@@ -49,7 +49,7 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
-            name: "hello-world",
+            name: "HelloWorld",
             dependencies: ["Kitura"]),
     ]
 )
@@ -66,12 +66,8 @@ If you’re on macOS and wish to use Xcode as your code editor, now’s the time
 
 ```shell
 swift package generate-xcodeproj
-open hello-world.xcodeproj
+open HelloWorld.xcodeproj
 ```
-
-Now note that your project won’t build properly in Xcode unless you change the scheme to be your real application. I don’t know why this is; if it’s a glitch in Swift Package Manager, Xcode, or both. At any rate, you have to do it every time you use `generate-xcodeproj`. From the scheme menu to the right of the “stop” button, change the scheme from “hello-world-Package” to just “hello-world.”
-
-![Scheme selection](images/scheme-select.png)
 
 Okay, let’s add some code. Open up the `Sources/main.swift` file in your editor. Delete what SPM has put in there by default and enter the following:
 
@@ -100,13 +96,13 @@ $ swift build
 If all goes well, the last line will be:
 
 ```shell
-Linking ./.build/[Your hardware architecture and OS]/debug/hello-world
+Linking ./.build/[Your hardware architecture and OS]/debug/HelloWorld
 ```
     
 That’s where your compiled binary was saved. So let’s run that.
 
 ```shell
-$ ./.build/[Your hardware architecture and OS]/debug/hello-world
+$ ./.build/[Your hardware architecture and OS]/debug/HelloWorld
 ```
 
 If all goes well, the program will execute without any output.
