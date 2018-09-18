@@ -4,7 +4,7 @@
 
 This book is an introductory guidebook or tutorial for teaching existing Swift developers to develop web sites and services using the Kitura web framework. This version of the book covers Kitura 2 running on Swift 4.
 
-Kitura Until Dawn is available in a wide variety of formats. If you’re not currently reading this book in the manner that you would prefer, and/or the information within itc seems to be out of date, please check out the [Kitura Until Dawn web site](http://learnkitura.com/) for alternatives.
+Kitura Until Dawn is available in a wide variety of formats. If you’re not currently reading this book in the manner that you would prefer, and/or the information within it seems to be out of date, please check out the [Kitura Until Dawn web site](http://learnkitura.com/) for alternative formats and updated content.
 
 ## This Book is Free!
 
