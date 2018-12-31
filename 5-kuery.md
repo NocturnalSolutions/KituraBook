@@ -1,5 +1,7 @@
 # Chapter 5: Database Connectivity with Kuery {#kuery}
 
+> Note: This chapter covers the 2.x release of Kuery. The current 3.x release of Kuery greatly changes the Kuery API, and thus the code featured in this chapter will no longer work. A second edition of Kitura Until Dawn which will cover Kuery 3.x is under way. Please keep an eye on [the web site](https://learnkitura.com/) or [the GitHub repository](https://github.com/NocturnalSolutions/KituraBook) for more information when available.
+
 Pretty much any web application with more than a trivial level of complexity will be interfacing with a database. Consider a massive site like Wikipedia or a lowly WordPress blog; both are, when you get down to it, interfaces for a database of articles.
 
 There are various types of databases, but for historical reasons, the type most commonly used by web applications is SQL databases. It is certainly possible to connect to others from within Swift, such as key-value stores like Redis and NoSQL databases like CouchDB, but primarily due to the historical precedent (as well as my own familiarity), I will stick with covering SQL database connectivity for this book.

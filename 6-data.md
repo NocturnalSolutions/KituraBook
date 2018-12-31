@@ -1,5 +1,7 @@
 # Chapter 6: Publishing Data with JSON and XML
 
+> Note: This chapter covers the 2.x release of Kuery. The current 3.x release of Kuery greatly changes the Kuery API, and thus the code featured in this chapter will no longer work. A second edition of Kitura Until Dawn which will cover Kuery 3.x is under way. Please keep an eye on [the web site](https://learnkitura.com/) or [the GitHub repository](https://github.com/NocturnalSolutions/KituraBook) for more information when available.
+
 For the most part, our examples so far in this book have just been outputting plain text; printing unformatted data out to the client basically just so we can see that our code has been working correctly. In reality, very few web applications output plain text; they usually output either web pages to be viewed by humans, or structured data to be consumed by other applications. The web pages part will come next chapter; since it’s somewhat simpler to do and will tie in well with the database connectivity stuff we learned about in the last chapter, we’re going to cover the structured data part first.
 
 What is structured data? It is data formatted in a predictable way. Consider the output of our track list route handler from the previous chapter.

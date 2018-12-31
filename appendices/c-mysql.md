@@ -1,5 +1,7 @@
 # Appendix: Using MySQL with Kuery {#mysql-kuery}
 
+> Note: This chapter covers the 2.x release of Kuery. The current 3.x release of Kuery greatly changes the Kuery API, and thus the code featured in this chapter will no longer work. A second edition of Kitura Until Dawn which will cover Kuery 3.x is under way. Please keep an eye on [the web site](https://learnkitura.com/) or [the GitHub repository](https://github.com/NocturnalSolutions/KituraBook) for more information when available.
+
 What follows was originally part of the [standard Kuery chapter](5-kuery.md) of the book before I decided to rewrite it to use SQLite instead of MySQL, as the former is much simpler than the latter. It covers getting Kuery and MySQL to talk to each other. I include it for the benefit of those already familiar with MySQL who would prefer to continue using it rather than using SQLite. If that doesn’t sound like you, I strongly suggest sticking with using SQLite as outlined in the original chapter, as it's generally much simpler to work with.
 
 ## Building Projects with Kuery
