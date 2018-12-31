@@ -9,9 +9,19 @@ fromto["appendices/c-mysql.md"] = "#mysql-kuery"
 fromto["5-kuery.md"] = "#kuery"
 fromto["../5-kuery.md"] = "#kuery"
 
+imgfromto = {}
+imgfromto["content/images/cc-badge.png"] = "images/cc-badge.png"
+
 function Link (el)
   if fromto[el.target] then
     el.target = fromto[el.target]
+  end
+  return el
+end
+
+function Image (el)
+  if imgfromto[el.src] then
+    el.src = imgfromto[el.src]
   end
   return el
 end
