@@ -109,7 +109,7 @@ To properly add a library as a dependency of your project, you need to know thre
 2. The desired version of the code you wish to add to your project. In most cases, “version” is expressed as a tagged commit in the repository, and you may want to actually specify a *minimum* version; for example, “version 2.1.0 or later.”
 3. The name of the library. This is separate from the URL of the repository or other associated names, as will be shown later.
 
-Let’s say we want to create an app which interacts with an SQLite database (as we do in [chapter 5](../5-kuery.md)). So we want to add the [Swift-Kuery-SQLite](https://github.com/IBM-Swift/Swift-Kuery-SQLite) library to our “SPMTest” project. Let’s go over this step-by-step.
+Let’s say we want to create an app which interacts with an SQLite database (as we do in [chapter 5](../07-kuery.md)). So we want to add the [Swift-Kuery-SQLite](https://github.com/IBM-Swift/Swift-Kuery-SQLite) library to our “SPMTest” project. Let’s go over this step-by-step.
 
 1. First, check out the documentation for any special installation instructions. If the project is hosted on GitHub, as Swift-Kuery-SQLite is (and almost all other libraries you will use in the Kitura ecosystem will be), there may be special instructions on the front page of the repository. In this case there are special instructions on how to install SQLite to your system first.
 2. Once those special instructions, if any, are satisfied, open up the Package.swift file for your project. In the `dependencies` section, copy the commented-out line that begins with `// .package`, paste it on a new line right afterwards, then uncomment it. Your resultant `dependencies` section should appear as:

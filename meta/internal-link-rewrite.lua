@@ -6,8 +6,8 @@ fromto["a-savvy-devs.md"] = "#savvy-devs"
 fromto["appendices/b-spm.md"] = "#spm-intro"
 fromto["b-spm.md"] = "#spm-intro"
 fromto["appendices/c-mysql.md"] = "#mysql-kuery"
-fromto["5-kuery.md"] = "#kuery"
-fromto["../5-kuery.md"] = "#kuery"
+fromto["07-kuery.md"] = "#kuery"
+fromto["../07-kuery.md"] = "#kuery"
 
 imgfromto = {}
 imgfromto["content/images/cc-badge.png"] = "images/cc-badge.png"
