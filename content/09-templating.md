@@ -1,4 +1,4 @@
-# Chapter 7: Templating
+# Chapter 7: Templating {#templating}
 
 > Notice: The Gitbook version of this book has many formatting errors on this page. It appears that the system they are using is actually trying to parse some of the template syntax in inline code samples. For now, if you’re trying to read this online, try reading this chapter [on GitHub instead](https://github.com/NocturnalSolutions/KituraBook/blob/master/7-templating.md).
 
