@@ -3,7 +3,7 @@
 # Call from .git/hooks/pre-push
 
 # List of chapters, in order
-setenv MDLIST "../README.md `ls ../content/*.md ../content/appendices/*.md | sed -E -e 's/(README|SUMMARY|afterword).md//g' | paste -s -d ' ' -`"
+setenv MDLIST "../README.md `ls content/*.md content/appendices/*.md | sed -E -e 's/(README|SUMMARY|afterword).md//g' | sed -E -e 's/(.+)/..\/\1/g' | paste -s -d ' ' -`"
 # Filter to correct paths for Pandoc
 setenv FILTER "--lua-filter=../meta/internal-link-rewrite.lua"
 # Option to add TOC to certain document types that use it
@@ -13,7 +13,7 @@ setenv GEOM "-V geometry:top=1.5cm -V geometry:bottom=1.5cm -V geometry:left=2cm
 # Combined settings for PDF
 setenv PDFSETS "$TOCSETS $GEOM --include-in-header=../meta/tex-addons.tex -V fontfamily:bookman -V subparagraph --listings"
 
-cd ../content && pwd
+cd content && pwd
 
 pandoc -o ../ebooks/Kitura-Until-Dawn.pdf -V papersize:letter $FILTER $PDFSETS $MDLIST && echo "Letter size PDF exported"
 pandoc -o ../ebooks/Kitura-Until-Dawn-A4.pdf -V papersize:A4 $FILTER $PDFSETS $MDLIST && echo "A4 size PDF exported"
