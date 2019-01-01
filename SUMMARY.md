@@ -11,5 +11,7 @@
 * [7: Templating with Stencil](09-templating.md)
 * [8: Form Formalities](10-forms.md)
 * [9: User Sessions and Authentication](11-users.md)
+* [???: Automated Testing](???.md)
+* [???: Codable Routes](???.md)
 * [Appendix A: Cross-Platform Swift for Cocoa Developers: What to Learn (And Unlearn)](appendices/a-savvy-devs.md)
 * [Appendix B: Swift Package Manager Basics](appendices/b-spm.md)
