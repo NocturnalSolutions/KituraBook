@@ -148,7 +148,7 @@ An example should clarify things here. Inside that `Views` directory you created
     <title>My Music Collection: {% block pageTitle %}Oops - no title!{% endblock %}</title>
   </head>
   <body>
-    {% block pageContent %}Oops - no content!{% endBlock %}
+    {% block pageContent %}Oops - no content!{% endblock %}
   </body>
 </html>
 ```
